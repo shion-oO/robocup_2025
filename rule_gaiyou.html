@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>るる 概要ページ</title>
+  <style>
+    body {
+      font-family: 'Hiragino Sans','Noto Sans JP',sans-serif;
+      background: #f7f9fc;
+      padding: 20px;
+      color: #333;
+      line-height: 1.8;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .section-card {
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid #d0e6f9;
+      margin-bottom: 18px;
+      box-shadow: 0 6px 18px rgba(43,123,211,0.06);
+      transition: transform 0.3s;
+    }
+
+    .section-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .section-card > div:first-child {
+      background: #e3f2fd;
+      color: #000;
+      border-radius: 12px 12px 0 0;
+      padding: 10px 16px;
+      font-weight: bold;
+      border-bottom: 2px solid #fff;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      max-width: 900px;
+      font-family: inherit;
+      margin-top: 10px;
+    }
+
+    th, td {
+      border: 1px solid #bbb;
+      padding: 10px;
+      text-align: center;
+    }
+
+    thead tr {
+      background-color: #f0f8ff;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 概要 -->
+  <div class="section-card">
+    <div>📖 概要</div>
+    <div>
+      <p>・ロボットは、さまざまな模様のタイルでできたフィールドを進みながら、黒いラインをたどってゴールを目指します。</p>
+      <p>・フィールドの床は白く、段差のあるエリアが傾斜（スロープ）でつながっています。</p>
+      <p>・ロボットは自分で周囲の状況を判断しながら動く必要があり、チームがあらかじめコースの情報を教えることはできません。</p>
+    </div>
+  </div>
+
+  <!-- 得点の仕組み -->
+  <div class="section-card">
+    <div>🏅 得点の仕組み</div>
+    <div style="text-align:left;">
+      <ul>
+        <li>・交差点または行き止まりのタイルで正しい方向に進む<br>▶︎ <strong>10 ポイント</strong></li>
+        <li>・シーソータイルを乗り越える<br>▶︎ <strong>20 ポイント</strong></li>
+        <li>・障害物（レンガ・ブロック・重りなど）をうまく切り抜けて進む<br>▶︎ <strong>20 ポイント</strong></li>
+        <li>・1つ以上のギャップがあるタイルの後で黒線に戻る<br>▶︎ <strong>10 ポイント</strong></li>
+        <li>・傾斜路を上手に通過する（上り・下り成功）<br>▶︎ <strong>10 ポイント</strong></li>
+        <li>・スピードバンプのあるタイルをうまく通過する<br>▶︎ <strong>10 ポイント</strong></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 救助ゾーン -->
+  <div class="section-card">
+    <div>🔷 救助ゾーン（Rescue Zone）について</div>
+    <div>
+      <p>ロボットはコースを進んでいく途中で、<strong>救助ゾーン</strong>と呼ばれる部屋に入ることがあります。<br>
+      このゾーンは壁で囲まれた長方形のエリアで、入口と出口がそれぞれ次のように区別されます。</p>
+      <ul>
+        <li>🚪 <strong>入口：</strong>床に反射性のある銀色テープが貼られている</li>
+        <li>🚪 <strong>出口：</strong>床に黒いテープが貼られている</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 被災者の種類 -->
+  <div class="section-card">
+    <div>🧍‍♀️ 被災者（Victim）の種類</div>
+    <div>
+      <p>救助ゾーン内には「被災者」を表すボールが置かれています。<br>
+      ボールの大きさは直径4〜5cmほどで、重心が少しずれた構造になっています。<br>
+      ロボットはこの被災者を検出し、生存者を指定された避難場所まで搬送する必要があります。</p>
+      <p>被災者には2種類あり、それぞれ次のように区別されます👇</p>
+      <table>
+        <thead>
+          <tr>
+            <th>被災者の種類</th>
+            <th>特徴</th>
+            <th>状態</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>銀色<br>（導電性あり）</td>
+            <td>反射する素材</td>
+            <td>生存者<br>（生きている）</td>
+          </tr>
+          <tr>
+            <td>黒色<br>（導電性なし）</td>
+            <td>反射しない素材</td>
+            <td>死亡者<br>（亡くなっている）</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 得点について -->
+  <div class="section-card">
+    <div>🏅 得点について</div>
+    <div>
+      <p>ロボットが新しいチェックポイントに到達すると得点を獲得できます。<br>
+      万が一フィールド内で動けなくなっても、最後に到達したチェックポイントから再スタートが可能です。<br>
+      被災者を助けた順番や救出の正確さによっては、追加のポイント（乗数）が与えられることもあります。</p>
+      <p>救助ゾーン内の障害物や瓦礫を避けたり通過しただけでは得点にはなりません。</p>
+    </div>
+  </div>
+
+  <!-- 救助後の動き -->
+  <div class="section-card">
+    <div>🏁 救助後の動き</div>
+    <div>
+      <p>救出が終わったら、ロボットは黒線をたどりながらコースのゴールタイルまで進む必要があります。</p>
+    </div>
+  </div>
+
+</body>
+</html>
