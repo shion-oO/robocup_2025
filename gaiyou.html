@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>概要</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', sans-serif;
+      background-color: #f0f4f8;
+      margin: 0;
+      padding: 0;
+      color: #2c3e50;
+    }
+
+    header {
+      background-color: #3498db;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2em;
+    }
+
+    nav {
+      background-color: #ecf0f1;
+      padding: 10px 20px;
+    }
+
+    nav a {
+      color: #3498db;
+      text-decoration: none;
+      margin-right: 15px;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    main {
+      padding: 40px 20px;
+      max-width: 900px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    section {
+      margin-bottom: 40px;
+    }
+
+    h2 {
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 5px;
+      margin-bottom: 15px;
+    }
+
+    p {
+      line-height: 1.8;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #ecf0f1;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>概要</h1>
+  </header>
+
+  <nav>
+    <a href="robocup_home.html">トップページへ戻る</a>
+    <a href="koudoukihann.html">行動規範</a>
+    <a href="field.html">フィールド</a>
+    <a href="robot.html">ロボット</a>
+    <a href="kyougi.html">競技</a>
+    <!--<a href="programming.html">プログラミングの基礎</a>-->
+  </nav>
+
+  <!-- 概要 -->
+      <div class="section-card" style="background:#fff;border-radius:12px;border:1px solid #e3f2fd;margin-bottom:18px;box-shadow:0 6px 18px rgba(43,123,211,0.06);transition:transform 0.3s;">
+        <div style="background:#e3f2fd;color:#000;border-radius:12px 12px 0 0;padding:10px 16px;font-weight:bold;border-bottom:2px solid #fff;">📖 概要</div>
+        <div style="padding:16px;">
+          <p>・ロボットは、さまざまな模様のタイルでできたフィールドを進みながら、黒いラインをたどってゴールを目指します。</p>
+          <p>・フィールドの床は白く、段差のあるエリアが傾斜（スロープ）でつながっています。</p>
+          <p>・ロボットは自分で周囲の状況を判断しながら動く必要があり、チームがあらかじめコースの情報を教えることはできません。</p>
+        </div>
+      </div>
+
+      <!-- 得点の仕組み -->
+      <div class="section-card" style="background:#fff;border-radius:12px;border:1px solid #e3f2fd;margin-bottom:18px;box-shadow:0 6px 18px rgba(43,123,211,0.06);transition:transform 0.3s;">
+        <div style="background:#e3f2fd;color:#000;border-radius:12px 12px 0 0;padding:10px 16px;font-weight:bold;border-bottom:2px solid #fff;">🏅 得点の仕組み</div>
+        <div style="padding:16px;text-align:left;">
+          <ul style="list-style:none;padding-left:0;margin:0;">
+            <li>・交差点または行き止まりのタイルで正しい方向に進む<br>
+  ▶︎<strong>10 ポイント</strong></li>
+            <li>・シーソータイルを乗り越える<br>▶︎<strong>20 ポイント</strong></li>
+            <li>・障害物（レンガ・ブロック・重りなど）をうまく切り抜けて進む<br>▶︎<strong>20 ポイント</strong></li>
+            <li>・1つ以上のギャップがあるタイルの後で黒線に戻る<br>▶︎<strong>10 ポイント</strong></li>
+            <li>・傾斜路を上手に通過する（上り・下り成功）<br>▶︎<strong>10 ポイント</strong></li>
+            <li>・スピードバンプのあるタイルをうまく通過する<br>▶︎<strong>10 ポイント</strong></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 救助ゾーン -->
+      <div class="section-card" style="background:#fff;border-radius:12px;border:1px solid #d0e6f9;margin-bottom:18px;box-shadow:0 6px 18px rgba(43,123,211,0.06);transition:transform 0.3s;">
+        <div style="background:#e3f2fd;color:#000;border-radius:12px 12px 0 0;padding:10px 16px;font-weight:bold;border-bottom:2px solid #fff;">🔷 救助ゾーン（Rescue Zone）について</div>
+        <div style="padding:16px;">
+          <p>ロボットはコースを進んでいく途中で、<strong>救助ゾーン</strong>と呼ばれる部屋に入ることがあります。<br>
+          このゾーンは壁で囲まれた長方形のエリアで、入口と出口がそれぞれ次のように区別されます。</p>
+
+          <ul style="list-style:none;padding-left:0;">
+            <li>🚪 <strong>入口：</strong>床に反射性のある銀色テープが貼られている</li>
+            <li>🚪 <strong>出口：</strong>床に黒いテープが貼られている</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- 被災者の種類 -->
+      <div class="section-card" style="background:#fff;border-radius:12px;border:1px solid #d0e6f9;margin-bottom:18px;box-shadow:0 6px 18px rgba(43,123,211,0.06);transition:transform 0.3s;">
+        <div style="background:#e3f2fd;color:#000;border-radius:12px 12px 0 0;padding:10px 16px;font-weight:bold;border-bottom:2px solid #fff;">🧍‍♀️ 被災者（Victim）の種類</div>
+        <div style="padding:16px;">
+          <p>救助ゾーン内には「被災者」を表すボールが置かれています。<br>
+          ボールの大きさは直径4〜5cmほどで、重心が少しずれた構造になっています。<br>
+          ロボットはこの被災者を検出し、生存者を指定された避難場所まで搬送する必要があります。</p>
+
+          <p>被災者には2種類あり、それぞれ次のように区別されます👇</p>
+
+          <table role="table" style="border-collapse:collapse;width:100%;max-width:900px;font-family:inherit;margin-top:10px;">
+            <thead>
+              <tr style="background-color:#f0f8ff;">
+                <th style="border:1px solid #bbb;padding:10px;text-align:center;">被災者の種類</th>
+                <th style="border:1px solid #bbb;padding:10px;text-align:center;">特徴</th>
+                <th style="border:1px solid #bbb;padding:10px;text-align:center;">状態</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="border:1px solid #bbb;padding:10px;text-align:center;">銀色<br>（導電性あり）</td>
+                <td style="border:1px solid #bbb;padding:10px;text-align:center;">反射する素材</td>
+                <td style="border:1px solid #bbb;padding:10px;text-align:center;">生存者<br>（生きている）</td>
+              </tr>
+              <tr>
+                <td style="border:1px solid #bbb;padding:10px;text-align:center;">黒色<br>（導電性なし）</td>
+                <td style="border:1px solid #bbb;padding:10px;text-align:center;">反射しない素材</td>
+                <td style="border:1px solid #bbb;padding:10px;text-align:center;">死亡者<br>（亡くなっている）</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 得点について -->
+      <div class="section-card" style="background:#fff;border-radius:12px;border:1px solid #d0e6f9;margin-bottom:18px;box-shadow:0 6px 18px rgba(43,123,211,0.06);transition:transform 0.3s;">
+        <div style="background:#e3f2fd;color:#000;border-radius:12px 12px 0 0;padding:10px 16px;font-weight:bold;border-bottom:2px solid #fff;">🏅 得点について</div>
+        <div style="padding:16px;">
+          <p>ロボットが新しいチェックポイントに到達すると得点を獲得できます。<br>
+          万が一フィールド内で動けなくなっても、最後に到達したチェックポイントから再スタートが可能です。<br>
+          被災者を助けた順番や救出の正確さによっては、追加のポイント（乗数）が与えられることもあります。</p>
+          <p>救助ゾーン内の障害物や瓦礫を避けたり通過しただけでは得点にはなりません。</p>
+        </div>
+      </div>
+
+      <!-- 救助後の動き -->
+      <div class="section-card" style="background:#fff;border-radius:12px;border:1px solid #d0e6f9;margin-bottom:18px;box-shadow:0 6px 18px rgba(43,123,211,0.06);transition:transform:0.3s;">
+        <div style="background:#e3f2fd;color:#000;border-radius:12px 12px 0 0;padding:10px 16px;font-weight:bold;border-bottom:2px solid #fff;">🏁 救助後の動き</div>
+        <div style="padding:16px;">
+          <p>救出が終わったら、ロボットは黒線をたどりながらコースのゴールタイルまで進む必要があります。</p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 ロボカップジュニア</p>
+  </footer>
+
+</body>
+</html>
