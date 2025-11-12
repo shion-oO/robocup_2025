@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>フィールド</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', sans-serif;
+      background-color: #f0f4f8;
+      margin: 0;
+      padding: 0;
+      color: #2c3e50;
+    }
+
+    header {
+      background-color: #3498db;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2em;
+    }
+
+    nav {
+      background-color: #ecf0f1;
+      padding: 10px 20px;
+    }
+
+    nav a {
+      color: #3498db;
+      text-decoration: none;
+      margin-right: 15px;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    main {
+      padding: 40px 20px;
+      max-width: 900px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    section {
+      margin-bottom: 40px;
+    }
+
+    h2 {
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 5px;
+      margin-bottom: 15px;
+    }
+
+    p {
+      line-height: 1.8;
+    }
+
+    pre {
+      background-color: #f4f4f4;
+      padding: 15px;
+      border-radius: 5px;
+      font-family: monospace;
+      overflow-x: auto;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #ecf0f1;
+      margin-top: 20px;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    h3 {
+      color: #2c3e50;
+      margin-top: 20px;
+    }
+
+    /* レスキューフィールド用の簡易スタイル */
+    .section-box {
+      background: #fff;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 16px;
+      transition: transform 0.2s;
+    }
+    .section-box:hover {
+      transform: translateY(-5px);
+    }
+    .section-box .title {
+      background: #e3f2fd;
+      color: #000;
+      font-weight: bold;
+      padding: 10px 16px;
+      border-radius: 12px 12px 0 0;
+      border-bottom: 3px solid #fff;
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    .section-box img, .section-box iframe {
+      display: block;
+      width: 80%;
+      margin: 24px auto;
+      border-radius: 10px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>フィールド</h1>
+  </header>
+
+  <nav>
+    <a href="robocup_home.html">トップページへ戻る</a>
+    <a href="gaiyou.html">概要</a>
+    <a href="koudoukihann.html">行動規範</a>
+    <a href="robot.html">ロボット</a>
+    <a href="kyougi.html">競技</a>
+  </nav>
+
+  <main>
+
+    <!-- レスキューロボット競技フィールド説明を追加 -->
+    <div class="section-box">
+      <div class="title">🗺️ 競技フィールドについて</div>
+      <div>
+        ・フィールドは、さまざまなパターンの 30 cm x 30 cm のタイルで構成されます。競技運営者はタイルの最終選択とその配置を競技当日まで明らかにしません。<br>
+        ・競技フィールドには、スタートタイルとゴールタイルを除き、少なくとも 8 枚のタイルを設定します。
+      </div>
+    </div>
+
+    <div class="section-box">
+      <div class="title">🏁 床</div>
+      <div>
+        ・床は白色です。床は滑らかな床または凹凸のある床(リノリウムやカーペットなど)のいずれかで、タイル間に高さ3mmまでの段差がある場合があります。<br>
+        ・競技者は、タイルが高い台の上に取り付けられていたり、床から持ち上げられていたりするため、コースから外れてしまったロボットは、タイルに戻るのが困難になる可能性があることに注意する必要があります。<br>
+        ・ロボットは、他のタイルの上に橋を形成するタイルの下を移動できるように設計されていなければなりません。各タイルの出入り口は25cm、最低高さ(床と天井の間のスペース)は25cmです。
+      </div>
+    </div>
+
+    <div class="section-box">
+      <div class="title">⬛ 黒線</div>
+      <div>
+        ・幅1〜2cmの黒線は、電気絶縁テープや印刷素材で作成されます。黒線が床に道を形成します。<br>
+        ・黒線の直線部分にはギャップが設置される場合があります。ギャップの長さは最大20cmで、各ギャップの前に少なくとも5cmの直線があります。<br>
+        ・タイルと経路の配置はラウンドごとに異なる場合があります。<br>
+        ・黒線はフィールドの端・壁・障害物から10cm離れた位置に配置します。<br>
+        ・黒線はゴールタイルで終了し、中央に赤いテープ(25mm×300mm)が貼られています。
+        <iframe src="https://drive.google.com/file/d/1nSIIGYiLOoj2QnYVomIWaxVDKiOOhz5t/preview"
+            width="440"
+            height="220"></iframe>
+      </div>
+    </div>
+
+    <!-- 他のセクションも同様にコピー -->
+    <div class="section-box">
+      <div class="title">📍 チェックポイント</div>
+      <div>
+        ・競技進行停止が発生した場合にロボットが手動で戻されるタイルです。<br>
+        ・得点要素のあるタイルには配置されません。<br>
+        ・スタートタイルも再スタート可能なチェックポイントです。<br>
+        ・マーカーは厚さ5〜12mm、直径70mmまでの円形が使用されます。<br>
+        ・数と位置は運営者によって決定されます。
+      </div>
+    </div>
+
+    <div class="section-box">
+      <div class="title">🧱 スピードバンプ・瓦礫・障害物</div>
+      <div>
+        ・スピードバンプは高さ1cm以下で白色です。黒線と重なる部分は黒く塗られます。<br>
+        ・瓦礫は高さ最大3mmで固定されず、小さな木片などで構成されます。<br>
+        ・障害物は高さ15cm以上で固定可能です。ロボットは回避または押しても構いません。<br>
+        ・障害物は端から25cm以内や傾斜付近には設置されません。<br>
+        ・救助ゾーン内の障害物は得点になりません。
+      </div>
+    </div>
+
+       <div class="section-box">
+      <div class="title">🔀 交差点と行き止まり</div>
+      <div>
+        ・救助ゾーンを除くどこにでも交差点を設置できます。<br>
+        ・交差点マーカーは緑色で25mm×25mm、進行方向を示します。<br>
+        ・マーカーがない場合は直進します。<br>
+        ・行き止まりは2つの緑マーカー（線の両側）で示され、Uターンが必要です。<br>
+        ・交差点は三叉路・十字路の形があり、常に黒線は垂直です。<br>
+        ・交差点マーカーは交差点の直前に設置されます。<br>
+        <iframe src="https://drive.google.com/file/d/1O24QokNuQfcaQimI_7l1fB1kYDLrH1Ax/preview"
+            width="480"
+            height="320"></iframe>
+        <iframe src="https://drive.google.com/file/d/1pD15pVkA9JhJMsC0VblAE4TbaS8iVJKP/preview"
+            width="480"
+            height="320"></iframe>
+      </div>
+    </div>
+
+    <div class="section-box">
+      <div class="title">⛰️ 傾斜路</div>
+      <div>
+        ・タイルを使って上り・下りができるようにします。角度は最大25度。<br>
+        ・複数のタイルで構成されても1つの傾斜路としてカウント。<br>
+        ・黒線上にギャップ・交差点・障害物などが設置されることもあります。
+      </div>
+    </div>
+
+    <div class="section-box">
+      <div class="title">⚖️ シーソー</div>
+      <div>
+        ・中央のヒンジを中心に回転できるタイルです。<br>
+        ・傾きは20度未満で、直線形状。<br>
+        ・得点要素は存在しません。<br>
+        <iframe src="https://drive.google.com/file/d/1O5UP_hg52of1LdeS3AjHhsin9BhOQNkL/preview"
+            width="480"
+            height="320"></iframe>
+      </div>
+    </div>
+
+    <div class="section-box">
+      <div class="title">🚑 救助ゾーン</div>
+      <div>
+        ・黒線は救助ゾーンの入り口で終わり、出口から再び始まります。<br>
+        ・救助ゾーンは120cm×90cmで高さ10cm以上の壁に囲まれています。<br>
+        ・入口は銀テープ、出口は黒テープが貼られます。<br>
+        ・生存者と死亡者の避難場所（赤・緑三角形）があります。<br>
+        ・障害物は設置される場合がありますが得点対象外です。<br>
+        <iframe src="https://drive.google.com/file/d/1MsFtxk8GBHcv56guDDQDkQSv4SADmQOi/preview"
+            width="480"
+            height="320"></iframe>
+      </div>
+    </div>
+
+    <div class="section-box">
+      <div class="title">🧍 被災者</div>
+      <div>
+        ・直径4〜5cm、最大80gのボール状。重心は偏っています。<br>
+        ・死亡者は黒く導電性なし、生存者は銀色で反射・導電性あり。<br>
+        ・救助ゾーンに生存者2、死亡者1がランダム配置されます。
+      </div>
+    </div>
+
+    <div class="section-box">
+      <div class="title">🌤️ 環境条件</div>
+      <div>
+        ・競技会と練習場の環境が異なる可能性を想定しておきましょう。<br>
+        ・照明・磁気の影響に注意。干渉に対応できる設計が必要です。<br>
+        ・観客のフラッシュなどの光干渉にも備えましょう。<br>
+        ・すべての測定値の許容誤差は±10%です。
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    <p>&copy; 2025 ロボカップジュニア</p>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>交差点付きライントレース</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', sans-serif;
+      background-color: #f0f4f8;
+      margin: 0;
+      padding: 0;
+      color: #2c3e50;
+    }
+
+    header {
+      background-color: #3498db;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2em;
+    }
+
+    nav {
+      background-color: #ecf0f1;
+      padding: 10px 20px;
+      text-align: center;
+    }
+
+    nav a {
+      color: #3498db;
+      text-decoration: none;
+      margin: 0 15px;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    main {
+      padding: 40px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    video {
+      width: 100%;
+      max-width: 640px;
+      border-radius: 10px;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .caption {
+      margin-top: 12px;
+      font-size: 16px;
+      color: #444;
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    h2 {
+      color: #3498db;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 5px;
+      margin-top: 40px;
+    }
+
+    .code-section {
+      display: flex;
+      gap: 20px;
+      margin-top: 20px;
+      margin-bottom: 60px;
+      flex-wrap: wrap;
+    }
+
+    .code-box {
+      flex: 1;
+      min-width: 400px;
+      background: #f7f9fb;
+      border-radius: 10px;
+      padding: 20px;
+      overflow-x: auto;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    pre {
+      margin: 0;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #333;
+    }
+
+    .desc-box {
+      flex: 1;
+      min-width: 400px;
+      background: #eaf4fc;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .desc-box p {
+      margin-bottom: 10px;
+      line-height: 1.6;
+    }
+
+    /* ▼ 学習セクション ▼ */
+    .learn-section {
+      margin-top: 60px;
+      background-color: #f7f9fb;
+      padding: 40px 30px;
+      border-radius: 10px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+
+    .learn-section h2 {
+      text-align: center;
+      font-size: 1.8em;
+      color: #3498db;
+      border-bottom: none;
+      margin-bottom: 20px;
+    }
+
+    .learn-section p {
+      font-size: 1.1em;
+      line-height: 1.8;
+      color: #2c3e50;
+      margin-bottom: 15px;
+    }
+
+    .learn-list {
+      list-style: decimal;
+      padding-left: 25px;
+      font-size: 1.05em;
+      line-height: 1.8;
+    }
+
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>交差点付きライントレース</h1>
+  </header>
+
+  <nav>
+    <a href="robocup_home.html">トップページへ戻る</a>
+    <a href="gaiyou.html">概要</a>
+    <a href="sensor.html">センサーの使い方</a>
+    <a href="rescue.html">レスキューシナリオ</a>
+    <a href="programming.html">プログラミングの基礎</a>
+  </nav>
+
+  <main>
+    <video controls>
+      <source src="linetrace.mp4" type="video/mp4">
+      お使いのブラウザは動画再生に対応していません。
+    </video>
+    <div class="caption">
+      緑の交差点を検知して、進行方向を判断するロボットの動画です。
+    </div>
+
+    <h2>intersection_linetrace.py</h2>
+    <div class="code-section">
+      <div class="code-box">
+        <pre><code>import cv2
+import numpy as np
+import time
+
+# カメラの起動
+cap = cv2.VideoCapture(0)
+
+while True:
+    ret, frame = cap.read()
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
+    # 緑色の範囲を定義
+    lower_green = np.array([35, 80, 80])
+    upper_green = np.array([85, 255, 255])
+    mask = cv2.inRange(hsv, lower_green, upper_green)
+
+    # 緑検知時の動作
+    if cv2.countNonZero(mask) > 500:
+        print("交差点を検知 → 右折動作を実行中")
+        time.sleep(1)
+    else:
+        print("通常ライントレース中...")
+
+    cv2.imshow("Intersection Line Trace", frame)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
+</code></pre>
+      </div>
+
+      <div class="desc-box">
+        <h3>(プログラムの説明)</h3>
+        <p><b>1️⃣ 緑検知：</b> HSV色空間で緑色の範囲を抽出し、交差点位置を検出します。</p>
+        <p><b>2️⃣ 動作判断：</b> 緑を見つけたら右折動作を実行し、方向転換を行います。</p>
+        <p><b>3️⃣ 通常走行：</b> 緑が見つからない場合は白黒ラインの追従を続けます。</p>
+      </div>
+    </div>
+
+
+        <video controls>
+      <source src="linetrace.mp4" type="video/mp4">
+      お使いのブラウザは動画再生に対応していません。
+    </video>
+    <div class="caption">
+      緑の交差点を検知して、進行方向を判断するロボットの動画です。
+    </div>
+
+        <h2>intersection_linetrace.py</h2>
+    <div class="code-section">
+      <div class="code-box">
+        <pre><code>import cv2
+import numpy as np
+import time
+
+# カメラの起動
+cap = cv2.VideoCapture(0)
+
+while True:
+    ret, frame = cap.read()
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
+    # 緑色の範囲を定義
+    lower_green = np.array([35, 80, 80])
+    upper_green = np.array([85, 255, 255])
+    mask = cv2.inRange(hsv, lower_green, upper_green)
+
+    # 緑検知時の動作
+    if cv2.countNonZero(mask) > 500:
+        print("交差点を検知 → 右折動作を実行中")
+        time.sleep(1)
+    else:
+        print("通常ライントレース中...")
+
+    cv2.imshow("Intersection Line Trace", frame)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
+</code></pre>
+      </div>
+
+      <div class="desc-box">
+        <h3>(プログラムの説明)</h3>
+        <p><b>1️⃣ 緑検知：</b> HSV色空間で緑色の範囲を抽出し、交差点位置を検出します。</p>
+        <p><b>2️⃣ 動作判断：</b> 緑を見つけたら右折動作を実行し、方向転換を行います。</p>
+        <p><b>3️⃣ 通常走行：</b> 緑が見つからない場合は白黒ラインの追従を続けます。</p>
+      </div>
+    </div>
+
+        <video controls>
+      <source src="linetrace.mp4" type="video/mp4">
+      お使いのブラウザは動画再生に対応していません。
+    </video>
+    <div class="caption">
+      緑の交差点を検知して、進行方向を判断するロボットの動画です。
+    </div>
+
+
+        <h2>intersection_linetrace.py</h2>
+    <div class="code-section">
+      <div class="code-box">
+        <pre><code>import cv2
+import numpy as np
+import time
+
+# カメラの起動
+cap = cv2.VideoCapture(0)
+
+while True:
+    ret, frame = cap.read()
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
+    # 緑色の範囲を定義
+    lower_green = np.array([35, 80, 80])
+    upper_green = np.array([85, 255, 255])
+    mask = cv2.inRange(hsv, lower_green, upper_green)
+
+    # 緑検知時の動作
+    if cv2.countNonZero(mask) > 500:
+        print("交差点を検知 → 右折動作を実行中")
+        time.sleep(1)
+    else:
+        print("通常ライントレース中...")
+
+    cv2.imshow("Intersection Line Trace", frame)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
+</code></pre>
+      </div>
+
+      <div class="desc-box">
+        <h3>(プログラムの説明)</h3>
+        <p><b>1️⃣ 緑検知：</b> HSV色空間で緑色の範囲を抽出し、交差点位置を検出します。</p>
+        <p><b>2️⃣ 動作判断：</b> 緑を見つけたら右折動作を実行し、方向転換を行います。</p>
+        <p><b>3️⃣ 通常走行：</b> 緑が見つからない場合は白黒ラインの追従を続けます。</p>
+      </div>
+    </div>
+
+
+    <!-- ▼ 学習のやり方セクション ▼ -->
+    <div class="learn-section">
+      <h2>📘 学習のやり方</h2>
+      <p>交差点付きライントレースの学習では、次の手順で練習を進めましょう。</p>
+      <ol class="learn-list">
+        <li><b>1. 緑検知の確認：</b> 緑のテープを設置し、カメラが正確に認識できるか確認します。</li>
+        <li><b>2. 動作テスト：</b> 緑を検出した際に右折・左折など正しい動作ができるか試します。</li>
+        <li><b>3. 判定調整：</b> 照明やカメラの角度によって認識精度が変化するため、閾値を微調整します。</li>
+        <li><b>4. 応用練習：</b> 複数の交差点を設置して、連続的な判断と制御を試みましょう。</li>
+      </ol>
+      <p>緑のマーカーを「指示信号」として扱うことで、より高度な自律走行制御に近づけます。</p>
+    </div>
+
+  </main>
+
+</body>
+</html>

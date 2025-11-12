@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ロボット</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', sans-serif;
+      background-color: #f0f4f8;
+      margin: 0;
+      padding: 0;
+      color: #2c3e50;
+    }
+
+    header {
+      background-color: #3498db;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2em;
+    }
+
+    nav {
+      background-color: #ecf0f1;
+      padding: 10px 20px;
+    }
+
+    nav a {
+      color: #3498db;
+      text-decoration: none;
+      margin-right: 15px;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    main {
+      padding: 40px 20px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .section {
+      background: #fff;
+      border-radius: 12px;
+      margin-bottom: 25px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: default;
+    }
+
+    .section:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+    }
+
+    .title {
+      background: #e3f2fd;
+      color: #000;
+      font-weight: bold;
+      padding: 12px 18px;
+      border-radius: 12px 12px 0 0;
+      font-size: 18px;
+      border-bottom: 2px solid #fff;
+    }
+
+    .content {
+      padding: 20px 25px;
+      font-size: 16px;
+      color: #444;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 1.2em;
+      line-height: 1.8;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #ecf0f1;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>ロボット</h1>
+  </header>
+
+  <nav>
+    <a href="robocup_home.html">トップページへ戻る</a>
+    <a href="gaiyou.html">概要</a>
+    <a href="koudoukihann.html">行動規範</a>
+    <a href="field.html">フィールド</a>
+    <a href="kyougi.html">競技</a>
+  </nav>
+
+  <main>
+    <!-- 🤖 制御 -->
+    <div class="section">
+      <div class="title">🤖 制御（Control）</div>
+      <div class="content">
+        <ul>
+          <li>ロボットは自律制御で動作しなければならない。</li>
+          <li>遠隔操作や外部からの情報送信は禁止。</li>
+          <li>スタートはチームキャプテンが手動で行う。</li>
+          <li>事前にマップされた動きは禁止。</li>
+          <li>フィールドを損傷する行為は禁止。</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 🛠️ 構築 -->
+    <div class="section">
+      <div class="title">🛠️ 構築（Construction）</div>
+      <div class="content">
+        <ul>
+          <li>ロボットは生徒自身のオリジナル作品であること。</li>
+          <li>課題に特化した市販キットやセンサーの使用は禁止。</li>
+          <li>レーザーは class 1 または class 2 のみ、データシート提出必須。</li>
+          <li>無線通信はロボット内部またはチーム内のみ許可（Bluetooth/ZigBee）。</li>
+          <li>衝突・転落に耐えられる安全な保護が必要。</li>
+          <li>持ち上げ用ハンドルと明確なスタート/ストップスイッチを設置。</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 👥 チーム -->
+    <div class="section">
+      <div class="title">👥 チーム（Team）</div>
+      <div class="content">
+        <ul>
+          <li>フィールド上で使用できるロボットは1台のみ。</li>
+          <li>各メンバーは自分の役割を説明できること。</li>
+          <li>1人が複数チームに登録することは禁止。</li>
+          <li>Rescue Lineは最大2回まで出場可能。</li>
+          <li>競技中、メンターや保護者はチームと同行できない。</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 🔍 検査 -->
+    <div class="section">
+      <div class="title">🔍 検査（Inspection）</div>
+      <div class="content">
+        <ul>
+          <li>審判は競技前および競技中にロボットを検査する。</li>
+          <li>他チームのロボットを流用・模倣することは禁止。</li>
+          <li>競技中に変更を加えた場合は再検査必須。</li>
+          <li>チームメンバーは動作原理や準備内容を説明できること。</li>
+          <li>技術文書、ソースコード、ジャーナル、ポスターを提出（期限：競技3週間前）。</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ⚠️ 違反 -->
+    <div class="section">
+      <div class="title">⚠️ 違反（Violation）</div>
+      <div class="content">
+        <ul>
+          <li>不適合が見つかった場合は修正・再検査まで競技に参加不可。</li>
+          <li>修正は大会スケジュール内で行う。</li>
+          <li>規定を満たさないロボットは競技失格。</li>
+          <li>競技中のメンターによる援助は禁止。</li>
+          <li>ルール違反は減点・失格・大会失格の可能性あり。</li>
+        </ul>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 ロボカップジュニア</p>
+  </footer>
+
+</body>
+</html>

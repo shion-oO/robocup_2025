@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>傾斜路</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', sans-serif;
+      background-color: #f0f4f8;
+      margin: 0;
+      padding: 0;
+      color: #2c3e50;
+    }
+
+    header {
+      background-color: #3498db;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2em;
+    }
+
+    nav {
+      background-color: #ecf0f1;
+      padding: 10px 20px;
+      text-align: center;
+    }
+
+    nav a {
+      color: #3498db;
+      text-decoration: none;
+      margin: 0 15px;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    main {
+      padding: 40px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    video {
+      width: 100%;
+      max-width: 640px;
+      border-radius: 10px;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .caption {
+      margin-top: 12px;
+      font-size: 16px;
+      color: #444;
+      text-align: center;
+    }
+
+    h2 {
+      color: #3498db;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 5px;
+      margin-top: 40px;
+    }
+
+    .code-section {
+      display: flex;
+      gap: 20px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .code-box {
+      flex: 1;
+      min-width: 400px;
+      background: #f7f9fb;
+      border-radius: 10px;
+      padding: 20px;
+      overflow-x: auto;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    pre {
+      margin: 0;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #333;
+    }
+
+    .desc-box {
+      flex: 1;
+      min-width: 400px;
+      background: #eaf4fc;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .desc-box p {
+      margin-bottom: 10px;
+      line-height: 1.6;
+    }
+
+    /* ▼ 学習セクション ▼ */
+    .learn-section {
+      margin-top: 60px;
+      background-color: #f7f9fb;
+      padding: 40px 30px;
+      border-radius: 10px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+
+    .learn-section h2 {
+      text-align: center;
+      font-size: 1.8em;
+      color: #3498db;
+      border-bottom: none;
+      margin-bottom: 20px;
+    }
+
+    .learn-section p {
+      font-size: 1.1em;
+      line-height: 1.8;
+      color: #2c3e50;
+      margin-bottom: 15px;
+    }
+
+    .learn-list {
+      list-style: decimal;
+      padding-left: 25px;
+      font-size: 1.05em;
+      line-height: 1.8;
+    }
+
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>傾斜路</h1>
+  </header>
+
+  <nav>
+    <a href="robocup_home.html">トップページへ戻る</a>
+    <a href="gaiyou.html">概要</a>
+    <a href="sensor.html">センサーの使い方</a>
+    <a href="rescue.html">レスキューシナリオ</a>
+    <a href="programming.html">プログラミングの基礎</a>
+  </nav>
+
+  <main>
+    <video controls>
+      <source src="linetrace.mp4" type="video/mp4">
+      お使いのブラウザは動画再生に対応していません。
+    </video>
+    <div class="caption">
+    ロボットが傾斜路を走行する様子を撮影した動画です。
+
+    </div>
+
+    <h2>linetrace.py</h2>
+    <div class="code-section">
+      <div class="code-box">
+        <pre><code># OpenCVライブラリを使用して画像処理を行うためにインポート
+import cv2
+import numpy as np
+from picamera2 import Picamera2
+from etrobo_python import ETRobo, Motor
+import time
+
+cam0 = Picamera2(0)
+cam0.configure(cam0.create_preview_configuration(main={"format": 'XRGB8888', "size": (320, 240)}))
+cam0.start()
+time.sleep(1)
+
+cam1 = Picamera2(1)
+cam1.configure(cam1.create_preview_configuration(main={"format": 'XRGB8888', "size": (320, 240)}))
+cam1.start()
+time.sleep(1)
+
+last_direction = "CENTER"
+
+def get_direction(frame, last_direction):
+    hsv = cv2.cvtColor(frame, cv2.COLOR_RGB2HSV)
+    lower_black = (0, 0, 0)
+    upper_black = (180, 255, 80)
+    mask = cv2.inRange(hsv, lower_black, upper_black)
+    mask = cv2.GaussianBlur(mask, (5, 5), 0)
+    height, width = mask.shape
+    roi_bottom = mask[height-40:height, :]
+    contours, _ = cv2.findContours(roi_bottom, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    direction = last_direction
+    if contours:
+        cx = np.mean([cv2.moments(c)["m10"]/cv2.moments(c)["m00"] for c in contours if cv2.moments(c)["m00"] != 0])
+        if cx < width//2 - 20:
+            direction = "LEFT"
+        elif cx > width//2 + 20:
+            direction = "RIGHT"
+        else:
+            direction = "CENTER"
+    return direction
+
+def line_trace_by_camera(right_motor: Motor, left_motor: Motor, **kwargs):
+    global last_direction
+    try:
+        frame0 = cam0.capture_array()
+        direction = get_direction(frame0, last_direction)
+        last_direction = direction
+        print("進行方向:", direction)
+        base_speed = 90 if direction == "CENTER" else 50
+        diff = 55
+        if direction == "LEFT":
+            right_motor.set_power(base_speed + diff)
+            left_motor.set_power(base_speed - diff)
+        elif direction == "RIGHT":
+            right_motor.set_power(base_speed - diff)
+            left_motor.set_power(base_speed + diff)
+        else:
+            right_motor.set_power(base_speed)
+            left_motor.set_power(base_speed)
+    except Exception as e:
+        print("エラー:", e)
+
+if __name__ == "__main__":
+    robo = (ETRobo(backend='raspike_art')
+            .add_device('right_motor', device_type=Motor, port='A')
+            .add_device('left_motor', device_type=Motor, port='B')
+            .add_handler(line_trace_by_camera))
+    robo.dispatch(interval=0.05)
+</code></pre>
+      </div>
+
+      <div class="desc-box">
+        <h3>(プログラムの説明)</h3>
+        <p>このプログラムは、カメラで黒線を認識しながら走行するロボットの制御を行います。</p>
+        <p><b>1️⃣ カメラ設定：</b> 2台のカメラを起動し、映像を取得できるようにします。</p>
+        <p><b>2️⃣ 画像処理：</b> OpenCVで黒線を検出し、重心位置から進行方向（左・右・中央）を判定します。</p>
+        <p><b>3️⃣ モーター制御：</b> 進行方向に応じて左右のモーター出力を調整し、ライン上を走行します。</p>
+        <p><b>4️⃣ 実行部分：</b> ETRoboライブラリを使い、0.05秒ごとに制御関数を呼び出します。</p>
+        <p>これにより、ロボットは黒線を追いかけるように自動で進むことができます。</p>
+      </div>
+    </div>
+
+    <!-- ▼ 学習のやり方セクション ▼ -->
+    <div class="learn-section">
+      <h2>📘 学習のやり方</h2>
+      <p>傾斜路の学習では、次の手順で理解を深めましょう。</p>
+      <ol class="learn-list">
+        <li><b>1. 動作の確認：</b> まずは動画を見て、ロボットがどのように黒線をたどるか観察します。</li>
+        <li><b>2. コードの理解：</b> 各関数の役割（カメラ取得・画像処理・モーター制御）を順に読み解きます。</li>
+        <li><b>3. 実験と調整：</b> 黒線の太さやカメラの位置を変えて、プログラムの反応を試してみましょう。</li>
+        <li><b>4. 応用：</b> 速度やカーブ処理の調整、または交差点対応の改良などを行ってみます。</li>
+      </ol>
+      <p>実際にロボットを動かしながら学ぶことで、「センサー」と「プログラム制御」の関係を深く理解できます。</p>
+    </div>
+
+  </main>
+
+</body>
+</html>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ゴールタイル</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', sans-serif;
+      background-color: #f0f4f8;
+      margin: 0;
+      padding: 0;
+      color: #2c3e50;
+    }
+
+    header {
+      background-color: #3498db;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2em;
+    }
+
+    nav {
+      background-color: #ecf0f1;
+      padding: 10px 20px;
+      text-align: center;
+    }
+
+    nav a {
+      color: #3498db;
+      text-decoration: none;
+      margin: 0 15px;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    main {
+      padding: 40px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    video {
+      width: 100%;
+      max-width: 640px;
+      border-radius: 10px;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .caption {
+      margin-top: 12px;
+      font-size: 16px;
+      color: #444;
+      text-align: center;
+    }
+
+    h2 {
+      color: #3498db;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 5px;
+      margin-top: 40px;
+    }
+
+    .code-section {
+      display: flex;
+      gap: 20px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .code-box {
+      flex: 1;
+      min-width: 400px;
+      background: #f7f9fb;
+      border-radius: 10px;
+      padding: 20px;
+      overflow-x: auto;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    pre {
+      margin: 0;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #333;
+    }
+
+    .desc-box {
+      flex: 1;
+      min-width: 400px;
+      background: #eaf4fc;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .desc-box p {
+      margin-bottom: 10px;
+      line-height: 1.6;
+    }
+
+    /* ▼ 学習セクション ▼ */
+    .learn-section {
+      margin-top: 60px;
+      background-color: #f7f9fb;
+      padding: 40px 30px;
+      border-radius: 10px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+
+    .learn-section h2 {
+      text-align: center;
+      font-size: 1.8em;
+      color: #3498db;
+      border-bottom: none;
+      margin-bottom: 20px;
+    }
+
+    .learn-section p {
+      font-size: 1.1em;
+      line-height: 1.8;
+      color: #2c3e50;
+      margin-bottom: 15px;
+    }
+
+    .learn-list {
+      list-style: decimal;
+      padding-left: 25px;
+      font-size: 1.05em;
+      line-height: 1.8;
+    }
+
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>ゴールタイル</h1>
+  </header>
+
+  <nav>
+    <a href="robocup_home.html">トップページへ戻る</a>
+    <a href="gaiyou.html">概要</a>
+    <a href="sensor.html">センサーの使い方</a>
+    <a href="rescue.html">レスキューシナリオ</a>
+    <a href="programming.html">プログラミングの基礎</a>
+  </nav>
+
+  <main>
+    <video controls>
+      <source src="linetrace.mp4" type="video/mp4">
+      お使いのブラウザは動画再生に対応していません。
+    </video>
+    <div class="caption">
+      ロボットが黒いラインに沿って正確に走行する様子を撮影した動画です。
+    </div>
+
+    <h2>coler_red_only.py</h2>
+    <div class="code-section">
+      <div class="code-box">
+        <pre><code># =========================================
+# 🔹 ライントレース＋赤・緑検知ストッププログラム
+# 使用デバイス：ETRobo（SPIKE対応）
+# 機能概要：
+#   - カラーセンサーでラインを検出して走行
+#   - 赤または緑を検出すると5秒間停止
+#   - HSV色空間を用いて色を判定
+# =========================================
+
+import cv2
+import numpy as np
+from etrobo_python import ETRobo, Motor, ColorSensor
+import time
+
+# --- 直前の進行方向を記録するための変数 ---
+last_direction = "RIGHT"  # 初期値は右
+
+# =========================================
+# 🔹 関数：get_hsv_from_sensor
+# 概要：
+#   - カラーセンサーからRGB値を取得
+#   - OpenCVを使ってHSV値に変換
+# 引数：
+#   - color_sensor: ColorSensorオブジェクト
+# 戻り値：
+#   - (H, S, V) のタプル
+# =========================================
+def get_hsv_from_sensor(color_sensor: ColorSensor):
+    # カラーセンサーからRGB値を取得
+    r, g, b = color_sensor.get_raw_color()
+    # OpenCVで扱える形式に変換（3次元配列）
+    rgb = np.uint8([[[r, g, b]]])
+    # RGB → HSV変換
+    hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV)
+    # H, S, Vの値を返す
+    return hsv[0][0]
+
+# =========================================
+# 🔹 関数：line_trace_by_sensor
+# 概要：
+#   - カラーセンサーでラインを追跡しながら走行
+#   - 赤または緑を検知したら停止
+#   - 白・黒の明度（V値）でラインの有無を判定
+# 引数：
+#   - right_motor: 右モーター
+#   - left_motor: 左モーター
+#   - color_sensor: カラーセンサー
+# =========================================
+def line_trace_by_sensor(right_motor: Motor, left_motor: Motor, color_sensor: ColorSensor):
+    global last_direction  # 直前の方向を保持するためグローバル変数を使用
+
+    try:
+        # HSV値を取得
+        h, s, v = get_hsv_from_sensor(color_sensor)
+
+        # --- 赤色検知条件 ---
+        # 色相(H)：0〜10 または 160〜180
+        # 彩度(S)：100以上
+        # 明度(V)：100以上
+        is_red = (0 <= h <= 10 or 160 <= h <= 180) and s >= 100 and v >= 100
+
+        # --- 緑色検知条件 ---
+        # 色相(H)：50〜90
+        # 彩度・明度：100以上
+        is_green = 50 <= h <= 90 and s >= 100 and v >= 100
+
+        # --- 赤または緑を検知した場合 ---
+        if is_red or is_green:
+            print(f"[STOP] {'Red' if is_red else 'Green'} detected! HSV=({h}, {s}, {v})")
+            # 両モーター停止
+            right_motor.set_power(0)
+            left_motor.set_power(0)
+            # 5秒間停止
+            time.sleep(5)
+
+        # --- ライン上（黒っぽい領域）を検知した場合 ---
+        elif v < 60 and s < 100:
+            # 直進動作
+            power = 40
+            right_motor.set_power(power)
+            left_motor.set_power(power)
+            last_direction = "STRAIGHT"
+
+        # --- 白地など明るい場所の場合 ---
+        else:
+            # 前回の進行方向に応じて旋回
+            if last_direction in ["STRAIGHT", "RIGHT"]:
+                # 左に旋回
+                right_motor.set_power(0)
+                left_motor.set_power(30)
+                last_direction = "LEFT"
+            else:
+                # 右に旋回
+                right_motor.set_power(30)
+                left_motor.set_power(0)
+                last_direction = "RIGHT"
+
+        # HSV値と方向のログを表示
+        print(f"HSV: H={h}, S={s}, V={v}, Dir={last_direction}")
+
+    except Exception as e:
+        # エラー発生時の出力
+        print("Error in sensor line trace:", e)
+
+# =========================================
+# 🔹 メイン処理
+# 概要：
+#   - ETRobo環境を初期化
+#   - デバイス（モーター・カラーセンサー）を登録
+#   - line_trace_by_sensor 関数を周期的に呼び出し
+# =========================================
+(
+    ETRobo(backend='raspyke')  # SPIKE用バックエンド
+    .add_device('right_motor', device_type=Motor, port='B')  # 右モーターをポートBに接続
+    .add_device('left_motor', device_type=Motor, port='C')   # 左モーターをポートCに接続
+    .add_device('color_sensor', device_type=ColorSensor, port='S2')  # カラーセンサーをS2に接続
+    .add_handler(line_trace_by_sensor)  # 定期的に呼び出す関数を登録
+    .dispatch(interval=0.1)  # 0.1秒ごとに実行
+)
+</code>
+</code></pre>
+      </div>
+
+      <div class="desc-box">
+        <h3>(プログラムの説明)</h3>
+        <p>このプログラムは、カメラで黒線を認識しながら走行するロボットの制御を行います。</p>
+        <p><b>1️⃣ カメラ設定：</b> 2台のカメラを起動し、映像を取得できるようにします。</p>
+        <p><b>2️⃣ 画像処理：</b> OpenCVで黒線を検出し、重心位置から進行方向（左・右・中央）を判定します。</p>
+        <p><b>3️⃣ モーター制御：</b> 進行方向に応じて左右のモーター出力を調整し、ライン上を走行します。</p>
+        <p><b>4️⃣ 実行部分：</b> ETRoboライブラリを使い、0.05秒ごとに制御関数を呼び出します。</p>
+        <p>これにより、ロボットは黒線を追いかけるように自動で進むことができます。</p>
+      </div>
+    </div>
+
+    <!-- ▼ 学習のやり方セクション ▼ -->
+    <div class="learn-section">
+      <h2>📘 学習のやり方</h2>
+      <p>白黒ライントレースの学習では、次の手順で理解を深めましょう。</p>
+      <ol class="learn-list">
+        <li><b>1. 動作の確認：</b> まずは動画を見て、ロボットがどのように黒線をたどるか観察します。</li>
+        <li><b>2. コードの理解：</b> 各関数の役割（カメラ取得・画像処理・モーター制御）を順に読み解きます。</li>
+        <li><b>3. 実験と調整：</b> 黒線の太さやカメラの位置を変えて、プログラムの反応を試してみましょう。</li>
+        <li><b>4. 応用：</b> 速度やカーブ処理の調整、または交差点対応の改良などを行ってみます。</li>
+      </ol>
+      <p>実際にロボットを動かしながら学ぶことで、「センサー」と「プログラム制御」の関係を深く理解できます。</p>
+    </div>
+
+  </main>
+
+</body>
+</html>
