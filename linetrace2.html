@@ -162,46 +162,92 @@
 
   <main>
     <video controls>
-      <source src="linetrace.mp4" type="video/mp4">
+      <source src="midori_kenti.mp4" type="video/mp4">
       お使いのブラウザは動画再生に対応していません。
     </video>
     <div class="caption">
-      緑の交差点を検知して、進行方向を判断するロボットの動画です。
+      緑を検知して、進行方向を判断するロボットの動画です。
     </div>
 
-    <h2>intersection_linetrace.py</h2>
+    <h2>midori_kenti.py</h2>
     <div class="code-section">
       <div class="code-box">
         <pre><code>import cv2
 import numpy as np
+from etrobo_python import ETRobo, Motor, ColorSensor
 import time
 
-# カメラの起動
-cap = cv2.VideoCapture(0)
+last_direction = "RIGHT"
 
-while True:
-    ret, frame = cap.read()
-    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+# HSV??
+def get_hsv_from_sensor(sensor: ColorSensor):
+    r, g, b = sensor.get_raw_color()
+    rgb = np.uint8([[[r, g, b]]])
+    hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV)
+    return hsv[0][0]
 
-    # 緑色の範囲を定義
-    lower_green = np.array([35, 80, 80])
-    upper_green = np.array([85, 255, 255])
-    mask = cv2.inRange(hsv, lower_green, upper_green)
+# ??????????
+def is_green_left(h, s, v):
+    return (70 <= h <= 90) and (13 <= s <= 30) and (25 <= v <= 35)
 
-    # 緑検知時の動作
-    if cv2.countNonZero(mask) > 500:
-        print("交差点を検知 → 右折動作を実行中")
-        time.sleep(1)
-    else:
-        print("通常ライントレース中...")
+# ??????????
+def is_green_right(h, s, v):
+    return (75 <= h <= 80) and (120 <= s <= 150) and (35 <= v <= 50)
 
-    cv2.imshow("Intersection Line Trace", frame)
+# ?????
+def trace_and_turn_on_green(right_motor: Motor, left_motor: Motor,
+                            color_sensor_left: ColorSensor, color_sensor_right: ColorSensor):
+    global last_direction
+    try:
+        h_l, s_l, v_l = get_hsv_from_sensor(color_sensor_left)
+        h_r, s_r, v_r = get_hsv_from_sensor(color_sensor_right)
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+        left_is_green = is_green_left(h_l, s_l, v_l)
+        right_is_green = is_green_right(h_r, s_r, v_r)
 
-cap.release()
-cv2.destroyAllWindows()
+        if left_is_green:
+            print(f"[LEFT TURN] Green detected on LEFT sensor (HSV={h_l},{s_l},{v_l})")
+            left_motor.set_power(50)
+            right_motor.set_power(0)
+            time.sleep(1.5)  # ?????
+            return
+
+        if right_is_green:
+            print(f"[RIGHT TURN] Green detected on RIGHT sensor (HSV={h_r},{s_r},{v_r})")
+            left_motor.set_power(0)
+            right_motor.set_power(50)
+            time.sleep(1.5)
+            return
+
+        # ????????
+        if v_l < 60 and s_l < 100:
+            power = 30
+            left_motor.set_power(power)
+            right_motor.set_power(power)
+            last_direction = "STRAIGHT"
+        else:
+            if last_direction in ["STRAIGHT", "RIGHT"]:
+                left_motor.set_power(50)
+                right_motor.set_power(0)
+                last_direction = "LEFT"
+            else:
+                left_motor.set_power(0)
+                right_motor.set_power(50)
+                last_direction = "RIGHT"
+
+        print(f"LEFT HSV=({h_l},{s_l},{v_l}) | RIGHT HSV=({h_r},{s_r},{v_r}) | Dir={last_direction}")
+
+    except Exception as e:
+        print(f"[ERROR] {e}")
+
+# ????
+(ETRobo(backend='raspyke')
+ .add_device('right_motor', device_type=Motor, port='B')
+ .add_device('left_motor', device_type=Motor, port='C')
+ .add_device('color_sensor_left', device_type=ColorSensor, port='S2')
+ .add_device('color_sensor_right', device_type=ColorSensor, port='S3')
+ .add_handler(trace_and_turn_on_green)
+ .dispatch(interval=0.1))
 </code></pre>
       </div>
 
@@ -215,46 +261,126 @@ cv2.destroyAllWindows()
 
 
         <video controls>
-      <source src="linetrace.mp4" type="video/mp4">
+      <source src="midori_tyokusin.mp4" type="video/mp4">
       お使いのブラウザは動画再生に対応していません。
     </video>
     <div class="caption">
       緑の交差点を検知して、進行方向を判断するロボットの動画です。
     </div>
 
-        <h2>intersection_linetrace.py</h2>
+        <h2>midori_tyokusin.py</h2>
     <div class="code-section">
       <div class="code-box">
         <pre><code>import cv2
 import numpy as np
+from etrobo_python import ETRobo, Motor, ColorSensor
 import time
 
-# カメラの起動
-cap = cv2.VideoCapture(0)
+last_direction = "STRAIGHT"
+prev_left_power = -1
+prev_right_power = -1
+last_log_time = 0
+ignore_green_until = 0  # ????????
 
-while True:
-    ret, frame = cap.read()
-    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+def get_hsv_from_sensor(sensor: ColorSensor):
+    r, g, b = sensor.get_raw_color()
+    rgb = np.uint8([[[r, g, b]]])
+    hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV)
+    return hsv[0][0]
 
-    # 緑色の範囲を定義
-    lower_green = np.array([35, 80, 80])
-    upper_green = np.array([85, 255, 255])
-    mask = cv2.inRange(hsv, lower_green, upper_green)
+def is_green(h, s, v):
+    return (75 <= h <= 100) and (s == 0 or s >= 60) and v >= 160
 
-    # 緑検知時の動作
-    if cv2.countNonZero(mask) > 500:
-        print("交差点を検知 → 右折動作を実行中")
-        time.sleep(1)
-    else:
-        print("通常ライントレース中...")
+def is_black(s, v):
+    return s < 100 and v < 80
 
-    cv2.imshow("Intersection Line Trace", frame)
+def set_motor_power_safe(left_motor, right_motor, lp, rp):
+    global prev_left_power, prev_right_power
+    if lp != prev_left_power:
+        left_motor.set_power(lp)
+        prev_left_power = lp
+    if rp != prev_right_power:
+        right_motor.set_power(rp)
+        prev_right_power = rp
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+def trace_with_green_turn(right_motor: Motor, left_motor: Motor,
+                          color_sensor_left: ColorSensor, color_sensor_right: ColorSensor):
+    global last_direction, last_log_time, ignore_green_until
 
-cap.release()
-cv2.destroyAllWindows()
+    try:
+        h_l, s_l, v_l = get_hsv_from_sensor(color_sensor_left)
+        h_r, s_r, v_r = get_hsv_from_sensor(color_sensor_right)
+
+        left_is_green = is_green(h_l, s_l, v_l)
+        right_is_green = is_green(h_r, s_r, v_r)
+
+        left_is_black = is_black(s_l, v_l)
+        right_is_black = is_black(s_r, v_r)
+
+        current_time = time.time()
+
+        # --- ?????????????????????? ---
+        if left_is_black and right_is_black:
+            set_motor_power_safe(left_motor, right_motor, 60, 60)
+            last_direction = "STRAIGHT"
+            ignore_green_until = current_time + 0.8  # ??????
+            print("[CROSS] BOTH BLACK ? GO STRAIGHT & IGNORE GREEN")
+            return
+            # --- ??????????????????? ---
+        if current_time > ignore_green_until:
+            if left_is_green and not left_is_black:
+                print(f"[LEFT TURN] GREEN DETECTED: L=({h_l},{s_l},{v_l})")
+                start = time.time()
+                while time.time() - start < 0.7:
+                    set_motor_power_safe(left_motor, right_motor, 100, 0)
+                    time.sleep(0.05)
+                print("[ADJUST] Turning LEFT adjust")
+                set_motor_power_safe(left_motor, right_motor, 30, 100)
+                time.sleep(1.0)
+                return
+
+            if right_is_green and not right_is_black:
+                print(f"[RIGHT TURN] GREEN DETECTED: R=({h_r},{s_r},{v_r})")
+                start = time.time()
+                while time.time() - start < 0.7:
+                    set_motor_power_safe(left_motor, right_motor, 0, 100)
+                    time.sleep(0.05)
+                print("[ADJUST] Turning RIGHT adjust")
+                set_motor_power_safe(left_motor, right_motor, 100, 30)
+                time.sleep(1.0)
+                return
+        else:
+            if left_is_green or right_is_green:
+                print(f"[IGNORE GREEN] L=({h_l},{s_l},{v_l}) | R=({h_r},{s_r},{v_r})")
+
+        # --- ???????? ---
+        if left_is_black and not right_is_black:
+            set_motor_power_safe(left_motor, right_motor, 30, 70)
+            last_direction = "LEFT"
+        elif right_is_black and not left_is_black:
+            set_motor_power_safe(left_motor, right_motor, 70, 30)
+            last_direction = "RIGHT"
+        elif not left_is_black and not right_is_black:
+            print("[NO BLACK] ?????")
+            set_motor_power_safe(left_motor, right_motor, 60, 60)
+            last_direction = "STRAIGHT"
+
+        # --- ?????1???? ---
+        if current_time - last_log_time > 1.0:
+            print(f"HSV L=({h_l},{s_l},{v_l}) | R=({h_r},{s_r},{v_r}) | Dir={last_direction}")
+            last_log_time = current_time
+
+    except Exception as e:
+        print(f"[ERROR] {e}")
+
+# === ?? ===
+(ETRobo(backend='raspike_art')
+ .add_device('right_motor', device_type=Motor, port='B')
+ .add_device('left_motor', device_type=Motor, port='A')
+ .add_device('color_sensor_left', device_type=ColorSensor, port='D')
+ .add_device('color_sensor_right', device_type=ColorSensor, port='C')
+ .add_handler(trace_with_green_turn)
+ .dispatch(interval=0.2, port='/dev/ttyACM0'))
 </code></pre>
       </div>
 
@@ -267,7 +393,7 @@ cv2.destroyAllWindows()
     </div>
 
         <video controls>
-      <source src="linetrace.mp4" type="video/mp4">
+      <source src="midori_u.mp4" type="video/mp4">
       お使いのブラウザは動画再生に対応していません。
     </video>
     <div class="caption">
@@ -275,39 +401,248 @@ cv2.destroyAllWindows()
     </div>
 
 
-        <h2>intersection_linetrace.py</h2>
+        <h2>midori_u.py</h2>
     <div class="code-section">
       <div class="code-box">
         <pre><code>import cv2
 import numpy as np
+from etrobo_python import ETRobo, Motor, ColorSensor
 import time
 
-# カメラの起動
-cap = cv2.VideoCapture(0)
+last_direction = "STRAIGHT"
+prev_left_power = -1
+prev_right_power = -1
+last_log_time = 0
 
-while True:
-    ret, frame = cap.read()
-    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+# ?????HSV?3?????????
+def get_stable_hsv(sensor: ColorSensor, samples=10, delay=0.02):
+    h_list, s_list, v_list = [], [], []
+    for _ in range(samples):
+        r, g, b = sensor.get_raw_color()
+        rgb = np.uint8([[[r, g, b]]])
+        hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV)[0][0]
+        h_list.append(hsv[0])
+        s_list.append(hsv[1])
+        v_list.append(hsv[2])
+        time.sleep(delay)
+    return int(np.mean(h_list)), int(np.mean(s_list)), int(np.mean(v_list))
 
-    # 緑色の範囲を定義
-    lower_green = np.array([35, 80, 80])
-    upper_green = np.array([85, 255, 255])
-    mask = cv2.inRange(hsv, lower_green, upper_green)
+# ?????S=0 ???? >=60 / V >=160?
+def is_green(h, s, v):
+    return (75 <= h <= 100) and (s == 0 or s >= 60) and v >= 160
 
-    # 緑検知時の動作
-    if cv2.countNonZero(mask) > 500:
-        print("交差点を検知 → 右折動作を実行中")
-        time.sleep(1)
-    else:
-        print("通常ライントレース中...")
+# ???????????????
+def is_black(s, v):
+    return s < 100 and v < 80
 
-    cv2.imshow("Intersection Line Trace", frame)
+# ???????????????
+def set_motor_power_safe(left_motor, right_motor, lp, rp):
+    global prev_left_power, prev_right_power
+    if lp != prev_left_power:
+        left_motor.set_power(lp)
+        prev_left_power = lp
+    if rp != prev_right_power:
+        right_motor.set_power(rp)
+        prev_right_power = rp
+# ????????????????????
+def trace_with_green_turn(right_motor: Motor, left_motor: Motor,
+                          color_sensor_left: ColorSensor, color_sensor_right: ColorSensor):
+    global last_direction, last_log_time
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+    try:
+        h_l, s_l, v_l = get_stable_hsv(color_sensor_left)
+        h_r, s_r, v_r = get_stable_hsv(color_sensor_right)
 
-cap.release()
-cv2.destroyAllWindows()
+        left_is_green = is_green(h_l, s_l, v_l)
+        right_is_green = is_green(h_r, s_r, v_r)
+
+        left_is_black = is_black(s_l, v_l)
+        right_is_black = is_black(s_r, v_r)
+
+        current_time = time.time()
+
+        # === ????U????===
+        if left_is_green and right_is_green:
+            print(f"[U-TURN] ???: L=({h_l},{s_l},{v_l}) R=({h_r},{s_r},{v_r})")
+            start = time.time()
+            while time.time() - start < 0.7:
+                set_motor_power_safe(left_motor, right_motor, 100, -100)
+                time.sleep(18.0)
+            print("[U-TURN COMPLETE]")
+            return
+
+        # === ?????????===
+        elif left_is_green and not left_is_black:
+            print(f"[LEFT TURN] ?: L=({h_l},{s_l},{v_l})")
+            start = time.time()
+            while time.time() - start < 0.7:
+                set_motor_power_safe(left_motor, right_motor, 100, 0)
+                time.sleep(1.5)
+            print("[ADJUST] ???? ??")
+            set_motor_power_safe(left_motor, right_motor, 30, 100)
+            time.sleep(1.0)
+            return
+
+        # === ?????????===
+        elif right_is_green and not right_is_black:
+            print(f"[RIGHT TURN] ?: R=({h_r},{s_r},{v_r})")
+            start = time.time()
+            while time.time() - start < 0.7:
+                set_motor_power_safe(left_motor, right_motor, 0, 100)
+                time.sleep(1.5)
+            print("[ADJUST] ???? ??")
+            set_motor_power_safe(left_motor, right_motor, 100, 30)
+            time.sleep(1.0)
+            return
+
+        # === ??????????===
+        if left_is_black and not right_is_black:
+            set_motor_power_safe(left_motor, right_motor, 30, 70)
+            last_direction = "LEFT"
+        elif right_is_black and not left_is_black:
+            set_motor_power_safe(left_motor, right_motor, 70, 30)
+            last_direction = "RIGHT"
+        elif left_is_black and right_is_black:
+            set_motor_power_safe(left_motor, right_motor, 60, 60)
+            last_direction = "STRAIGHT"
+        else:
+            # ????????????
+            print("[NO BLACK] ?????????????")
+            set_motor_power_safe(left_motor, right_motor, 60, 60)
+            last_direction = "STRAIGHT"
+
+        # === ???1????===
+        if current_time - last_log_time > 1.0:
+            print(f"HSV L=({h_l},{s_l},{v_l}) | R=({h_r},{s_r},{v_r}) | Dir={last_direction}")
+            last_log_time = current_time
+
+    except Exception as e:
+        print(f"[ERROR] {e}")
+
+# === ????????????????===
+(ETRobo(backend='raspike_art')
+ .add_device('right_motor', device_type=Motor, port='B')
+ .add_device('left_motor', device_type=Motor, port='A')
+ .add_device('color_sensor_left', device_type=ColorSensor, port='D')
+ .add_device('color_sensor_right', device_type=ColorSensor, port='C')
+ .add_handler(trace_with_green_turn)
+ .dispatch(interval=0.2, port='/dev/ttyACM0'))
+
+</code></pre>
+      </div>
+
+      <div class="desc-box">
+        <h3>(プログラムの説明)</h3>
+        <p><b>1️⃣ 緑検知：</b> HSV色空間で緑色の範囲を抽出し、交差点位置を検出します。</p>
+        <p><b>2️⃣ 動作判断：</b> 緑を見つけたら右折動作を実行し、方向転換を行います。</p>
+        <p><b>3️⃣ 通常走行：</b> 緑が見つからない場合は白黒ラインの追従を続けます。</p>
+      </div>
+    </div>
+
+
+
+            <video controls>
+      <source src="midori_hidari.mp4" type="video/mp4">
+      お使いのブラウザは動画再生に対応していません。
+    </video>
+    <div class="caption">
+      緑の交差点を検知して、進行方向を判断するロボットの動画です。
+    </div>
+
+
+        <h2>midori_hidari.py</h2>
+    <div class="code-section">
+      <div class="code-box">
+        <pre><code>import cv2
+import numpy as np
+from etrobo_python import ETRobo, Motor, ColorSensor
+import time
+
+last_direction = "RIGHT"  # ?????????
+
+def get_hsv_from_sensor(sensor: ColorSensor):
+    r, g, b = sensor.get_raw_color()
+    rgb = np.uint8([[[r, g, b]]])
+    hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV)
+    return hsv[0][0]
+
+def is_green(h, s, v):
+    return (75 <= h <= 100) and (s == 0 or s >= 150) and v >= 160
+
+def trace_and_turn_on_green(right_motor: Motor, left_motor: Motor,
+                            color_sensor_left: ColorSensor, color_sensor_right: ColorSensor):
+    global last_direction
+    try:
+        h_l, s_l, v_l = get_hsv_from_sensor(color_sensor_left)
+        h_r, s_r, v_r = get_hsv_from_sensor(color_sensor_right)
+
+        left_is_green = is_green(h_l, s_l, v_l)
+        right_is_green = is_green(h_r, s_r, v_r)
+
+        # === ?????? ? ???? ===
+        if left_is_green and right_is_green:
+            print(f"[STOP] BOTH GREEN: L=({h_l},{s_l},{v_l}) | R=({h_r},{s_r},{v_r})")
+            left_motor.set_power(0)
+            right_motor.set_power(0)
+
+            # ?????????
+            while True:
+                h_l, s_l, v_l = get_hsv_from_sensor(color_sensor_left)
+                h_r, s_r, v_r = get_hsv_from_sensor(color_sensor_right)
+                if not (is_green(h_l, s_l, v_l) and is_green(h_r, s_r, v_r)):
+                    print("[RESUME] Green cleared. Resuming motion.")
+                    break
+                time.sleep(0.1)
+            return
+
+        # === ???????? ===
+        if left_is_green:
+            print(f"[LEFT TURN] LEFT GREEN. HSV=({h_l},{s_l},{v_l})")
+            start_time = time.time()
+            while time.time() - start_time < 8.5:
+                left_motor.set_power(100)
+                right_motor.set_power(0)
+                time.sleep(0.05)
+            return
+
+        if right_is_green:
+            print(f"[RIGHT TURN] RIGHT GREEN. HSV=({h_r},{s_r},{v_r})")
+            start_time = time.time()
+            while time.time() - start_time < 8.5:
+                left_motor.set_power(0)
+                right_motor.set_power(100)
+                time.sleep(0.05)
+            return
+
+        # === ?????????? ===
+        if v_l < 60 and s_l < 100:
+            power = 30
+            left_motor.set_power(power)
+            right_motor.set_power(power)
+            last_direction = "STRAIGHT"
+        else:
+            if last_direction in ["STRAIGHT", "RIGHT"]:
+                left_motor.set_power(60)
+                right_motor.set_power(0)
+                last_direction = "LEFT"
+            else:
+                left_motor.set_power(0)
+                right_motor.set_power(60)
+                last_direction = "RIGHT"
+
+        print(f"HSV L=({h_l},{s_l},{v_l}) | R=({h_r},{s_r},{v_r}) | Dir={last_direction}")
+
+    except Exception as e:
+        print(f"[ERROR] {e}")
+
+# === ???? ===
+(ETRobo(backend='raspike_art')
+ .add_device('right_motor', device_type=Motor, port='B')
+ .add_device('left_motor', device_type=Motor, port='A')
+ .add_device('color_sensor_left', device_type=ColorSensor, port='D')
+ .add_device('color_sensor_right', device_type=ColorSensor, port='C')
+ .add_handler(trace_and_turn_on_green)
+ .dispatch(interval=0.1, port='/dev/ttyACM0'))
 </code></pre>
       </div>
 
@@ -325,10 +660,10 @@ cv2.destroyAllWindows()
       <h2>📘 学習のやり方</h2>
       <p>交差点付きライントレースの学習では、次の手順で練習を進めましょう。</p>
       <ol class="learn-list">
-        <li><b>1. 緑検知の確認：</b> 緑のテープを設置し、カメラが正確に認識できるか確認します。</li>
-        <li><b>2. 動作テスト：</b> 緑を検出した際に右折・左折など正しい動作ができるか試します。</li>
-        <li><b>3. 判定調整：</b> 照明やカメラの角度によって認識精度が変化するため、閾値を微調整します。</li>
-        <li><b>4. 応用練習：</b> 複数の交差点を設置して、連続的な判断と制御を試みましょう。</li>
+        <li><b>緑検知の確認：</b> 緑のテープを設置し、カメラが正確に認識できるか確認します。</li>
+        <li><b>動作テスト：</b> 緑を検出した際に右折・左折など正しい動作ができるか試します。</li>
+        <li><b>判定調整：</b> 照明やカメラの角度によって認識精度が変化するため、閾値を微調整します。</li>
+        <li><b>応用練習：</b> 複数の交差点を設置して、連続的な判断と制御を試みましょう。</li>
       </ol>
       <p>緑のマーカーを「指示信号」として扱うことで、より高度な自律走行制御に近づけます。</p>
     </div>

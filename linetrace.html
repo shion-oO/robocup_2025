@@ -143,6 +143,65 @@
       line-height: 1.8;
     }
 
+    /* ▼ よくある問題カード ▼ */
+    .tips-section {
+      margin-top:50px;
+      padding:20px;
+      background-color:#f7f9fb;
+      border-radius:12px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .tips-section h2 {
+      color:#3498db; 
+      font-size:1.8em; 
+      margin-bottom:20px; 
+      width:100%; 
+      display:block;
+    }
+
+    .tips-grid {
+      display:grid; 
+      grid-template-columns:repeat(4, 1fr); 
+      gap:12px;
+    }
+
+    .card {
+      background:#fff; 
+      border:1px solid #e6eef9; 
+      border-radius:10px; 
+      padding:14px; 
+      box-shadow:0 4px 12px rgba(43,123,211,0.08); 
+      font-size:13px;
+    }
+
+    .card h3 {
+      display:flex; 
+      align-items:center; 
+      font-size:14px; 
+      margin:0 0 8px 0; 
+      background:#e3f2fd; 
+      color:#000; 
+      padding:6px 8px; 
+      border-radius:6px;
+    }
+
+    .card p {
+      margin-top:6px;
+    }
+
+    @media screen and (max-width: 1200px) {
+      .tips-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media screen and (max-width: 600px) {
+      .tips-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -167,37 +226,26 @@
       ロボットが黒いラインに沿って正確に走行する様子を撮影した動画です。
     </div>
 
-
-
-
-
     <h2>linetrace.py</h2>
     <div class="code-section">
       <div class="code-box">
         <pre><code># OpenCVライブラリを使用して画像処理を行うためにインポート
-
-# ① 最初の部分（ライブラリの読み込み）
 import cv2
 import numpy as np
 from picamera2 import Picamera2
 from etrobo_python import ETRobo, Motor
 import time
 
-# ② カメラの設定
+# カメラの設定
 cam0 = Picamera2(0)
 cam0.configure(cam0.create_preview_configuration(main={"format": 'XRGB8888', "size": (320, 240)}))
 cam0.start()
 time.sleep(1)
 
-cam1 = Picamera2(1)
-cam1.configure(cam1.create_preview_configuration(main={"format": 'XRGB8888', "size": (320, 240)}))
-cam1.start()
-time.sleep(1)
-
-# ③ 前回の方向を記憶する変数
+# 前回の方向を記憶
 last_direction = "CENTER"
 
-# ④ 黒い線を見つける関数（get_direction）
+# 黒い線を見つける関数
 def get_direction(frame, last_direction):
     hsv = cv2.cvtColor(frame, cv2.COLOR_RGB2HSV)
     lower_black = (0, 0, 0)
@@ -218,7 +266,7 @@ def get_direction(frame, last_direction):
             direction = "CENTER"
     return direction
 
-# ⑤ モーターを動かす関数
+# モーターを動かす関数
 def line_trace_by_camera(right_motor: Motor, left_motor: Motor, **kwargs):
     global last_direction
     try:
@@ -240,7 +288,7 @@ def line_trace_by_camera(right_motor: Motor, left_motor: Motor, **kwargs):
     except Exception as e:
         print("エラー:", e)
 
-# ⑥ メインの部分（ロボットを動かす設定）
+# メイン
 if __name__ == "__main__":
     robo = (ETRobo(backend='raspike_art')
             .add_device('right_motor', device_type=Motor, port='A')
@@ -249,131 +297,60 @@ if __name__ == "__main__":
     robo.dispatch(interval=0.05)
 </code></pre>
       </div>
+      <div class="desc-box">
+        <h3>プログラムの説明</h3>
+        <p>このプログラムは、カメラで黒い線を認識してロボットを自動走行させるものです。画像処理で黒線の位置を判定し、モーターの左右速度を調整して進行方向を決定します。</p>
+        <ul>
+          <li><b>cv2, numpy:</b> 画像処理・計算用</li>
+          <li><b>Picamera2:</b> カメラ操作</li>
+          <li><b>ETRobo / Motor:</b> ロボット制御</li>
+          <li><b>time:</b> カメラ安定待機用</li>
+        </ul>
+        <p>画像処理の流れ：RGB→HSV変換 → 黒色抽出 → 下部40pxをROI → 輪郭検出 → 中心座標で方向決定</p>
+        <p>モーター制御：方向に応じて左右速度を変更、中央なら基本速度、左右なら差分を加減して旋回。</p>
+      </div>
+    </div>
 
-<div class="desc-box">
-  <h3>(プログラムの説明)</h3>
-  <p>このプログラムは、「カメラで黒い線（ライン）を見つけて、その線に沿ってロボットを走らせる」ものです。Raspberry Pi に接続されたカメラで床の映像を取り込み、画像処理を使って黒い線の位置を調べ、ロボットのモーターを左右で調整しながら進行方向を決めています。</p>
-
-  <h4>① 最初の部分（ライブラリの読み込み）</h4>
-  <p>ここでは、必要な道具（ライブラリ）を使えるようにしています。</p>
-  <ul>
-    <li><b>cv2（OpenCV）</b>：画像を扱うためのライブラリです。色を変えたり、輪郭を見つけたりできます。</li>
-    <li><b>numpy（np）</b>：数の計算を便利にするライブラリです。</li>
-    <li><b>Picamera2</b>：Raspberry Pi に接続したカメラを操作します。</li>
-    <li><b>ETRobo / Motor</b>：ロボットやモーターを制御するためのライブラリです。</li>
-    <li><b>time</b>：少し待つ（スリープ）機能を使うために読み込んでいます。</li>
-  </ul>
-
-  <h4>② カメラの設定</h4>
-  <p>ここでは、2台のカメラを設定しています。</p>
-  <ul>
-    <li><code>Picamera2(0)</code> は1台目のカメラ、<code>Picamera2(1)</code> は2台目のカメラです。</li>
-    <li><code>size=(320, 240)</code> は画面の大きさ（解像度）で、画像処理を速くしています。</li>
-    <li><code>time.sleep(1)</code> は「1秒待つ」という意味で、カメラが安定するまで待っています。</li>
-  </ul>
-  <p>※1台しかカメラを使っていない場合は、<code>cam1</code> の設定部分を削除しても動作します。</p>
-
-  <h4>③ 前回の方向を記憶する変数</h4>
-  <p>前回の進行方向（左・右・中央）を覚えておくための変数です。線を一時的に見失っても、最後の方向を思い出せるようにしています。</p>
-
-  <h4>④ 黒い線を見つける関数（get_direction）</h4>
-  <p>この関数では、カメラで撮った画像から黒い線の位置を見つけて、「線が左にあるか・中央にあるか・右にあるか」を判断しています。</p>
-
-  <ol>
-    <li><b>色の変換：</b> RGBからHSVに変換し、黒い部分を見やすくします。</li>
-    <li><b>黒だけを取り出す：</b> 明るさが0〜80の部分だけを白くし、黒い線だけを抽出します。</li>
-    <li><b>ぼかし処理：</b> <code>cv2.GaussianBlur</code> でノイズを減らして線を滑らかにします。</li>
-    <li><b>画像の下部分だけを見る：</b> 下から40ピクセルを抽出（ROI）して処理速度と精度を上げます。</li>
-    <li><b>輪郭を見つける：</b> <code>cv2.findContours</code> で黒い部分の形を検出します。</li>
-    <li><b>重心を求める：</b> 黒い線の中央座標を計算して、左右どちらにあるか判断します。</li>
-    <li><b>方向の決定：</b> 
-      <ul>
-        <li>中央より左 → "LEFT"</li>
-        <li>中央より右 → "RIGHT"</li>
-        <li>中央付近 → "CENTER"</li>
-      </ul>
-    </li>
-  </ol>
-
-  <h4>⑤ モーターを動かす関数</h4>
-  <p>カメラで得た「方向情報」をもとに、ロボットのモーターを制御します。</p>
-  <ul>
-    <li><b>base_speed：</b> 基本速度（例：まっすぐ＝90、曲がる＝50）。</li>
-    <li><b>diff：</b> 左右のモーターの差で曲がり角度を調整。</li>
-    <li>右に線がある → 左モーターを速くする。左に線がある → 右モーターを速くする。</li>
-  </ul>
-
-  <h4>⑥ メインの部分（ロボットを動かす設定）</h4>
-  <ul>
-    <li><code>add_device</code>：右と左のモーターを登録。</li>
-    <li><code>add_handler</code>：ライン追跡の関数を登録。</li>
-    <li><code>dispatch(interval=0.05)</code>：0.05秒ごとに関数を呼び出して制御。</li>
-  </ul>
-
-  <p>これにより、ロボットはカメラの映像をもとにリアルタイムで黒線を追跡し、自動走行することができます。</p>
-</div>
-
-<!-- ▼ よくある問題と改善のヒント（画面いっぱい版） ▼ -->
-<div class="tips-section" style="margin-top:50px; padding:20px; background-color:#f7f9fb; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
-  <h2 style="color:#3498db; font-size:1.8em; margin-bottom:20px; width:100%; display:block;">よくある問題と改善のヒント</h2>
-
-  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
-
-    <!-- 🚗 まっすぐ進まない -->
-    <article class="card" style="background:#fff; border:1px solid #e6eef9; border-radius:10px; padding:14px; box-shadow:0 4px 12px rgba(43,123,211,0.08); font-size:13px;">
-      <h3 style="display:flex; align-items:center; font-size:14px; margin:0 0 8px 0; background:#e3f2fd; color:#000; padding:6px 8px; border-radius:6px;">
-        <span class="emoji" style="font-size:22px; display:inline-block; width:32px; height:32px; line-height:32px; text-align:center; border-radius:6px; background:linear-gradient(180deg,rgba(43,123,211,0.06),transparent); margin-right:6px;">🚗</span> まっすぐ進まない
-      </h3>
-      <p>・左右のモーターの出力が同じか確認<br>・タイヤの摩耗で進行方向がずれる<br>・<code>base_speed</code> を調整</p>
-      <p style="margin-top:6px; color:#16a34a; font-weight:600;">⚙️ バランスを微調整！</p>
-    </article>
-
-    <!-- 🕳️ 線を見失う -->
-    <article class="card" style="background:#fff; border:1px solid #e6eef9; border-radius:10px; padding:14px; box-shadow:0 4px 12px rgba(43,123,211,0.08); font-size:13px;">
-      <h3 style="display:flex; align-items:center; font-size:14px; margin:0 0 8px 0; background:#e3f2fd; color:#000; padding:6px 8px; border-radius:6px;">
-        <span class="emoji" style="font-size:22px; display:inline-block; width:32px; height:32px; line-height:32px; text-align:center; border-radius:6px; background:linear-gradient(180deg,rgba(43,123,211,0.06),transparent); margin-right:6px;">🕳️</span> 線を見失う
-      </h3>
-      <p>・カメラの高さや角度を調整<br>・<code>roi_bottom</code> の範囲を広げる<br>・明るさを上げる／ライト使用</p>
-      <p style="margin-top:6px; color:#2b7bd3; font-weight:600;">🔍 カメラ・明るさを調整！</p>
-    </article>
-
-    <!-- ⚫ 間違った場所を黒と判定 -->
-    <article class="card" style="background:#fff; border:1px solid #e6eef9; border-radius:10px; padding:14px; box-shadow:0 4px 12px rgba(43,123,211,0.08); font-size:13px;">
-      <h3 style="display:flex; align-items:center; font-size:14px; margin:0 0 8px 0; background:#e3f2fd; color:#000; padding:6px 8px; border-radius:6px;">
-        <span class="emoji" style="font-size:22px; display:inline-block; width:32px; height:32px; line-height:32px; text-align:center; border-radius:6px; background:linear-gradient(180deg,rgba(43,123,211,0.06),transparent); margin-right:6px;">⚫</span> 間違った場所を黒と判定
-      </h3>
-      <p>・黒のしきい値が広すぎる<br>・影や暗い部分も黒と認識<br>・HSV値を微調整して正しい黒を検出</p>
-      <p style="margin-top:6px; color:#16a34a; font-weight:600;">🎨 しきい値を調整！</p>
-    </article>
-
-    <!-- ↔️ 左右が逆になる -->
-    <article class="card" style="background:#fff; border:1px solid #e6eef9; border-radius:10px; padding:14px; box-shadow:0 4px 12px rgba(43,123,211,0.08); font-size:13px;">
-      <h3 style="display:flex; align-items:center; font-size:14px; margin:0 0 8px 0; background:#e3f2fd; color:#000; padding:6px 8px; border-radius:6px;">
-        <span class="emoji" style="font-size:22px; display:inline-block; width:32px; height:32px; line-height:32px; text-align:center; border-radius:6px; background:linear-gradient(180deg,rgba(43,123,211,0.06),transparent); margin-right:6px;">↔️</span> 左右が逆になる
-      </h3>
-      <p>・カメラ映像が左右反転<br>・OpenCVで <code>cv2.flip(frame,1)</code> 使用<br>・モーター接続（A・B）確認</p>
-      <p style="margin-top:6px; color:#2b7bd3; font-weight:600;">🧭 映像と接続をチェック！</p>
-    </article>
-
-  </div>
-</div>
-
-
+    <!-- ▼ よくある問題と改善のヒント ▼ -->
+    <div class="tips-section">
+      <h2>よくある問題と改善のヒント</h2>
+      <div class="tips-grid">
+        <article class="card">
+          <h3>🚗 まっすぐ進まない</h3>
+          <p>・左右のモーターの出力が同じか確認<br>・タイヤの摩耗で進行方向がずれる<br>・<code>base_speed</code> を調整</p>
+          <p style="color:#16a34a; font-weight:600;">⚙️ バランスを微調整！</p>
+        </article>
+        <article class="card">
+          <h3>🕳️ 線を見失う</h3>
+          <p>・カメラの高さや角度を調整<br>・<code>roi_bottom</code> の範囲を広げる<br>・明るさを上げる／ライト使用</p>
+          <p style="color:#2b7bd3; font-weight:600;">🔍 カメラ・明るさを調整！</p>
+        </article>
+        <article class="card">
+          <h3>⚫ 間違った場所を黒と判定</h3>
+          <p>・黒のしきい値が広すぎる<br>・影や暗い部分も黒と認識<br>・HSV値を微調整して正しい黒を検出</p>
+          <p style="color:#16a34a; font-weight:600;">🎨 しきい値を調整！</p>
+        </article>
+        <article class="card">
+          <h3>↔️ 左右が逆になる</h3>
+          <p>・カメラ映像が左右反転<br>・OpenCVで <code>cv2.flip(frame,1)</code> 使用<br>・モーター接続（A・B）確認</p>
+          <p style="color:#2b7bd3; font-weight:600;">🧭 映像と接続をチェック！</p>
+        </article>
+      </div>
+    </div>
 
     <!-- ▼ 学習のやり方セクション ▼ -->
     <div class="learn-section">
       <h2>📘 学習のやり方</h2>
       <p>白黒ライントレースの学習では、次の手順で理解を深めましょう。</p>
       <ol class="learn-list">
-        <li><b>動作の確認：</b> まずは動画を見て、ロボットがどのように黒線をたどるか観察します。</li>
-        <li><b>コードの理解：</b> 各関数の役割（カメラ取得・画像処理・モーター制御）を順に読み解きます。</li>
-        <li><b>実験と調整：</b> 黒線の太さやカメラの位置を変えて、プログラムの反応を試してみましょう。</li>
-        <li><b>応用：</b> 速度やカーブ処理の調整、または交差点対応の改良などを行ってみます。</li>
+        <li><b>動作の確認：</b> 動画を見てロボットの走行を観察。</li>
+        <li><b>コードの理解：</b> カメラ取得・画像処理・モーター制御の流れを確認。</li>
+        <li><b>実験と調整：</b> 黒線の太さやカメラ位置を変えて反応を確認。</li>
+        <li><b>応用：</b> 速度や曲がり処理、交差点対応の改良を試す。</li>
       </ol>
-      <p>実際にロボットを動かしながら学ぶことで、「センサー」と「プログラム制御」の関係を深く理解できます。</p>
+      <p>実際にロボットを動かしながら学ぶことで、センサーとプログラム制御の関係を深く理解できます。</p>
     </div>
 
   </main>
-
 </body>
 </html>
