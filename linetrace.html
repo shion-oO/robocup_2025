@@ -167,6 +167,59 @@
       ロボットが黒いラインに沿って正確に走行する様子を撮影した動画です。
     </div>
 
+
+    <!-- ▼ ここから追加 ▼ -->
+<div class="tips-section" style="margin-top:50px;">
+  <h2 style="color:#3498db;text-align:center;margin-bottom:20px;">よくある問題と改善のヒント</h2>
+  <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;">
+
+    <!-- 📷 カメラが映らない -->
+    <article class="card" style="background:#ffffff;border:1px solid #e6eef9;border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(43,123,211,0.06);transition:transform .15s ease,box-shadow .15s ease;">
+      <h3 style="display:flex;align-items:center;font-size:16px;margin:0 0 8px 0;background:#e3f2fd;color:#000;padding:6px 10px;border-radius:8px;">
+        <span class="emoji" style="font-size:26px;display:inline-block;width:42px;height:42px;line-height:42px;text-align:center;border-radius:10px;background:linear-gradient(180deg,rgba(43,123,211,0.06),transparent);margin-right:10px;">📷</span>
+        カメラが映らない
+      </h3>
+      <p style="font-size:14px;color:#6b7280;line-height:1.8;">
+        ・ケーブルがしっかり接続されているか確認します。<br><br>
+        ・<code>cam0.start()</code> や <code>cam1.start()</code> の前に設定を間違えていないか確認してください。<br><br>
+        ・ラズパイの設定で「カメラの有効化」がオンになっているかもチェックします。
+      </p>
+      <p style="margin-top:10px;font-size:12px;color:#2b7bd3;font-weight:600;">🔍 ケーブル・設定・カメラ番号を確認しましょう！</p>
+    </article>
+
+    <!-- ⚙️ ロボットが動かない -->
+    <article class="card" style="background:#ffffff;border:1px solid #e6eef9;border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(43,123,211,0.06);transition:transform .15s ease,box-shadow .15s ease;">
+      <h3 style="display:flex;align-items:center;font-size:16px;margin:0 0 8px 0;background:#e3f2fd;color:#000;padding:6px 10px;border-radius:8px;">
+        <span class="emoji" style="font-size:26px;display:inline-block;width:42px;height:42px;line-height:42px;text-align:center;border-radius:10px;background:linear-gradient(180deg,rgba(43,123,211,0.06),transparent);margin-right:10px;">⚙️</span>
+        ロボットが動かない
+      </h3>
+      <p style="font-size:14px;color:#6b7280;line-height:1.8;">
+        ・モーターのポート（A・Bなど）が正しいか確認します。<br><br>
+        ・プログラム内で <code>set_power()</code> が呼ばれているか確認してください。<br><br>
+        ・電池の残量が少ないと動かないこともあります。
+      </p>
+      <p style="margin-top:10px;font-size:12px;color:#16a34a;font-weight:600;">🔋 電池・配線・ポートを確認しましょう！</p>
+    </article>
+
+    <!-- 🖥️ 画面が真っ黒 -->
+    <article class="card" style="background:#ffffff;border:1px solid #e6eef9;border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(43,123,211,0.06);transition:transform .15s ease,box-shadow .15s ease;">
+      <h3 style="display:flex;align-items:center;font-size:16px;margin:0 0 8px 0;background:#e3f2fd;color:#000;padding:6px 10px;border-radius:8px;">
+        <span class="emoji" style="font-size:26px;display:inline-block;width:42px;height:42px;line-height:42px;text-align:center;border-radius:10px;background:linear-gradient(180deg,rgba(43,123,211,0.06),transparent);margin-right:10px;">🖥️</span>
+        画面が真っ黒になる
+      </h3>
+      <p style="font-size:14px;color:#6b7280;line-height:1.8;">
+        ・明るさが足りないとラインが見えにくくなります。ライトを当ててみましょう。<br><br>
+        ・カメラのサイズ設定（<code>(320,240)</code> など）があっているか確認します。<br><br>
+        ・OpenCVのウィンドウを閉じてしまっていないかもチェックしましょう。
+      </p>
+      <p style="margin-top:10px;font-size:12px;color:#2b7bd3;font-weight:600;">💡 カメラの映像が見えないときは照明や設定を見直しましょう！</p>
+    </article>
+
+  </div>
+</div>
+<!-- ▼ ここまで追加 ▼ -->
+
+
     <h2>linetrace.py</h2>
     <div class="code-section">
       <div class="code-box">
