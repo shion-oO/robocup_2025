@@ -238,6 +238,55 @@
       transform: none;
     }
 
+    /* 折りたたみ全体 */
+details {
+  margin-bottom: 10px;
+}
+
+/* 折りたたみタイトル（はじめに／ルール／実践） */
+summary {
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 20px; /* ← 文字サイズをルールタイトルと同じに */
+  color: #333;
+  padding: 6px 0;
+  list-style: none; /* デフォルトの▼マークを消す */
+  border-bottom: 1px solid #ddd;
+}
+
+/* summaryの横に自作の▽アイコンを追加 */
+summary::after {
+  content: " ▽";
+  font-weight: normal;
+}
+
+/* 開いている時は▽を▲に変更 */
+details[open] summary::after {
+  content: " ▲";
+}
+
+/* サブメニューのリンク */
+details ul {
+  margin-left: 20px;
+  list-style: none;
+  padding-left: 0;
+}
+
+details ul li {
+  margin: 4px 0;
+}
+
+details ul li a {
+  text-decoration: none;
+  color: #333;
+  font-size: 16px;
+}
+
+details ul li a:hover {
+  text-decoration: underline;
+}
+
+
   </style>
 </head>
 <body>
@@ -250,33 +299,53 @@
 
     <div class="sidebar" id="sidebar">
       <ul>
-        <!-- 追加: ルール折りたたみメニュー -->
+        <!-- はじめに -->
         <li>
-          <a href="#" onclick="toggleRuleMenu(event)">1. ルール ▽</a>
-          <ul id="rule-submenu" style="display: none;">
-            <li><a href="gaiyou.html">概要</a></li>
-            <li><a href="koudoukihann.html">行動規範</a></li>
-            <li><a href="field.html">フィールド</a></li>
-            <li><a href="robot.html">ロボット</a></li>
-            <li><a href="kyougi.html">競技</a></li>
-          </ul>
+          <details>
+            <summary>はじめに</summary>
+            <ul>
+              <li><a href="about.html">ロボカップジュニアについて</a></li>
+            </ul>
+          </details>
         </li>
 
-        <li><a href="linetrace.html">白黒ライントレース</a></li>
-        <li><a href="linetrace2.html">交差点付きライントレース</a></li>
-        <li><a href="linetrace3.html">ギャップライントレース</a></li>
-        <li><a href="goal.html">ゴールタイル</a></li>
-        <li><a href="speedbanmp.html">スピードバンプ</a></li>
-        <li><a href="syougaibutu.html">障害物</a></li>
-        <li><a href="gareki.html">瓦礫</a></li>
-        <li><a href="seesaw.html">シーソー</a></li>
-        <li><a href="keisyaro.html">傾斜路</a></li>
+        <!-- ルール -->
+        <li>
+          <details>
+            <summary>1. ルール</summary>
+            <ul>
+              <li><a href="gaiyou.html">概要</a></li>
+              <li><a href="koudoukihann.html">行動規範</a></li>
+              <li><a href="field.html">フィールド</a></li>
+              <li><a href="robot.html">ロボット</a></li>
+              <li><a href="kyougi.html">競技</a></li>
+            </ul>
+          </details>
+        </li>
 
-        <li><a href="ball1.html">ボール検知の学習</a></li>
-        <li><a href="blackball.html">黒色ボール</a></li>
-        <li><a href="silverball.html">銀色ボール</a></li>
+        <!-- 実践 -->
+        <li>
+          <details>
+            <summary>2. 実践</summary>
+            <ul>
+              <li><a href="linetrace.html">白黒ライントレース</a></li>
+              <li><a href="linetrace2.html">交差点付きライントレース</a></li>
+              <li><a href="linetrace3.html">ギャップライントレース</a></li>
+              <li><a href="goal.html">ゴールタイル</a></li>
+              <li><a href="speedbanmp.html">スピードバンプ</a></li>
+              <li><a href="syougaibutu.html">障害物</a></li>
+              <li><a href="gareki.html">瓦礫</a></li>
+              <li><a href="seesaw.html">シーソー</a></li>
+              <li><a href="keisyaro.html">傾斜路</a></li>
+              <li><a href="ball1.html">ボール検知の学習</a></li>
+              <li><a href="blackball.html">黒色ボール</a></li>
+              <li><a href="silverball.html">銀色ボール</a></li>
+            </ul>
+          </details>
+        </li>
       </ul>
     </div>
+
 
     <main>
       <div class="description-box">
@@ -296,6 +365,10 @@
       <div class="materials-box toc">
         <div class="materials-title">目次</div>
         <ul>
+        <li>はじめに
+            <ul>
+              <li><a href="about.html">ロボカップジュニアについて</a></li>
+            </ul>
           <li>1. ルール
             <ul>
               <li><a href="gaiyou.html">1.1 概要</a></li>
