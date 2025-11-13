@@ -168,74 +168,7 @@
     </div>
 
 
-<div class="tips-section" style="margin-top:50px;">
-  <h2 style="color:#3498db;text-align:center;margin-bottom:20px;">よくある問題と改善のヒント</h2>
-  <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;">
 
-    <!-- 🚗 まっすぐ進まない -->
-    <article class="card" style="background:#ffffff;border:1px solid #e6eef9;border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(43,123,211,0.06);transition:transform .15s ease,box-shadow .15s ease;">
-      <h3 style="display:flex;align-items:center;font-size:16px;margin:0 0 8px 0;background:#e3f2fd;color:#000;padding:6px 10px;border-radius:8px;">
-        <span class="emoji" style="font-size:26px;display:inline-block;width:42px;height:42px;line-height:42px;text-align:center;border-radius:10px;background:linear-gradient(180deg,rgba(43,123,211,0.06),transparent);margin-right:10px;">🚗</span>
-        まっすぐ進まない
-      </h3>
-      <p style="font-size:14px;color:#6b7280;line-height:1.8;">
-        ・左右のモーターの出力（パワー）が同じになっているか確認します。<br><br>
-        ・左右のタイヤの摩耗（すり減り具合）が違うと、進行方向がずれることがあります。<br><br>
-        ・<code>base_speed</code> の値を少し調整して、左右のバランスをとりましょう。
-      </p>
-      <p style="margin-top:10px;font-size:12px;color:#16a34a;font-weight:600;">⚙️ 左右のスピードを微調整して、バランスを取りましょう！</p>
-    </article>
-
-    <!-- 🕳️ 線を見失う -->
-    <article class="card" style="background:#ffffff;border:1px solid #e6eef9;border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(43,123,211,0.06);transition:transform .15s ease,box-shadow .15s ease;">
-      <h3 style="display:flex;align-items:center;font-size:16px;margin:0 0 8px 0;background:#e3f2fd;color:#000;padding:6px 10px;border-radius:8px;">
-        <span class="emoji" style="font-size:26px;display:inline-block;width:42px;height:42px;line-height:42px;text-align:center;border-radius:10px;background:linear-gradient(180deg,rgba(43,123,211,0.06),transparent);margin-right:10px;">🕳️</span>
-        線を見失う
-      </h3>
-      <p style="font-size:14px;color:#6b7280;line-height:1.8;">
-        ・カメラの高さや角度が低すぎると、ラインが見えなくなることがあります。<br><br>
-        ・カメラの視野の下の部分（プログラムでは<code>roi_bottom</code>）の範囲を広げてみましょう。<br><br>
-        ・明るさを上げるか、ライトを使ってコントラストをはっきりさせるのも効果的です。
-      </p>
-      <p style="margin-top:10px;font-size:12px;color:#2b7bd3;font-weight:600;">🔍 カメラの角度・明るさ・検出範囲を調整してみましょう！</p>
-    </article>
-
-    <!-- ⚫ 間違った場所を黒と判定する -->
-    <article class="card" style="background:#ffffff;border:1px solid #e6eef9;border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(43,123,211,0.06);transition:transform .15s ease,box-shadow .15s ease;">
-      <h3 style="display:flex;align-items:center;font-size:16px;margin:0 0 8px 0;background:#e3f2fd;color:#000;padding:6px 10px;border-radius:8px;">
-        <span class="emoji" style="font-size:26px;display:inline-block;width:42px;height:42px;line-height:42px;text-align:center;border-radius:10px;background:linear-gradient(180deg,rgba(43,123,211,0.06),transparent);margin-right:10px;">⚫</span>
-        間違った場所を黒と判定する
-      </h3>
-      <p style="font-size:14px;color:#6b7280;line-height:1.8;">
-        ・黒のしきい値（<code>lower_black</code> と <code>upper_black</code>）が広すぎる可能性があります。<br><br>
-        ・周りの影や暗い部分も「黒」として認識されているかもしれません。<br><br>
-        ・HSV値の範囲を少しずつ変えて、実際のラインだけを検出できるように調整しましょう。
-      </p>
-      <p style="margin-top:10px;font-size:12px;color:#16a34a;font-weight:600;">🎨 しきい値を少しずつ変えて、正しい黒を見つけましょう！</p>
-    </article>
-
-    <!-- ↔️ 左右が逆になる -->
-    <article class="card" style="background:#ffffff;border:1px solid #e6eef9;border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(43,123,211,0.06);transition:transform .15s ease,box-shadow .15s ease;">
-      <h3 style="display:flex;align-items:center;font-size:16px;margin:0 0 8px 0;background:#e3f2fd;color:#000;padding:6px 10px;border-radius:8px;">
-        <span class="emoji" style="font-size:26px;display:inline-block;width:42px;height:42px;line-height:42px;text-align:center;border-radius:10px;background:linear-gradient(180deg,rgba(43,123,211,0.06),transparent);margin-right:10px;">↔️</span>
-        左右が逆になる
-      </h3>
-      <p style="font-size:14px;color:#6b7280;line-height:1.8;">
-        ・カメラの映像が左右反転（ミラー表示）になっている場合があります。<br><br>
-        ・OpenCVで左右を反転したいときは、<code>cv2.flip(frame, 1)</code> を使うと修正できます。<br><br>
-        ・モーターの接続ポート（A・B）が逆になっていないかも確認しましょう。
-      </p>
-      <p style="margin-top:10px;font-size:12px;color:#2b7bd3;font-weight:600;">🧭 映像の反転とモーターの接続をチェックしましょう！</p>
-    </article>
-
-  </div>
-</div>
-<!-- ▼ ここまで追加 ▼ -->
-
-
-  </div>
-</div>
-<!-- ▼ ここまで追加 ▼ -->
 
 
     <h2>linetrace.py</h2>
@@ -379,6 +312,71 @@ if __name__ == "__main__":
 
   <p>これにより、ロボットはカメラの映像をもとにリアルタイムで黒線を追跡し、自動走行することができます。</p>
 </div>
+
+
+<div class="tips-section" style="margin-top:50px;">
+  <h2 style="color:#3498db;text-align:center;margin-bottom:20px;">よくある問題と改善のヒント</h2>
+  <div class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;">
+
+    <!-- 🚗 まっすぐ進まない -->
+    <article class="card" style="background:#ffffff;border:1px solid #e6eef9;border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(43,123,211,0.06);transition:transform .15s ease,box-shadow .15s ease;">
+      <h3 style="display:flex;align-items:center;font-size:16px;margin:0 0 8px 0;background:#e3f2fd;color:#000;padding:6px 10px;border-radius:8px;">
+        <span class="emoji" style="font-size:26px;display:inline-block;width:42px;height:42px;line-height:42px;text-align:center;border-radius:10px;background:linear-gradient(180deg,rgba(43,123,211,0.06),transparent);margin-right:10px;">🚗</span>
+        まっすぐ進まない
+      </h3>
+      <p style="font-size:14px;color:#6b7280;line-height:1.8;">
+        ・左右のモーターの出力（パワー）が同じになっているか確認します。<br><br>
+        ・左右のタイヤの摩耗（すり減り具合）が違うと、進行方向がずれることがあります。<br><br>
+        ・<code>base_speed</code> の値を少し調整して、左右のバランスをとりましょう。
+      </p>
+      <p style="margin-top:10px;font-size:12px;color:#16a34a;font-weight:600;">⚙️ 左右のスピードを微調整して、バランスを取りましょう！</p>
+    </article>
+
+    <!-- 🕳️ 線を見失う -->
+    <article class="card" style="background:#ffffff;border:1px solid #e6eef9;border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(43,123,211,0.06);transition:transform .15s ease,box-shadow .15s ease;">
+      <h3 style="display:flex;align-items:center;font-size:16px;margin:0 0 8px 0;background:#e3f2fd;color:#000;padding:6px 10px;border-radius:8px;">
+        <span class="emoji" style="font-size:26px;display:inline-block;width:42px;height:42px;line-height:42px;text-align:center;border-radius:10px;background:linear-gradient(180deg,rgba(43,123,211,0.06),transparent);margin-right:10px;">🕳️</span>
+        線を見失う
+      </h3>
+      <p style="font-size:14px;color:#6b7280;line-height:1.8;">
+        ・カメラの高さや角度が低すぎると、ラインが見えなくなることがあります。<br><br>
+        ・カメラの視野の下の部分（プログラムでは<code>roi_bottom</code>）の範囲を広げてみましょう。<br><br>
+        ・明るさを上げるか、ライトを使ってコントラストをはっきりさせるのも効果的です。
+      </p>
+      <p style="margin-top:10px;font-size:12px;color:#2b7bd3;font-weight:600;">🔍 カメラの角度・明るさ・検出範囲を調整してみましょう！</p>
+    </article>
+
+    <!-- ⚫ 間違った場所を黒と判定する -->
+    <article class="card" style="background:#ffffff;border:1px solid #e6eef9;border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(43,123,211,0.06);transition:transform .15s ease,box-shadow .15s ease;">
+      <h3 style="display:flex;align-items:center;font-size:16px;margin:0 0 8px 0;background:#e3f2fd;color:#000;padding:6px 10px;border-radius:8px;">
+        <span class="emoji" style="font-size:26px;display:inline-block;width:42px;height:42px;line-height:42px;text-align:center;border-radius:10px;background:linear-gradient(180deg,rgba(43,123,211,0.06),transparent);margin-right:10px;">⚫</span>
+        間違った場所を黒と判定する
+      </h3>
+      <p style="font-size:14px;color:#6b7280;line-height:1.8;">
+        ・黒のしきい値（<code>lower_black</code> と <code>upper_black</code>）が広すぎる可能性があります。<br><br>
+        ・周りの影や暗い部分も「黒」として認識されているかもしれません。<br><br>
+        ・HSV値の範囲を少しずつ変えて、実際のラインだけを検出できるように調整しましょう。
+      </p>
+      <p style="margin-top:10px;font-size:12px;color:#16a34a;font-weight:600;">🎨 しきい値を少しずつ変えて、正しい黒を見つけましょう！</p>
+    </article>
+
+    <!-- ↔️ 左右が逆になる -->
+    <article class="card" style="background:#ffffff;border:1px solid #e6eef9;border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(43,123,211,0.06);transition:transform .15s ease,box-shadow .15s ease;">
+      <h3 style="display:flex;align-items:center;font-size:16px;margin:0 0 8px 0;background:#e3f2fd;color:#000;padding:6px 10px;border-radius:8px;">
+        <span class="emoji" style="font-size:26px;display:inline-block;width:42px;height:42px;line-height:42px;text-align:center;border-radius:10px;background:linear-gradient(180deg,rgba(43,123,211,0.06),transparent);margin-right:10px;">↔️</span>
+        左右が逆になる
+      </h3>
+      <p style="font-size:14px;color:#6b7280;line-height:1.8;">
+        ・カメラの映像が左右反転（ミラー表示）になっている場合があります。<br><br>
+        ・OpenCVで左右を反転したいときは、<code>cv2.flip(frame, 1)</code> を使うと修正できます。<br><br>
+        ・モーターの接続ポート（A・B）が逆になっていないかも確認しましょう。
+      </p>
+      <p style="margin-top:10px;font-size:12px;color:#2b7bd3;font-weight:600;">🧭 映像の反転とモーターの接続をチェックしましょう！</p>
+    </article>
+
+  </div>
+</div>
+
 
     <!-- ▼ 学習のやり方セクション ▼ -->
     <div class="learn-section">
