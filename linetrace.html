@@ -215,6 +215,35 @@
       <p style="margin-top:10px;font-size:12px;color:#2b7bd3;font-weight:600;">💡 カメラの映像が見えないときは照明や設定を見直しましょう！</p>
     </article>
 
+    <!-- 🧭 ライントレースがうまくいかない -->
+<article class="card" style="background:#ffffff;border:1px solid #e6eef9;border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(43,123,211,0.06);transition:transform .15s ease,box-shadow .15s ease;">
+  <h3 style="display:flex;align-items:center;font-size:16px;margin:0 0 8px 0;background:#e3f2fd;color:#000;padding:6px 10px;border-radius:8px;">
+    <span class="emoji" style="font-size:26px;display:inline-block;width:42px;height:42px;line-height:42px;text-align:center;border-radius:10px;background:linear-gradient(180deg,rgba(43,123,211,0.06),transparent);margin-right:10px;">🧭</span>
+    ライントレースがうまくいかない
+  </h3>
+  <p style="font-size:14px;color:#6b7280;line-height:1.8;">
+    ・ラインの色（黒や白）のしきい値が合っていない可能性があります。<br><br>
+    ・<code>lower_black</code> と <code>upper_black</code> の値を少しずつ変えて調整してみましょう。<br><br>
+    ・カメラの高さや角度が変わると認識しにくくなるので固定しましょう。
+  </p>
+  <p style="margin-top:10px;font-size:12px;color:#16a34a;font-weight:600;">⚡️ カメラの角度と色設定の調整がポイントです！</p>
+</article>
+
+<!-- 🧠 プログラムが途中で止まる -->
+<article class="card" style="background:#ffffff;border:1px solid #e6eef9;border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(43,123,211,0.06);transition:transform .15s ease,box-shadow .15s ease;">
+  <h3 style="display:flex;align-items:center;font-size:16px;margin:0 0 8px 0;background:#e3f2fd;color:#000;padding:6px 10px;border-radius:8px;">
+    <span class="emoji" style="font-size:26px;display:inline-block;width:42px;height:42px;line-height:42px;text-align:center;border-radius:10px;background:linear-gradient(180deg,rgba(43,123,211,0.06),transparent);margin-right:10px;">🧠</span>
+    プログラムが途中で止まる
+  </h3>
+  <p style="font-size:14px;color:#6b7280;line-height:1.8;">
+    ・エラーメッセージをよく読みましょう。<br><br>
+    ・「ZeroDivisionError」などのときは、<code>cv2.moments(c)["m00"]</code> が0になっていることがあります。<br><br>
+    ・if文で0のときにスキップするようにすれば解決できます。
+  </p>
+  <p style="margin-top:10px;font-size:12px;color:#2b7bd3;font-weight:600;">🧩 エラーメッセージはヒントの宝庫です！</p>
+</article>
+
+
   </div>
 </div>
 <!-- ▼ ここまで追加 ▼ -->
@@ -224,12 +253,15 @@
     <div class="code-section">
       <div class="code-box">
         <pre><code># OpenCVライブラリを使用して画像処理を行うためにインポート
+
+# ① 最初の部分（ライブラリの読み込み）
 import cv2
 import numpy as np
 from picamera2 import Picamera2
 from etrobo_python import ETRobo, Motor
 import time
 
+# ② カメラの設定
 cam0 = Picamera2(0)
 cam0.configure(cam0.create_preview_configuration(main={"format": 'XRGB8888', "size": (320, 240)}))
 cam0.start()
@@ -240,8 +272,10 @@ cam1.configure(cam1.create_preview_configuration(main={"format": 'XRGB8888', "si
 cam1.start()
 time.sleep(1)
 
+# ③ 前回の方向を記憶する変数
 last_direction = "CENTER"
 
+# ④ 黒い線を見つける関数（get_direction）
 def get_direction(frame, last_direction):
     hsv = cv2.cvtColor(frame, cv2.COLOR_RGB2HSV)
     lower_black = (0, 0, 0)
@@ -262,6 +296,7 @@ def get_direction(frame, last_direction):
             direction = "CENTER"
     return direction
 
+# ⑤ モーターを動かす関数
 def line_trace_by_camera(right_motor: Motor, left_motor: Motor, **kwargs):
     global last_direction
     try:
@@ -283,6 +318,7 @@ def line_trace_by_camera(right_motor: Motor, left_motor: Motor, **kwargs):
     except Exception as e:
         print("エラー:", e)
 
+# ⑥ メインの部分（ロボットを動かす設定）
 if __name__ == "__main__":
     robo = (ETRobo(backend='raspike_art')
             .add_device('right_motor', device_type=Motor, port='A')
