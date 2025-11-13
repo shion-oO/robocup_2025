@@ -152,32 +152,32 @@
   </header>
 
   <nav>
-    <a href="robocup_home.html">トップページへ戻る</a>
-    <a href="gaiyou.html">概要</a>
-    <a href="sensor.html">センサーの使い方</a>
-    <a href="rescue.html">レスキューシナリオ</a>
-    <a href="programming.html">プログラミングの基礎</a>
+    <a href="robocup_home.html">ホーム</a>
+    <a href="speedbanmp.html">スピードバンプ</a>
+    <a href="gareki.html">瓦礫</a>
+    <a href="seesaw.html">シーソー</a>
+    <a href="keisyaro.html">傾斜路</a>
   </nav>
 
   <main>
     <video controls>
-      <source src="linetrace.mp4" type="video/mp4">
+      <source src="syougaibutu.mp4" type="video/mp4">
       お使いのブラウザは動画再生に対応していません。
     </video>
     <div class="caption">
     ロボットが障害物を避けて走行する様子を撮影した動画です。
     </div>
 
-    <h2>linetrace.py</h2>
+    <h2>syougaibutu.py</h2>
     <div class="code-section">
       <div class="code-box">
-        <pre><code># OpenCVライブラリを使用して画像処理を行うためにインポート
-import cv2
+        <pre><code>import cv2
 import numpy as np
 from picamera2 import Picamera2
-from etrobo_python import ETRobo, Motor
+from etrobo_python import ETRobo, Motor, SonarSensor
 import time
 
+# --- カメラの初期設定 ---
 cam0 = Picamera2(0)
 cam0.configure(cam0.create_preview_configuration(main={"format": 'XRGB8888', "size": (320, 240)}))
 cam0.start()
@@ -189,54 +189,113 @@ cam1.start()
 time.sleep(1)
 
 last_direction = "CENTER"
+avoid_mode = False  # 障害物回避モードフラグ
 
+# --- ラインの位置から進行方向を判定する関数 ---
 def get_direction(frame, last_direction):
     hsv = cv2.cvtColor(frame, cv2.COLOR_RGB2HSV)
     lower_black = (0, 0, 0)
     upper_black = (180, 255, 80)
     mask = cv2.inRange(hsv, lower_black, upper_black)
     mask = cv2.GaussianBlur(mask, (5, 5), 0)
+
     height, width = mask.shape
-    roi_bottom = mask[height-40:height, :]
+    roi_height = 40
+    roi_bottom = mask[height - roi_height:height, :]  # 下部のROI（ライン検出用領域）
+    roi_debug = cv2.cvtColor(mask.copy(), cv2.COLOR_GRAY2BGR)
+
     contours, _ = cv2.findContours(roi_bottom, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cx_list = []
+    for c in contours:
+        if cv2.contourArea(c) > 400:  # 小さいノイズを除去
+            M = cv2.moments(c)
+            if M["m00"] != 0:
+                cx = int(M["m10"] / M["m00"])
+                cy = int(M["m01"] / M["m00"])
+                cx_list.append(cx)
+                cv2.circle(roi_debug, (cx, cy + height - roi_height), 5, (0, 255, 0), -1)
+
     direction = last_direction
-    if contours:
-        cx = np.mean([cv2.moments(c)["m10"]/cv2.moments(c)["m00"] for c in contours if cv2.moments(c)["m00"] != 0])
-        if cx < width//2 - 20:
-            direction = "LEFT"
-        elif cx > width//2 + 20:
-            direction = "RIGHT"
+    tolerance = 20  # 許容範囲
+    if cx_list:
+        avg_cx = sum(cx_list) // len(cx_list)
+        if avg_cx < width // 2 - tolerance:
+            direction = "LEFT"   # 左へ
+        elif avg_cx > width // 2 + tolerance:
+            direction = "RIGHT"  # 右へ
         else:
-            direction = "CENTER"
-    return direction
+            direction = "CENTER" # まっすぐ
+    else:
+        direction = last_direction  # ラインが見えないときは前回の方向を維持
 
-def line_trace_by_camera(right_motor: Motor, left_motor: Motor, **kwargs):
-    global last_direction
+    return direction, roi_debug
+
+# --- ライントレースと障害物回避を同時に行うメイン関数 ---
+def line_trace_and_avoid(right_motor: Motor, left_motor: Motor, sonar: SonarSensor):
+    global last_direction, avoid_mode
+
     try:
-        frame0 = cam0.capture_array()
-        direction = get_direction(frame0, last_direction)
-        last_direction = direction
-        print("進行方向:", direction)
-        base_speed = 90 if direction == "CENTER" else 50
-        diff = 55
-        if direction == "LEFT":
-            right_motor.set_power(base_speed + diff)
-            left_motor.set_power(base_speed - diff)
-        elif direction == "RIGHT":
-            right_motor.set_power(base_speed - diff)
-            left_motor.set_power(base_speed + diff)
-        else:
-            right_motor.set_power(base_speed)
-            left_motor.set_power(base_speed)
-    except Exception as e:
-        print("エラー:", e)
+        distance = sonar.get_distance()
+        print(f"Sonar distance: {distance} mm")
 
-if __name__ == "__main__":
-    robo = (ETRobo(backend='raspike_art')
-            .add_device('right_motor', device_type=Motor, port='A')
-            .add_device('left_motor', device_type=Motor, port='B')
-            .add_handler(line_trace_by_camera))
-    robo.dispatch(interval=0.05)
+        if avoid_mode:
+            # 障害物を避けたあとの走行経路（避け終わり動作）
+            left_motor.set_power(60)
+            right_motor.set_power(30)
+            time.sleep(1.3)
+
+            left_motor.set_power(30)
+            right_motor.set_power(60)
+            time.sleep(1.1)
+
+            avoid_mode = False
+            return
+
+        if distance < 270:
+            print("[AVOID] 障害物を検出！ 回避動作を開始します...")
+            avoid_mode = True
+            return
+
+        # カメラから映像を取得
+        frame0 = cam0.capture_array()
+        frame1 = cam1.capture_array()
+
+        direction, debug_mask0 = get_direction(frame0, last_direction)
+        _, debug_mask1 = get_direction(frame1, last_direction)
+        last_direction = direction
+
+        print("Direction:", direction)
+
+        # 基本速度を設定（方向により調整）
+        base = 35 if direction == "CENTER" else 30
+        diff = 25
+
+        if direction == "LEFT":
+            right_motor.set_power(base + diff)
+            left_motor.set_power(base - diff)
+        elif direction == "RIGHT":
+            right_motor.set_power(base - diff)
+            left_motor.set_power(base + diff)
+        else:
+            right_motor.set_power(base)
+            left_motor.set_power(base)
+
+        # カメラ映像を表示（デバッグ用）
+        cv2.imshow("Cam0 Mask", debug_mask0)
+        cv2.imshow("Cam1 Mask", debug_mask1)
+        cv2.waitKey(1)
+
+    except Exception as e:
+        print("[ERROR]:", e)
+
+# --- 実行部分 ---
+(ETRobo(backend='raspyke')
+ .add_device('right_motor', device_type=Motor, port='B')
+ .add_device('left_motor', device_type=Motor, port='C')
+ .add_device('sonar', device_type=SonarSensor, port='S1')
+ .add_handler(line_trace_and_avoid)
+ .dispatch(interval=0.05))
+
 </code></pre>
       </div>
 
