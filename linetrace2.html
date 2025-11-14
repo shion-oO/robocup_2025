@@ -363,7 +363,7 @@ last_direction = "STRAIGHT"
 prev_left_power = -1
 prev_right_power = -1
 last_log_time = 0
-ignore_green_until = 0  # ????????
+ignore_green_until = 0  
 
 # ② RGB ⇒ HSV 変換関数
 def get_hsv_from_sensor(sensor: ColorSensor):
@@ -413,7 +413,7 @@ def trace_with_green_turn(right_motor: Motor, left_motor: Motor,
         if left_is_black and right_is_black:
             set_motor_power_safe(left_motor, right_motor, 60, 60)
             last_direction = "STRAIGHT"
-            ignore_green_until = current_time + 0.8  # ??????
+            ignore_green_until = current_time + 0.8  
             print("[CROSS] BOTH BLACK ? GO STRAIGHT & IGNORE GREEN")
             return
             # ⑥-4 緑による分岐（無視時間が終わった後）
@@ -592,7 +592,7 @@ prev_left_power = -1
 prev_right_power = -1
 last_log_time = 0
 
-# ?????HSV?3?????????
+#  ① 安定したHSV値を取得 
 def get_stable_hsv(sensor: ColorSensor, samples=10, delay=0.02):
     h_list, s_list, v_list = [], [], []
     for _ in range(samples):
@@ -605,15 +605,15 @@ def get_stable_hsv(sensor: ColorSensor, samples=10, delay=0.02):
         time.sleep(delay)
     return int(np.mean(h_list)), int(np.mean(s_list)), int(np.mean(v_list))
 
-# ?????S=0 ???? >=60 / V >=160?
+# ② 緑色判定 
 def is_green(h, s, v):
     return (75 <= h <= 100) and (s == 0 or s >= 60) and v >= 160
 
-# ???????????????
+# ③ 黒判定 
 def is_black(s, v):
     return s < 100 and v < 80
 
-# ???????????????
+# ④ モーター出力を安全に設定 
 def set_motor_power_safe(left_motor, right_motor, lp, rp):
     global prev_left_power, prev_right_power
     if lp != prev_left_power:
@@ -622,11 +622,12 @@ def set_motor_power_safe(left_motor, right_motor, lp, rp):
     if rp != prev_right_power:
         right_motor.set_power(rp)
         prev_right_power = rp
-# ????????????????????
+
 def trace_with_green_turn(right_motor: Motor, left_motor: Motor,
                           color_sensor_left: ColorSensor, color_sensor_right: ColorSensor):
     global last_direction, last_log_time
 
+    ⑤ 左右のHSV取得 ＋ 色判定（緑 / 黒）
     try:
         h_l, s_l, v_l = get_stable_hsv(color_sensor_left)
         h_r, s_r, v_r = get_stable_hsv(color_sensor_right)
@@ -638,8 +639,9 @@ def trace_with_green_turn(right_motor: Motor, left_motor: Motor,
         right_is_black = is_black(s_r, v_r)
 
         current_time = time.time()
-
-        # === ????U????===
+        
+        # ⑥ 緑による分岐動作（Uターン／左折／右折）
+        # ⑥-1 左右とも緑 → Uターン
         if left_is_green and right_is_green:
             print(f"[U-TURN] ???: L=({h_l},{s_l},{v_l}) R=({h_r},{s_r},{v_r})")
             start = time.time()
@@ -649,7 +651,7 @@ def trace_with_green_turn(right_motor: Motor, left_motor: Motor,
             print("[U-TURN COMPLETE]")
             return
 
-        # === ?????????===
+        # ⑥-2 左だけ緑 → 左折
         elif left_is_green and not left_is_black:
             print(f"[LEFT TURN] ?: L=({h_l},{s_l},{v_l})")
             start = time.time()
@@ -661,7 +663,7 @@ def trace_with_green_turn(right_motor: Motor, left_motor: Motor,
             time.sleep(1.0)
             return
 
-        # === ?????????===
+        # ⑥-3 右だけ緑 → 右折
         elif right_is_green and not right_is_black:
             print(f"[RIGHT TURN] ?: R=({h_r},{s_r},{v_r})")
             start = time.time()
@@ -673,7 +675,7 @@ def trace_with_green_turn(right_motor: Motor, left_motor: Motor,
             time.sleep(1.0)
             return
 
-        # === ??????????===
+        #  ⑦ 黒によるライントレース制御
         if left_is_black and not right_is_black:
             set_motor_power_safe(left_motor, right_motor, 30, 70)
             last_direction = "LEFT"
@@ -689,7 +691,7 @@ def trace_with_green_turn(right_motor: Motor, left_motor: Motor,
             set_motor_power_safe(left_motor, right_motor, 60, 60)
             last_direction = "STRAIGHT"
 
-        # === ???1????===
+        # ⑧ 1秒ごとのログ出力
         if current_time - last_log_time > 1.0:
             print(f"HSV L=({h_l},{s_l},{v_l}) | R=({h_r},{s_r},{v_r}) | Dir={last_direction}")
             last_log_time = current_time
@@ -697,7 +699,7 @@ def trace_with_green_turn(right_motor: Motor, left_motor: Motor,
     except Exception as e:
         print(f"[ERROR] {e}")
 
-# === ????????????????===
+# ⑨ ETRobo の設定と実行開始
 (ETRobo(backend='raspike_art')
  .add_device('right_motor', device_type=Motor, port='B')
  .add_device('left_motor', device_type=Motor, port='A')
@@ -710,12 +712,110 @@ def trace_with_green_turn(right_motor: Motor, left_motor: Motor,
       </div>
 
       <div class="desc-box">
-        <h3>(プログラムの説明)</h3>
-        <p><b>1️⃣ 緑検知：</b> HSV色空間で緑色の範囲を抽出し、交差点位置を検出します。</p>
-        <p><b>2️⃣ 動作判断：</b> 緑を見つけたら右折動作を実行し、方向転換を行います。</p>
-        <p><b>3️⃣ 通常走行：</b> 緑が見つからない場合は白黒ラインの追従を続けます。</p>
-      </div>
-    </div>
+  <h3>① 安定した HSV 値を取得する処理（get_stable_hsv）</h3>
+  <p>
+    この関数では、カラーセンサーから取得した RGB 値を複数回（デフォルト10回）読み取り、平均化することで
+    <b>安定した HSV 値</b> を作っています。<br><br>
+    センサーの値は環境光や揺れによって誤差が大きくなるため、1回だけでは信頼できません。
+    そのため、RGB → HSV 変換を10回行い、各値の平均を返すようにしています。
+  </p>
+
+  <h3>② 緑色の判定（is_green）</h3>
+  <p>
+    この条件では、主に以下の特徴を持つものを緑色として判定します。<br>
+    ・H（色相）が 75〜100<br>
+    ・S（彩度）が 0（センサー特性の例外）または 60以上<br>
+    ・V（明度）が 160以上<br><br>
+    明確な緑色だけを検出するための条件になっています。
+  </p>
+
+  <h3>③ 黒色（ライン）の判定（is_black）</h3>
+  <p>
+    黒いラインは明るさ（V）が低く、彩度（S）も低いという特徴を持っています。<br><br>
+    そのため、<br>
+    ・S &lt; 100<br>
+    ・V &lt; 80<br><br>
+    という条件で黒ラインを検出しています。ライントレース制御の基礎となる部分です。
+  </p>
+
+  <h3>④ モーター出力を安全に設定する仕組み（set_motor_power_safe）</h3>
+  <p>
+    ETRobo では、短い周期で頻繁に set_power() を繰り返すと不安定さが生じる場合があります。<br><br>
+    そのため、この関数では <b>前回と異なる値のときだけ set_power を実行</b> しています。<br><br>
+    これにより、<br>
+    ・ロボットの急な揺れや振動の防止<br>
+    ・モーター制御の安定化<br>
+    ・不必要な通信の削減<br>
+    といった効果があります。
+  </p>
+
+  <h3>⑤ 左右のカラーセンサーから HSV を取得して色を判定する処理</h3>
+  <p>
+    メインループの先頭では、<br>
+    ・左センサーの HSV<br>
+    ・右センサーの HSV<br><br>
+    を安定した値として取得し、<br>
+    ・左右の緑判定<br>
+    ・左右の黒判定<br><br>
+    を行います。これらの判定結果に応じて、方向転換やライントレース動作が決まっていきます。
+  </p>
+
+  <h3>⑥ 緑による分岐動作（Uターン・左折・右折）</h3>
+
+  <h4>⑥-1 左右とも緑 → Uターン</h4>
+  <p>
+    左右両方のセンサーが緑を検知した場合、Uターン処理に入ります。<br>
+    ・左モーター：前進<br>
+    ・右モーター：後退<br>
+    ・約0.7秒間その場回転<br><br>
+    この処理で確実に反転します。
+  </p>
+
+  <h4>⑥-2 左だけ緑 → 左折</h4>
+  <p>
+    左センサーが緑を検出した場合、左折動作を行います。<br>
+    ・左モーターを強く<br>
+    ・右モーターを止める<br><br>
+    ことで左回転し、その後ラインへ戻るための補正（左30 / 右100）を行います。
+  </p>
+
+  <h4>⑥-3 右だけ緑 → 右折</h4>
+  <p>
+    右センサーが緑を検出した場合は右折します。<br><br>
+    流れは左折と同じで、<br>
+    ・右側を軸に曲がる<br>
+    ・曲がった後に補正を入れてラインへ復帰<br>
+    という構造になっています。
+  </p>
+
+  <h3>⑦ 黒色によるライントレース制御（緑がない場合）</h3>
+  <p>
+    緑色が検出されない場合は通常のライントレース動作を行います。<br><br>
+    ・左だけ黒 → ロボットは左寄り → 右寄せ（左30 / 右70）<br>
+    ・右だけ黒 → ロボットは右寄り → 左寄せ（左70 / 右30）<br>
+    ・左右両方黒 → 黒帯上 → 直進（左60 / 右60）<br>
+    ・両方黒でない → ライン見失い気味 → とりあえず直進して復帰を試みる<br><br>
+    このようにしてロボットはラインを追従します。
+  </p>
+
+  <h3>⑧ ログ出力（1秒ごと）</h3>
+  <p>
+    ログが多すぎると逆に見にくいので、<b>前回ログから1秒以上経過した場合だけ</b> 出力します。<br><br>
+    出力内容：<br>
+    ・左右の HSV 値<br>
+    ・走行方向（LEFT / RIGHT / STRAIGHT）<br><br>
+    デバッグに役立つ情報を最小限の頻度で提供しています。
+  </p>
+
+  <h3>⑨ ETRobo の設定と動作開始</h3>
+  <p>
+    最後に、ETRobo の環境にデバイスを登録します。<br>
+    ・左右モーター（A / B）<br>
+    ・左右カラーセンサー（C / D）<br><br>
+    そして <b>dispatch(interval=0.2)</b> により 0.2秒周期で trace_with_green_turn が実行されます。<br>
+    Raspberry Pi と ETロボコンのブロック（raspike_art）を連携させて動作させる仕組みです。
+  </p>
+</div>
 
 
 
