@@ -299,161 +299,107 @@ def line_trace_and_avoid(right_motor: Motor, left_motor: Motor, sonar: SonarSens
 </code></pre>
       </div>
 
-<div class="desc-box">
-  <h3>(プログラムの説明)</h3>
+<div class="desc-box" style="background:#f7f9fc; padding:20px; border-radius:12px; line-height:1.8; color:#333;">
+  <p><b style="color:#000;">1. ライブラリの読み込み（道具箱を用意する部分）</b></p>
 
   <p>
-1. ライブラリの読み込み（道具箱を用意する部分）<br><br>
+    <b style="color:#000;">cv2（OpenCV）</b>：画像処理のため。色変換、マスク作成、輪郭検出などをします。<br>
+    <b style="color:#000;">numpy（np）</b>：配列計算を便利にする。画像は配列として扱います。<br>
+    <b style="color:#000;">Picamera2</b>：Raspberry Pi のカメラを扱うためのライブラリ。<br>
+    <b style="color:#000;">ETRobo / Motor / SonarSensor</b>：ロボット本体・モーター・超音波センサーを動かすためのライブラリ。<br>
+    <b style="color:#000;">time</b>：待ち時間（sleep）に使います。
+  </p>
 
-cv2（OpenCV）：画像処理のため。色変換、マスク作成、輪郭検出などをします。<br>
-numpy（np）：配列計算を便利にする。画像は配列として扱います。<br>
-Picamera2：Raspberry Pi のカメラを扱うためのライブラリ。<br>
-ETRobo / Motor / SonarSensor：ロボット本体・モーター・超音波センサーを動かすためのライブラリ。<br>
-time：待ち時間（sleep）に使います。<br><br>
+  <p><b style="color:#000;">2. カメラの初期設定（cam0, cam1）</b></p>
+  <p>
+    <b style="color:#000;">Picamera2(0)</b> と <b style="color:#000;">Picamera2(1)</b>：2台のカメラを想定（0 が1台目、1 が2台目）。<br>
+    <b style="color:#000;">size=(320,240)</b>：画像サイズを小さくして処理を速くしています（小さいと軽いが、細かい線は見えにくい）。<br>
+    <b style="color:#000;">time.sleep(1)</b>：カメラの起動待ち。カメラは起動直後に明るさや色が安定しないことがあるので待ちます。<br>
+    <b style="color:#000;">last_direction</b>：前回の進行方向（"LEFT" / "RIGHT" / "CENTER"）を覚えておきます。線が見えない瞬間の挙動安定化に使う。<br>
+    <b style="color:#000;">avoid_mode</b>：障害物回避中かどうかを示すフラグ（True/False）。
+  </p>
 
+  <p><b style="color:#000;">3. get_direction 関数 — 画像からラインの方向を推定する（超重要）</b></p>
+  <p>
+    色空間の変換（RGB → HSV）<br>
+    <b style="color:#000;">hsv = cv2.cvtColor(frame, cv2.COLOR_RGB2HSV)</b><br><br>
 
-2. カメラの初期設定（cam0, cam1）<br><br>
+    黒色の領域だけ取り出す（マスク作成）<br>
+    <b style="color:#000;">lower_black = (0, 0, 0)</b><br>
+    <b style="color:#000;">upper_black = (180, 255, 80)</b><br>
+    <b style="color:#000;">mask = cv2.inRange(hsv, lower_black, upper_black)</b><br><br>
 
-Picamera2(0) と Picamera2(1)：2台のカメラを想定（0 が1台目、1 が2台目）。<br>
-size=(320,240)：画像サイズを小さくして処理を速くしています（小さいと軽いが、細かい線は見えにくい）。<br>
-time.sleep(1)：カメラの起動待ち。カメラは起動直後に明るさや色が安定しないことがあるので待ちます。<br>
-注意点：実機で1台しかない場合は cam1 の設定を消す（もしくはエラーになるので適切に対応）必要があります。<br>
-last_direction：前回の進行方向（"LEFT" / "RIGHT" / "CENTER"）を覚えておきます。線が見えない瞬間の挙動安定化に使う。<br>
-avoid_mode：障害物回避中かどうかを示すフラグ（True/False）。<br><br>
+    ぼかし（ノイズ除去）<br>
+    <b style="color:#000;">mask = cv2.GaussianBlur(mask, (5, 5), 0)</b><br><br>
 
+    ROI（下の40ピクセルだけ見る）<br>
+    <b style="color:#000;">height, width = mask.shape</b><br>
+    <b style="color:#000;">roi_height = 40</b><br>
+    <b style="color:#000;">roi_bottom = mask[height - roi_height:height, :]</b><br><br>
 
-3. get_direction 関数 — 画像からラインの方向を推定する（超重要）<br><br>
+    輪郭検出<br>
+    <b style="color:#000;">contours, _ = cv2.findContours(roi_bottom, ...)</b><br><br>
 
-関数の全体像：カメラ画像を受け取って「左／中央／右」のどれかを返します。ついでにデバッグ用マスク画像も返す。<br><br>
+    重心（cx）を計算して位置を得る<br>
+    <b style="color:#000;">if cv2.contourArea(c) > 400:</b><br>
+    &nbsp;&nbsp;<b style="color:#000;">M = cv2.moments(c)</b><br>
+    &nbsp;&nbsp;<b style="color:#000;">cx = int(M["m10"] / M["m00"])</b><br><br>
 
-詳しい解説（ステップごと）<br><br>
+    平均cxで左右判定<br>
+    <b style="color:#000;">avg_cx = sum(cx_list) // len(cx_list)</b><br>
+    <b style="color:#000;">tolerance = 20</b><br>
+    <b style="color:#000;">if avg_cx < width // 2 - tolerance: direction = "LEFT"</b><br>
+    <b style="color:#000;">elif avg_cx > width // 2 + tolerance: direction = "RIGHT"</b><br>
+    <b style="color:#000;">else: direction = "CENTER"</b><br><br>
 
-色空間の変換（RGB → HSV）<br>
-hsv = cv2.cvtColor(frame, cv2.COLOR_RGB2HSV)<br><br>
+    ラインが見えない場合<br>
+    <b style="color:#000;">else: direction = last_direction</b>
+  </p>
 
-HSVは色（H）・彩度（S）・明るさ（V）で表現され、色や明るさの条件でフィルタするのに扱いやすいです。<br><br>
+  <p><b style="color:#000;">4. line_trace_and_avoid 関数 — ライントレースと障害物回避を組み合わせたメイン処理</b></p>
+  <p>
+    超音波センサーで距離を測る<br>
+    <b style="color:#000;">distance = sonar.get_distance()</b><br><br>
 
-黒色の領域だけ取り出す（マスク作成）<br>
-lower_black = (0, 0, 0)<br>
-upper_black = (180, 255, 80)<br>
-mask = cv2.inRange(hsv, lower_black, upper_black)<br><br>
+    回避中なら「回避後の復帰動作」を行う<br>
+    <b style="color:#000;">if avoid_mode:</b><br>
+    &nbsp;&nbsp;<b style="color:#000;">left_motor.set_power(60)</b><br>
+    &nbsp;&nbsp;<b style="color:#000;">right_motor.set_power(30)</b><br>
+    &nbsp;&nbsp;<b style="color:#000;">time.sleep(1.3)</b><br>
+    &nbsp;&nbsp;<b style="color:#000;">left_motor.set_power(30)</b><br>
+    &nbsp;&nbsp;<b style="color:#000;">right_motor.set_power(60)</b><br>
+    &nbsp;&nbsp;<b style="color:#000;">time.sleep(1.1)</b><br>
+    &nbsp;&nbsp;<b style="color:#000;">avoid_mode = False</b><br>
+    &nbsp;&nbsp;<b style="color:#000;">return</b><br><br>
 
-明るさ（V）の上限を80にして暗い（＝黒っぽい）部分を抽出しています。<br>
-inRange の結果は白（線）と黒（背景）の二値画像になります。<br><br>
+    もし距離が閾値（ここでは270mm）より近ければ回避開始<br>
+    <b style="color:#000;">if distance < 270:</b><br>
+    &nbsp;&nbsp;<b style="color:#000;">avoid_mode = True</b><br>
+    &nbsp;&nbsp;<b style="color:#000;">return</b><br><br>
 
-ぼかし（ノイズ除去）<br>
-mask = cv2.GaussianBlur(mask, (5, 5), 0)<br><br>
+    モーターへ出力（走行制御）<br>
+    <b style="color:#000;">base = 35 if direction == "CENTER" else 30</b><br>
+    <b style="color:#000;">diff = 25</b><br>
+    <b style="color:#000;">if direction == "LEFT":</b><br>
+    &nbsp;&nbsp;<b style="color:#000;">right_motor.set_power(base + diff)</b><br>
+    &nbsp;&nbsp;<b style="color:#000;">left_motor.set_power(base - diff)</b><br>
+    ...<br><br>
 
-小さな点ノイズを減らして輪郭検出を安定させます。<br><br>
+    デバッグ表示<br>
+    <b style="color:#000;">cv2.imshow("Cam0 Mask", debug_mask0)</b><br>
+    <b style="color:#000;">cv2.imshow("Cam1 Mask", debug_mask1)</b><br>
+    <b style="color:#000;">cv2.waitKey(1)</b><br><br>
 
-ROI（下の40ピクセルだけ見る）<br>
-height, width = mask.shape<br>
-roi_height = 40<br>
-roi_bottom = mask[height - roi_height:height, :]<br><br>
+    エラーメッセージ処理<br>
+    <b style="color:#000;">except Exception as e:</b><br>
+    &nbsp;&nbsp;<b style="color:#000;">print("[ERROR]:", e)</b>
+  </p>
 
-ロボットの視点だとラインは画面の下の方に映るので、下だけ見れば十分で処理が速くなります。<br><br>
-
-輪郭検出<br>
-contours, _ = cv2.findContours(roi_bottom, ...)<br><br>
-
-findContours で白い部分（＝黒線がある箇所）の形を見つけます。<br><br>
-
-重心（cx）を計算して位置を得る<br>
-if cv2.contourArea(c) > 400:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;M = cv2.moments(c)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;cx = int(M["m10"] / M["m00"])<br><br>
-
-小さい面積（例：ゴミ）を無視するために area > 400 のフィルタ。<br>
-moments から重心（cx）を得て、どの横位置にあるかをリストに追加します。<br><br>
-
-平均cxで左右判定<br>
-avg_cx = sum(cx_list) // len(cx_list)<br>
-tolerance = 20<br>
-if avg_cx < width // 2 - tolerance: direction = "LEFT"<br>
-elif avg_cx > width // 2 + tolerance: direction = "RIGHT"<br>
-else: direction = "CENTER"<br><br>
-
-画面中央（width//2）からのズレを見て左/右/中央を判定。toleranceで中央判定の余裕を作っています。<br><br>
-
-ラインが見えない場合<br>
-else:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;direction = last_direction<br><br>
-
-見えないときは直前の方向を使って動作を続け、ふらつきを減らします。<br><br>
-
-
-4. line_trace_and_avoid 関数 — ライントレースと障害物回避を組み合わせたメイン処理<br><br>
-
-この関数は ETRobo のハンドラとして定期的に呼ばれ、モーターとセンサーを操作します。<br><br>
-
-処理の流れ（順を追って）<br><br>
-
-超音波センサーで距離を測る<br>
-distance = sonar.get_distance()<br><br>
-
-前方の障害物（人や箱など）までの距離（mm）を取得します。<br><br>
-
-回避中なら「回避後の復帰動作」を行う<br>
-if avoid_mode:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;left_motor.set_power(60)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;right_motor.set_power(30)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;time.sleep(1.3)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;left_motor.set_power(30)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;right_motor.set_power(60)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;time.sleep(1.1)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;avoid_mode = False<br>
-&nbsp;&nbsp;&nbsp;&nbsp;return<br><br>
-
-avoid_mode が True のときは、事前に決めた一連のモーター操作（左右の速度差をつける）で復帰動作を行います。<br>
-このブロックは「回避完了後に元のラインに戻るための動き」と考えるとわかりやすいです。<br><br>
-
-もし距離が閾値（ここでは270mm）より近ければ回避開始<br>
-if distance < 270:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;avoid_mode = True<br>
-&nbsp;&nbsp;&nbsp;&nbsp;return<br><br>
-
-障害物が近い → avoid_mode = True にして次ループで回避動作へ移ります。<br><br>
-
-カメラ映像を取得して方向判定<br>
-frame0 = cam0.capture_array()<br>
-frame1 = cam1.capture_array()<br>
-direction, debug_mask0 = get_direction(frame0, last_direction)<br>
-_, debug_mask1 = get_direction(frame1, last_direction)<br>
-last_direction = direction<br><br>
-
-2台のカメラから画像を取得し、get_direction により方向を得ます。last_direction を更新。<br>
-なぜ2台？：片方が見えにくい時の冗長性や、両方から判定してより安定させる目的。ただし現在のコードはcam0の結果しか方向に使っていない点に注意（改良余地あり）。<br><br>
-
-モーターへ出力（走行制御）<br>
-base = 35 if direction == "CENTER" else 30<br>
-diff = 25<br>
-if direction == "LEFT":<br>
-&nbsp;&nbsp;&nbsp;&nbsp;right_motor.set_power(base + diff)<br>
-&nbsp;&nbsp;&nbsp;&nbsp;left_motor.set_power(base - diff)<br>
-...<br><br>
-
-base と diff を使って左右のパワー差をつけ、曲がりやすさを調整します。<br>
-例：direction == "LEFT" のとき、右側のモーターを速くして左へ曲がる。<br><br>
-
-デバッグ表示<br>
-cv2.imshow("Cam0 Mask", debug_mask0)<br>
-cv2.imshow("Cam1 Mask", debug_mask1)<br>
-cv2.waitKey(1)<br><br>
-
-マスク画像を画面に表示して、どこが黒線として検出されているかを確認できます。実機デバッグで非常に便利。<br><br>
-
-例外処理<br>
-except Exception as e:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;print("[ERROR]:", e)<br><br>
-
-何かエラーが発生したときにメッセージを出して止まらないようにします。<br><br>
-
-
-5. 実行部分（ETRoboの設定）<br><br>
-
-add_device：モーターやセンサーの登録（右モーターをBポート、左をCポート、ソナーをS1ポートに接続）。<br>
-add_handler(line_trace_and_avoid)：先ほどの関数を定期的に実行するよう登録。<br>
-dispatch(interval=0.05)：0.05秒（50ミリ秒）ごとに line_trace_and_avoid を呼ぶ。これがロボットの制御ループの周期です（20Hz）。<br>
+  <p><b style="color:#000;">5. 実行部分（ETRoboの設定）</b></p>
+  <p>
+    <b style="color:#000;">add_device</b>：モーターやセンサーの登録（右モーターをBポート、左をCポート、ソナーをS1ポートに接続）。<br>
+    <b style="color:#000;">add_handler(line_trace_and_avoid)</b>：先ほどの関数を定期的に実行するよう登録。<br>
+    <b style="color:#000;">dispatch(interval=0.05)</b>：0.05秒（50ミリ秒）ごとに line_trace_and_avoid を呼ぶ。これがロボットの制御ループの周期です（20Hz）。
   </p>
 </div>
 
