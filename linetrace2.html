@@ -352,7 +352,9 @@ def trace_and_turn_on_green(right_motor: Motor, left_motor: Motor,
         <h2>midori_tyokusin.py</h2>
     <div class="code-section">
       <div class="code-box">
-        <pre><code>import cv2
+        <pre><code>
+          # ① ライブラリと変数の準備
+          import cv2
 import numpy as np
 from etrobo_python import ETRobo, Motor, ColorSensor
 import time
@@ -363,18 +365,22 @@ prev_right_power = -1
 last_log_time = 0
 ignore_green_until = 0  # ????????
 
+# ② RGB ⇒ HSV 変換関数
 def get_hsv_from_sensor(sensor: ColorSensor):
     r, g, b = sensor.get_raw_color()
     rgb = np.uint8([[[r, g, b]]])
     hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV)
     return hsv[0][0]
 
+# ③ 緑色判定関数
 def is_green(h, s, v):
     return (75 <= h <= 100) and (s == 0 or s >= 60) and v >= 160
 
+# ④ 黒色判定（ライン）
 def is_black(s, v):
     return s < 100 and v < 80
 
+# ⑤ モーターの安全セット関数
 def set_motor_power_safe(left_motor, right_motor, lp, rp):
     global prev_left_power, prev_right_power
     if lp != prev_left_power:
@@ -384,14 +390,17 @@ def set_motor_power_safe(left_motor, right_motor, lp, rp):
         right_motor.set_power(rp)
         prev_right_power = rp
 
+# ⑥ メイン処理：ライントレース＋緑分岐
 def trace_with_green_turn(right_motor: Motor, left_motor: Motor,
                           color_sensor_left: ColorSensor, color_sensor_right: ColorSensor):
     global last_direction, last_log_time, ignore_green_until
 
+    # ⑥-1 センサー読み取り
     try:
         h_l, s_l, v_l = get_hsv_from_sensor(color_sensor_left)
         h_r, s_r, v_r = get_hsv_from_sensor(color_sensor_right)
 
+        # ⑥-2 緑・黒の判定
         left_is_green = is_green(h_l, s_l, v_l)
         right_is_green = is_green(h_r, s_r, v_r)
 
@@ -400,14 +409,14 @@ def trace_with_green_turn(right_motor: Motor, left_motor: Motor,
 
         current_time = time.time()
 
-        # --- ?????????????????????? ---
+        # ⑥-3 黒が両方 → 交差点として直進＋緑無視
         if left_is_black and right_is_black:
             set_motor_power_safe(left_motor, right_motor, 60, 60)
             last_direction = "STRAIGHT"
             ignore_green_until = current_time + 0.8  # ??????
             print("[CROSS] BOTH BLACK ? GO STRAIGHT & IGNORE GREEN")
             return
-            # --- ??????????????????? ---
+            # ⑥-4 緑による分岐（無視時間が終わった後）
         if current_time > ignore_green_until:
             if left_is_green and not left_is_black:
                 print(f"[LEFT TURN] GREEN DETECTED: L=({h_l},{s_l},{v_l})")
@@ -434,7 +443,7 @@ def trace_with_green_turn(right_motor: Motor, left_motor: Motor,
             if left_is_green or right_is_green:
                 print(f"[IGNORE GREEN] L=({h_l},{s_l},{v_l}) | R=({h_r},{s_r},{v_r})")
 
-        # --- ???????? ---
+        # ⑥-5 ライントレース制御（緑なし）
         if left_is_black and not right_is_black:
             set_motor_power_safe(left_motor, right_motor, 30, 70)
             last_direction = "LEFT"
@@ -446,7 +455,7 @@ def trace_with_green_turn(right_motor: Motor, left_motor: Motor,
             set_motor_power_safe(left_motor, right_motor, 60, 60)
             last_direction = "STRAIGHT"
 
-        # --- ?????1???? ---
+        # ⑥-6 ログの出力
         if current_time - last_log_time > 1.0:
             print(f"HSV L=({h_l},{s_l},{v_l}) | R=({h_r},{s_r},{v_r}) | Dir={last_direction}")
             last_log_time = current_time
@@ -454,7 +463,7 @@ def trace_with_green_turn(right_motor: Motor, left_motor: Motor,
     except Exception as e:
         print(f"[ERROR] {e}")
 
-# === ?? ===
+# ⑦ ETRobo 設定と dispatch
 (ETRobo(backend='raspike_art')
  .add_device('right_motor', device_type=Motor, port='B')
  .add_device('left_motor', device_type=Motor, port='A')
@@ -467,13 +476,6 @@ def trace_with_green_turn(right_motor: Motor, left_motor: Motor,
 
       <div class="desc-box">
   <h3>(プログラムの説明)</h3>
-
-  <p>
-    このプログラムは、左右のカラーセンサーから取得した <strong>RGB値</strong> を  
-    <strong>HSV色空間</strong> に変換し、緑色を検出した側に応じて左折・右折動作を行う制御処理です。  
-    緑を検出しない場合は黒ラインを認識してライントレースを行い、直進・左右補正を切り替えます。  
-    <strong>ETRobo（Raspberry Pi）環境</strong>で動作し、モーターとカラーセンサーをPythonから制御します。
-  </p>
 
   <h4>① ライブラリと変数の準備</h4>
   <p>
