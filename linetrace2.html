@@ -917,7 +917,7 @@ def trace_and_turn_on_green(right_motor: Motor, left_motor: Motor,
     except Exception as e:
         print(f"[ERROR] {e}")
 
-# ETRoboの設定と0.1秒周期ループ開始
+# ⑦ETRoboの設定と0.1秒周期ループ開始
 (ETRobo(backend='raspike_art')
  .add_device('right_motor', device_type=Motor, port='B')
  .add_device('left_motor', device_type=Motor, port='A')
