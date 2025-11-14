@@ -144,6 +144,21 @@
       font-size: 1.05em;
       line-height: 1.8;
     }
+    
+    .tips-grid {
+  display: flex;          /* 横並びにする */
+  flex-wrap: wrap;        /* 画面幅に合わせて折り返す */
+  gap: 16px;              /* ボックス間の隙間 */
+}
+
+.desc-box {
+  flex: 1 1 200px;        /* 最小幅200pxで横に広がる */
+  background-color: #f5f5f5; /* 好きな背景色 */
+  padding: 12px;
+  border-radius: 8px;
+  box-sizing: border-box;
+  width: 20%; /* 100% ÷ 5個 */
+}
 
   </style>
 </head>
