@@ -64,11 +64,45 @@
       line-height: 1.8;
     }
 
+    iframe {
+      display: block;
+      margin: 20px auto;
+      border-radius: 10px;
+    }
+
     footer {
       text-align: center;
       padding: 20px;
       background-color: #ecf0f1;
       margin-top: 20px;
+    }
+
+    .section {
+      background: #fff;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+      padding: 16px;
+    }
+
+    .section:hover {
+      transform: translateY(-5px);
+    }
+
+    .title {
+      background: #e3f2fd;
+      color: #000;
+      font-weight: bold;
+      padding: 10px 16px;
+      border-radius: 12px 12px 0 0;
+      border-bottom: 3px solid #fff;
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    b {
+      color: #4CAF50; /* 太字を緑に */
     }
   </style>
 </head>
@@ -82,100 +116,90 @@
     <a href="robocup_home.html">ホーム</a>
   </nav>
 
-  <!-- 概要 -->
-      <div class="section-card" style="background:#fff;border-radius:12px;border:1px solid #e3f2fd;margin-bottom:18px;box-shadow:0 6px 18px rgba(43,123,211,0.06);transition:transform 0.3s;">
-        <div style="background:#e3f2fd;color:#000;border-radius:12px 12px 0 0;padding:10px 16px;font-weight:bold;border-bottom:2px solid #fff;">📖 概要</div>
-        <div style="padding:16px;">
-          <p>・ロボットは、さまざまな模様のタイルでできたフィールドを進みながら、黒いラインをたどってゴールを目指します。</p>
-          <p>・フィールドの床は白く、段差のあるエリアが傾斜（スロープ）でつながっています。</p>
-          <p>・ロボットは自分で周囲の状況を判断しながら動く必要があり、チームがあらかじめコースの情報を教えることはできません。</p>
-        </div>
+  <main>
+
+    <!-- 1.1 ロボカップジュニアとは -->
+    <div class="section">
+      <div class="title">🤖 1.1 ロボカップジュニアとは</div>
+      <div class="content">
+        ロボカップジュニアは、<b>19歳以下</b>の子どもたちを対象とした競技です。<br>
+        子どもたちの<b>好奇心や探究心を引き出し</b>、<b>自ら挑戦できる場</b>を提供しています。<br><br>
+
+        競技には以下の<b>3つのリーグ</b>があります。<br>
+        ・サッカーリーグ<br>
+        ・レスキューリーグ<br>
+        ・OnStage（オンステージ）リーグ<br><br>
+
+        これらのリーグは<b>誰でも参加可能</b>であり、出場するロボットはリモコンで操作するのではなく、<b>自ら判断して行動する「自律型ロボット」</b>です。<br><br>
+
+        ロボットの設計・製作を通して、<b>次世代のロボカップを担う人材の育成</b>を目的としています。<br>
+        3つのリーグを通じて、<b>次世代のリーダーとして必要な基礎的な知識と協調性</b>を学ぶことができます。<br><br>
+
+        大会は次の順番で進みます。<br>
+        <b>ノード大会（地区予選） → ブロック大会 → 全国大会（ジャパンオープン） → 世界大会</b><br><br>
+
+        全国各地で熱い戦いが繰り広げられ、<b>世界大会を目指してチームが競い合います。</b>
       </div>
-
-      <!-- 得点の仕組み -->
-      <div class="section-card" style="background:#fff;border-radius:12px;border:1px solid #e3f2fd;margin-bottom:18px;box-shadow:0 6px 18px rgba(43,123,211,0.06);transition:transform 0.3s;">
-        <div style="background:#e3f2fd;color:#000;border-radius:12px 12px 0 0;padding:10px 16px;font-weight:bold;border-bottom:2px solid #fff;">🏅 得点の仕組み</div>
-        <div style="padding:16px;text-align:left;">
-          <ul style="list-style:none;padding-left:0;margin:0;">
-            <li>・交差点または行き止まりのタイルで正しい方向に進む<br>
-  ▶︎<strong>10 ポイント</strong></li>
-            <li>・シーソータイルを乗り越える<br>▶︎<strong>20 ポイント</strong></li>
-            <li>・障害物（レンガ・ブロック・重りなど）をうまく切り抜けて進む<br>▶︎<strong>20 ポイント</strong></li>
-            <li>・1つ以上のギャップがあるタイルの後で黒線に戻る<br>▶︎<strong>10 ポイント</strong></li>
-            <li>・傾斜路を上手に通過する（上り・下り成功）<br>▶︎<strong>10 ポイント</strong></li>
-            <li>・スピードバンプのあるタイルをうまく通過する<br>▶︎<strong>10 ポイント</strong></li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- 救助ゾーン -->
-      <div class="section-card" style="background:#fff;border-radius:12px;border:1px solid #d0e6f9;margin-bottom:18px;box-shadow:0 6px 18px rgba(43,123,211,0.06);transition:transform 0.3s;">
-        <div style="background:#e3f2fd;color:#000;border-radius:12px 12px 0 0;padding:10px 16px;font-weight:bold;border-bottom:2px solid #fff;">🔷 救助ゾーン（Rescue Zone）について</div>
-        <div style="padding:16px;">
-          <p>ロボットはコースを進んでいく途中で、<strong>救助ゾーン</strong>と呼ばれる部屋に入ることがあります。<br>
-          このゾーンは壁で囲まれた長方形のエリアで、入口と出口がそれぞれ次のように区別されます。</p>
-
-          <ul style="list-style:none;padding-left:0;">
-            <li>🚪 <strong>入口：</strong>床に反射性のある銀色テープが貼られている</li>
-            <li>🚪 <strong>出口：</strong>床に黒いテープが貼られている</li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- 被災者の種類 -->
-      <div class="section-card" style="background:#fff;border-radius:12px;border:1px solid #d0e6f9;margin-bottom:18px;box-shadow:0 6px 18px rgba(43,123,211,0.06);transition:transform 0.3s;">
-        <div style="background:#e3f2fd;color:#000;border-radius:12px 12px 0 0;padding:10px 16px;font-weight:bold;border-bottom:2px solid #fff;">🧍‍♀️ 被災者（Victim）の種類</div>
-        <div style="padding:16px;">
-          <p>救助ゾーン内には「被災者」を表すボールが置かれています。<br>
-          ボールの大きさは直径4〜5cmほどで、重心が少しずれた構造になっています。<br>
-          ロボットはこの被災者を検出し、生存者を指定された避難場所まで搬送する必要があります。</p>
-
-          <p>被災者には2種類あり、それぞれ次のように区別されます👇</p>
-
-          <table role="table" style="border-collapse:collapse;width:100%;max-width:900px;font-family:inherit;margin-top:10px;">
-            <thead>
-              <tr style="background-color:#f0f8ff;">
-                <th style="border:1px solid #bbb;padding:10px;text-align:center;">被災者の種類</th>
-                <th style="border:1px solid #bbb;padding:10px;text-align:center;">特徴</th>
-                <th style="border:1px solid #bbb;padding:10px;text-align:center;">状態</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style="border:1px solid #bbb;padding:10px;text-align:center;">銀色<br>（導電性あり）</td>
-                <td style="border:1px solid #bbb;padding:10px;text-align:center;">反射する素材</td>
-                <td style="border:1px solid #bbb;padding:10px;text-align:center;">生存者<br>（生きている）</td>
-              </tr>
-              <tr>
-                <td style="border:1px solid #bbb;padding:10px;text-align:center;">黒色<br>（導電性なし）</td>
-                <td style="border:1px solid #bbb;padding:10px;text-align:center;">反射しない素材</td>
-                <td style="border:1px solid #bbb;padding:10px;text-align:center;">死亡者<br>（亡くなっている）</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- 得点について -->
-      <div class="section-card" style="background:#fff;border-radius:12px;border:1px solid #d0e6f9;margin-bottom:18px;box-shadow:0 6px 18px rgba(43,123,211,0.06);transition:transform 0.3s;">
-        <div style="background:#e3f2fd;color:#000;border-radius:12px 12px 0 0;padding:10px 16px;font-weight:bold;border-bottom:2px solid #fff;">🏅 得点について</div>
-        <div style="padding:16px;">
-          <p>ロボットが新しいチェックポイントに到達すると得点を獲得できます。<br>
-          万が一フィールド内で動けなくなっても、最後に到達したチェックポイントから再スタートが可能です。<br>
-          被災者を助けた順番や救出の正確さによっては、追加のポイント（乗数）が与えられることもあります。</p>
-          <p>救助ゾーン内の障害物や瓦礫を避けたり通過しただけでは得点にはなりません。</p>
-        </div>
-      </div>
-
-      <!-- 救助後の動き -->
-      <div class="section-card" style="background:#fff;border-radius:12px;border:1px solid #d0e6f9;margin-bottom:18px;box-shadow:0 6px 18px rgba(43,123,211,0.06);transition:transform:0.3s;">
-        <div style="background:#e3f2fd;color:#000;border-radius:12px 12px 0 0;padding:10px 16px;font-weight:bold;border-bottom:2px solid #fff;">🏁 救助後の動き</div>
-        <div style="padding:16px;">
-          <p>救出が終わったら、ロボットは黒線をたどりながらコースのゴールタイルまで進む必要があります。</p>
-        </div>
-      </div>
-
     </div>
+
+    <!-- 1.2 レスキューとは -->
+    <div class="section">
+      <div class="title">🚑 1.2 レスキューとは</div>
+      <div class="content">
+        レスキューリーグは、<b>災害現場での救助活動を模した競技</b>です。<br>
+        リモコン操作に頼らず、<b>ロボット自身が周囲の状況を判断</b>し、さまざまな障害を乗り越えて<b>被災者を救助</b>する<b>速さと確実さ</b>を競います。<br><br>
+
+        レスキューリーグは次の<b>2種類</b>に分類されます。<br>
+        ・日本リーグレスキュー<br>
+        ・ワールドリーグレスキュー<br><br>
+
+        それぞれのコースには<b>難易度の違い</b>があります。
+      </div>
+    </div>
+
+    <!-- 1.2.1 日本リーグ レスキュー・ライン・エントリー -->
+    <div class="section">
+      <div class="title">🇯🇵 1.2.1 日本リーグ レスキュー・ライン・エントリー</div>
+      <div class="content">
+        日本リーグレスキューは、<b>小学生以上</b>の子どもを対象とした競技です。<br>
+        下の写真は「<b>ロボカップジュニア 日本リーグ レスキュー・ライン・エントリー（2024年度版）</b>」のコース例です。<br><br>
+
+        このコースには、次の<b>6つの課題</b>があります。<br>
+        ・ライントレース<br>
+        ・ギャップ<br>
+        ・バンプ<br>
+        ・傾斜路<br>
+        ・障害物<br>
+        ・救助ゾーン<br><br>
+
+        それぞれの課題をクリアすることで<b>ポイントが与えられます。</b><br>
+        <iframe src="https://drive.google.com/file/d/1sG6UAhETUXQ18UJ6jS2r9bXhlaV2jijp/preview"
+            width="440"
+            height="220"></iframe>
+      </div>
+    </div>
+
+    <!-- 1.2.2 ワールドリーグ レスキュー・ライン -->
+    <div class="section">
+      <div class="title">🌍 1.2.2 ワールドリーグ レスキュー・ライン</div>
+      <div class="content">
+        ワールドリーグレスキューは、<b>競技年度の7月1日時点で14歳～19歳</b>の参加者が対象です。<br>
+        下の写真は「<b>ロボカップジュニア ワールドリーグ レスキュー・ライン（2024年度版）</b>」のコース例です。<br><br>
+
+        このコースには、日本リーグの6つの課題に加えて、次の<b>2つの課題</b>が追加されます。<br>
+        ・シーソー<br>
+        ・交差点<br><br>
+
+        そのため、<b>全8種類の課題</b>が設定されています。<br>
+        難易度は<b>日本リーグよりも高く</b>、初心者には<b>やや難しい内容</b>となっています。<br><br>
+
+        ⚠️各課題の詳細なルールは、<b>「ルール項目」</b>を、攻略方法は<b>「実践要項」</b>を参考にしてください。<br>
+        <iframe src="https://drive.google.com/file/d/1Fu3p8l9zIoutaptsOCUtvD7lbmSmYIhj/preview"
+            width="440"
+            height="220"></iframe>
+      </div>
+    </div>
+
   </main>
 
   <footer>

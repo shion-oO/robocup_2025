@@ -76,18 +76,18 @@
 
     .code-section {
       display: flex;
-      gap: 20px;
-      margin-top: 20px;
-      margin-bottom: 60px;
+      gap: 30px;
+      margin-top: 30px;
+      margin-bottom: 70px;
       flex-wrap: wrap;
     }
 
     .code-box {
       flex: 1;
-      min-width: 400px;
+      min-width: 480px;
       background: #f7f9fb;
       border-radius: 10px;
-      padding: 20px;
+      padding: 25px;
       overflow-x: auto;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
@@ -172,29 +172,30 @@
     <h2>midori_kenti.py</h2>
     <div class="code-section">
       <div class="code-box">
-        <pre><code>import cv2
+        <pre><code># ① ライブラリのインポート
+import cv2
 import numpy as np
 from etrobo_python import ETRobo, Motor, ColorSensor
 import time
 
+# ② グローバル変数
 last_direction = "RIGHT"
 
-# HSV??
+# ③ HSV変換関数
 def get_hsv_from_sensor(sensor: ColorSensor):
     r, g, b = sensor.get_raw_color()
     rgb = np.uint8([[[r, g, b]]])
     hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV)
     return hsv[0][0]
 
-# ??????????
+# ④ 緑色検知関数（左・右）
 def is_green_left(h, s, v):
     return (70 <= h <= 90) and (13 <= s <= 30) and (25 <= v <= 35)
 
-# ??????????
 def is_green_right(h, s, v):
     return (75 <= h <= 80) and (120 <= s <= 150) and (35 <= v <= 50)
 
-# ?????
+# ⑤ メイン制御関数
 def trace_and_turn_on_green(right_motor: Motor, left_motor: Motor,
                             color_sensor_left: ColorSensor, color_sensor_right: ColorSensor):
     global last_direction
@@ -209,7 +210,7 @@ def trace_and_turn_on_green(right_motor: Motor, left_motor: Motor,
             print(f"[LEFT TURN] Green detected on LEFT sensor (HSV={h_l},{s_l},{v_l})")
             left_motor.set_power(50)
             right_motor.set_power(0)
-            time.sleep(1.5)  # ?????
+            time.sleep(1.5)  
             return
 
         if right_is_green:
@@ -219,7 +220,6 @@ def trace_and_turn_on_green(right_motor: Motor, left_motor: Motor,
             time.sleep(1.5)
             return
 
-        # ????????
         if v_l < 60 and s_l < 100:
             power = 30
             left_motor.set_power(power)
@@ -240,7 +240,7 @@ def trace_and_turn_on_green(right_motor: Motor, left_motor: Motor,
     except Exception as e:
         print(f"[ERROR] {e}")
 
-# ????
+# ⑥ 実行部分
 (ETRobo(backend='raspyke')
  .add_device('right_motor', device_type=Motor, port='B')
  .add_device('left_motor', device_type=Motor, port='C')
@@ -251,13 +251,94 @@ def trace_and_turn_on_green(right_motor: Motor, left_motor: Motor,
 </code></pre>
       </div>
 
-      <div class="desc-box">
-        <h3>(プログラムの説明)</h3>
-        <p><b>1️⃣ 緑検知：</b> HSV色空間で緑色の範囲を抽出し、交差点位置を検出します。</p>
-        <p><b>2️⃣ 動作判断：</b> 緑を見つけたら右折動作を実行し、方向転換を行います。</p>
-        <p><b>3️⃣ 通常走行：</b> 緑が見つからない場合は白黒ラインの追従を続けます。</p>
-      </div>
-    </div>
+<div class="desc-box">
+  <h3>(プログラムの説明)</h3>
+
+  <p>
+    このプログラムは、左右のカラーセンサーで取得した<strong>RGB値</strong>を<strong>HSV色空間</strong>に変換し、  
+    緑色を検出した側に合わせて右折・左折を行うように制御します。  
+    緑が検出されないときはラインをトレースして直進または補正走行を行います。  
+    <strong>eTRobo環境</strong>で実行され、モーター・センサーは<strong>Raspberry Pi</strong>経由で制御されます。
+  </p>
+
+  <h4>① ライブラリのインポート</h4>
+  <p>
+    画像処理ライブラリ（<code>cv2</code>, <code>numpy</code>）と、  
+    ETロボコン用デバイス制御ライブラリ（<code>etrobo_python</code>）を読み込んでいます。  
+    これにより、ロボットのモーターやカラーセンサーをPythonから操作できるようになります。
+  </p>
+
+  <h4>② グローバル変数</h4>
+  <p>
+    ロボットが<strong>直前にどちらへ進んだか（右・左・直進）</strong>を記録しておくための変数です。  
+    次の動作を決める際に参照されます。
+  </p>
+
+  <h4>③ HSV変換関数</h4>
+  <p>
+    センサーから取得したRGB値を、色検出に適した<strong>HSV形式</strong>に変換します。  
+    HSVは「色相（Hue）」「彩度（Saturation）」「明度（Value）」を表し、  
+    緑色などの判定を安定して行えるようになります。
+  </p>
+
+  <h4>④ 緑色検知関数（左・右）</h4>
+  <p>
+    左右のカラーセンサーで取得したHSV値が、  
+    あらかじめ設定された「緑色の範囲」に入っているかを判定します。  
+    左右で条件を少し変えているのは、照明環境やセンサー個体差を補正するためです。
+  </p>
+
+  <h4>⑤ メイン制御関数</h4>
+  <p>
+    この関数がロボット走行の中心となる処理です。
+  </p>
+  <ol>
+    <li>HSV値を取得し、左右のカラーセンサーから色データを読み取る。</li>
+    <li>緑色が左にあれば左折、右にあれば右折を行う。</li>
+    <li>緑がない場合はライントレース（前進・微調整）を行う。</li>
+    <li>最後にどちらへ曲がったかを記録し、次回の補正に利用。</li>
+  </ol>
+
+  <h4>⑥ 実行部分</h4>
+  <p>
+    ロボット本体を初期化し、モーターやセンサーを登録します。  
+    <code>dispatch(interval=0.1)</code> により、0.1秒ごとに上記の制御関数を繰り返し実行します。
+  </p>
+</div>
+
+
+<table border="1" style="border-collapse: collapse; text-align: left;">
+  <tr style="background-color: #f0f0f0;">
+    <th>問題の内容</th>
+    <th>原因</th>
+    <th>改善のヒント</th>
+  </tr>
+  <tr>
+    <td>ロボットが動かない</td>
+    <td>モーターやセンサーのポート指定が間違っている</td>
+    <td>ETRobo初期化部分でポート名（例: 'B', 'C', 'S2', 'S3'）を再確認する</td>
+  </tr>
+  <tr>
+    <td>常に右折または左折しかしない</td>
+    <td>緑色判定のHSV範囲が狭すぎる / 照明条件が異なる</td>
+    <td>`is_green_left`や`is_green_right`のHSV範囲を少し広げる（例: H±5, S±20など）</td>
+  </tr>
+  <tr>
+    <td>ライン上でふらつく</td>
+    <td>センサーの反応遅延またはモーター出力のバランス</td>
+    <td>左右モーターの出力比（50と30など）を調整する</td>
+  </tr>
+  <tr>
+    <td>「[ERROR]」が頻発する</td>
+    <td>センサー値が取得できていない / コネクタ接触不良</td>
+    <td>カラーセンサーのコネクタを抜き差しして再接続する</td>
+  </tr>
+  <tr>
+    <td>緑を検知しても反応しない</td>
+    <td>センサー位置が遠すぎる or HSV範囲が合っていない</td>
+    <td>センサーの高さを調整し、実際の緑色を`print()`で確認しながら範囲を再設定する</td>
+  </tr>
+</table>
 
 
         <video controls>

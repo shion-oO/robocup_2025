@@ -299,29 +299,81 @@ def line_trace_and_avoid(right_motor: Motor, left_motor: Motor, sonar: SonarSens
 </code></pre>
       </div>
 
-      <div class="desc-box">
-        <h3>(プログラムの説明)</h3>
-        <p>このプログラムは、カメラで黒線を認識しながら走行するロボットの制御を行います。</p>
-        <p><b>1️⃣ カメラ設定：</b> 2台のカメラを起動し、映像を取得できるようにします。</p>
-        <p><b>2️⃣ 画像処理：</b> OpenCVで黒線を検出し、重心位置から進行方向（左・右・中央）を判定します。</p>
-        <p><b>3️⃣ モーター制御：</b> 進行方向に応じて左右のモーター出力を調整し、ライン上を走行します。</p>
-        <p><b>4️⃣ 実行部分：</b> ETRoboライブラリを使い、0.05秒ごとに制御関数を呼び出します。</p>
-        <p>これにより、ロボットは黒線を追いかけるように自動で進むことができます。</p>
-      </div>
-    </div>
+<div class="desc-box">
+  <h3>(プログラムの説明)</h3>
 
-    <!-- ▼ 学習のやり方セクション ▼ -->
-    <div class="learn-section">
-      <h2>📘 学習のやり方</h2>
-      <p>障害物の学習では、次の手順で理解を深めましょう。</p>
-      <ol class="learn-list">
-        <li><b>1. 動作の確認：</b> まずは動画を見て、ロボットがどのように黒線をたどるか観察します。</li>
-        <li><b>2. コードの理解：</b> 各関数の役割（カメラ取得・画像処理・モーター制御）を順に読み解きます。</li>
-        <li><b>3. 実験と調整：</b> 黒線の太さやカメラの位置を変えて、プログラムの反応を試してみましょう。</li>
-        <li><b>4. 応用：</b> 速度やカーブ処理の調整、または交差点対応の改良などを行ってみます。</li>
-      </ol>
-      <p>実際にロボットを動かしながら学ぶことで、「センサー」と「プログラム制御」の関係を深く理解できます。</p>
-    </div>
+  <ol>
+    <li>
+      <strong>① プログラムで使う道具（ライブラリ）</strong><br>
+      - <strong>cv2（OpenCV）</strong>：カメラ映像を処理して黒線の位置を見つける。<br>
+      - <strong>numpy（np）</strong>：計算や数値処理を簡単にするライブラリ。<br>
+      - <strong>Picamera2</strong>：Raspberry Piのカメラ操作用。<br>
+      - <strong>ETRobo / Motor / SonarSensor</strong>：ロボット本体・モーター・超音波センサーを制御。<br>
+      - <strong>time</strong>：プログラムで待機（sleep）する処理。
+    </li>
+
+    <li>
+      <strong>② カメラの準備</strong><br>
+      - cam0 → 1台目のカメラ、cam1 → 2台目のカメラ。<br>
+      - 画面サイズは (320, 240) に設定して処理を高速化。<br>
+      - カメラ起動後に <code>time.sleep(1)</code> で1秒待機。<br>
+      - 1台だけ使用する場合は cam1 部分を削除可能。
+    </li>
+
+    <li>
+      <strong>③ 前回の進行方向を覚える</strong><br>
+      - <code>last_direction</code>：前回ロボットが向いていた方向（LEFT / RIGHT / CENTER）。<br>
+      - <code>avoid_mode</code>：障害物回避中かどうかのフラグ。
+    </li>
+
+    <li>
+      <strong>④ 黒い線を見つける仕組み</strong><br>
+      - 画像を HSV に変換し、黒色部分を抽出。<br>
+      - ぼかし処理でノイズを低減。<br>
+      - ROI（下40ピクセル）だけを処理して速度と精度を向上。<br>
+      - <code>cv2.findContours</code> で輪郭を検出し、重心 (cx) を計算。<br>
+      - 判定結果：線が左 → "LEFT"、線が右 → "RIGHT"、中央 → "CENTER"、見えない場合 → 前回の方向を維持。
+    </li>
+
+    <li>
+      <strong>⑤ モーターで走行を制御</strong><br>
+      - 黒線方向に応じて左右モーター速度を調整。<br>
+      - CENTER → 左右同じ速度、LEFT → 右モーター速くして左へ曲がる、RIGHT → 左モーター速くして右へ曲がる。<br>
+      - <code>base</code>（基本速度）と <code>diff</code>（左右差）で曲がり具合を制御。
+    </li>
+
+    <li>
+      <strong>⑥ 障害物回避</strong><br>
+      - 超音波センサーで前方障害物を検知。<br>
+      - 距離270mm以内 → <code>avoid_mode = True</code>。<br>
+      - 左右モーターの速度を変えて障害物を迂回。<br>
+      - 回避完了後 → <code>avoid_mode = False</code> にして通常走行に戻す。
+    </li>
+
+    <li>
+      <strong>⑦ プログラムの実行方法</strong><br>
+      - モーターとセンサーを登録（add_device）。<br>
+      - ライントレース関数を登録（add_handler）。<br>
+      - 0.05秒ごとに処理を繰り返す（dispatch(interval=0.05)）。<br>
+      → ロボットがカメラで黒線を認識し、障害物を避けながら自律走行。
+    </li>
+  </ol>
+</div>
+
+
+<div class="learn-section">
+  <h2>📘 学習のやり方</h2>
+  <p>障害物の学習では、次の手順で理解を深めましょう。</p>
+  <ol class="learn-list">
+    <li>カメラで床の黒線を探す</li>
+    <li>線の位置から左右どちらに曲がるか判断する</li>
+    <li>モーターの速度を調整して方向転換</li>
+    <li>超音波センサーで障害物を検知 → 回避</li>
+    <li>この処理を繰り返す → ロボットが自律走行</li>
+  </ol>
+  <p>実際にロボットを動かしながら学ぶことで、<strong>「センサー」と「カメラ」の関係</strong>を深く理解できます。</p>
+</div>
+
 
   </main>
 

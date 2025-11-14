@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ロボカップジュニアについて</title>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', sans-serif;
+      background-color: #f0f4f8;
+      margin: 0;
+      padding: 0;
+      color: #2c3e50;
+    }
+
+    header {
+      background-color: #3498db;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2em;
+    }
+
+    nav {
+      background-color: #ecf0f1;
+      padding: 10px 20px;
+    }
+
+    nav a {
+      color: #3498db;
+      text-decoration: none;
+      margin-right: 15px;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    main {
+      padding: 40px 20px;
+      max-width: 900px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    section {
+      margin-bottom: 40px;
+    }
+
+    h2 {
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 5px;
+      margin-bottom: 15px;
+    }
+
+    p {
+      line-height: 1.8;
+    }
+
+    iframe {
+      display: block;
+      margin: 20px auto;
+      border-radius: 10px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #ecf0f1;
+      margin-top: 20px;
+    }
+
+    .section {
+      background: #fff;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+      padding: 16px;
+    }
+
+    .section:hover {
+      transform: translateY(-5px);
+    }
+
+    .title {
+      background: #e3f2fd;
+      color: #000;
+      font-weight: bold;
+      padding: 10px 16px;
+      border-radius: 12px 12px 0 0;
+      border-bottom: 3px solid #fff;
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    b {
+      color: #4CAF50;
+    }
+
+    /* 黒銀ボールカード用 */
+    .section-card {
+      background:#fff;
+      border-radius:12px;
+      border:1px solid #e3f2fd;
+      margin-bottom:18px;
+      box-shadow:0 6px 18px rgba(43,123,211,0.06);
+      transition:transform 0.3s;
+      padding:0;
+    }
+    .section-card:hover {
+      transform: translateY(-4px);
+    }
+    .section-card .card-title {
+      background:#e3f2fd;
+      color:#000;
+      border-radius:12px 12px 0 0;
+      padding:10px 16px;
+      font-weight:bold;
+      border-bottom:2px solid #fff;
+    }
+    .section-card .card-content {
+      padding:16px;
+    }
+    .section-card h3 {
+      color:#4CAF50;
+      margin-top:0;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>ボール検知学習について</h1>
+  </header>
+
+  <nav>
+    <a href="robocup_home.html">ホーム</a>
+    <a href="blackball.html">黒色ボール</a>
+    <a href="silverball.html">銀色ボール</a>
+  </nav>
+
+  <!-- ここから追加 -->
+  <main>
+    <div style="font-family:'Hiragino Sans','Noto Sans JP',sans-serif;background:#f7f9fc;padding:20px;color:#333;line-height:1.8;max-width:900px;margin:0 auto;">
+
+      <!-- 黒色ボール検出 -->
+      <div class="section-card">
+        <div class="card-title">⚫ 黒色ボール検出（被災者検知）</div>
+        <div class="card-content">
+          <h3>① 画像を集めてアノテーション</h3>
+          <p>
+            まず、ロボットのカメラで撮影した<strong>黒いボールの画像を約120枚</strong>用意しました📸  
+            それぞれの画像に対して「ボールの位置」を手作業で囲む<strong>アノテーション作業</strong>を行いました。  
+            この工程により、AIは「黒いボールの形・大きさ・光の反射の特徴」などを学習できるようになります。
+          </p>
+
+          <h3>② YOLOでAIを学習</h3>
+          <p>
+            アノテーション済みデータを使用して、<strong>物体検出AI「YOLO（You Only Look Once）」</strong>で学習を行いました🤖  
+            YOLOはリアルタイムで物体を検出できるモデルで、ロボット制御との相性も抜群です。  
+            学習後のAIモデルは、カメラ映像から黒いボールを正確に認識できるようになりました。
+          </p>
+
+          <h3>③ モデルをラズパイへ転送</h3>
+          <p>
+            学習が完了したAIモデルは、<strong>VNC</strong>を使ってRaspberry Piに転送しました💻  
+            ラズパイ側のPythonプログラムでモデルを読み込み、カメラ映像を解析して黒いボールをリアルタイムで検出します。  
+            ボールを見つけるとロボットは自動的に「救出モード」に切り替わり、<strong>アームでボールをすくい上げて壁方向へ運ぶ</strong>動作を行います。
+          </p>
+
+          <h3>④ 救助ゾーンでの活用</h3>
+          <p>
+            ロボカップジュニアのレスキュー競技では、<strong>黒いボール＝被災者</strong>を意味します。  
+            ロボットはこのボールを検知して安全な位置へ運び出すよう設計されており、  
+            センサー制御に加えて<strong>AIによる自律的な救出行動</strong>にも挑戦しています。
+          </p>
+        </div>
+      </div>
+
+      <!-- 銀色ボール検出 -->
+      <div class="section-card">
+        <div class="card-title">⚪ 銀色ボール検出（生存者検知）</div>
+        <div class="card-content">
+          <p>
+            銀色のボールも黒ボールと同様に、<strong>Google ColabでYOLOを使って学習</strong>させました。  
+            約120枚の画像をアノテーションしてモデルを作成しましたが、実際にロボットに組み込んで動かしてみると、  
+            反射の影響でうまく検出できないケースがありました。
+          </p>
+
+          <p>
+            原因として考えられるのは、<strong>光の反射で見た目が大きく変化</strong>することや、  
+            学習に使用した画像の枚数や角度が十分でなかったことです。  
+            改善策としては、<strong>照明や撮影角度の工夫・反射を抑えた背景の使用</strong>などが有効です。  
+            また、より多くの画像をさまざまな環境で集めることで、検出精度を高めることができます。
+          </p>
+
+          <p>
+            銀ボールの検出は難易度が高いですが、これを乗り越えることで、<strong>AI認識の応用力</strong>をさらに磨くことができます💪  
+            チームとしても「どうすれば安定検出できるか？」を考え、次の改良に向けて研究を進めています。
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+  <!-- 追加ここまで -->
+
+  <footer>
+    <p>&copy; 2025 ロボカップジュニア</p>
+  </footer>
+
+</body>
+</html>
