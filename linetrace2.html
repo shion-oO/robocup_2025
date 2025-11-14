@@ -307,38 +307,42 @@ def trace_and_turn_on_green(right_motor: Motor, left_motor: Motor,
 </div>
 
 
-<table border="1" style="border-collapse: collapse; text-align: left;">
-  <tr style="background-color: #f0f0f0;">
-    <th>問題の内容</th>
-    <th>原因</th>
-    <th>改善のヒント</th>
-  </tr>
-  <tr>
-    <td>ロボットが動かない</td>
-    <td>モーターやセンサーのポート指定が間違っている</td>
-    <td>ETRobo初期化部分でポート名（例: 'B', 'C', 'S2', 'S3'）を再確認する</td>
-  </tr>
-  <tr>
-    <td>常に右折または左折しかしない</td>
-    <td>緑色判定のHSV範囲が狭すぎる / 照明条件が異なる</td>
-    <td>`is_green_left`や`is_green_right`のHSV範囲を少し広げる（例: H±5, S±20など）</td>
-  </tr>
-  <tr>
-    <td>ライン上でふらつく</td>
-    <td>センサーの反応遅延またはモーター出力のバランス</td>
-    <td>左右モーターの出力比（50と30など）を調整する</td>
-  </tr>
-  <tr>
-    <td>「[ERROR]」が頻発する</td>
-    <td>センサー値が取得できていない / コネクタ接触不良</td>
-    <td>カラーセンサーのコネクタを抜き差しして再接続する</td>
-  </tr>
-  <tr>
-    <td>緑を検知しても反応しない</td>
-    <td>センサー位置が遠すぎる or HSV範囲が合っていない</td>
-    <td>センサーの高さを調整し、実際の緑色を`print()`で確認しながら範囲を再設定する</td>
-  </tr>
-</table>
+<div class="tips-section">
+  <h2>よくある問題と改善のヒント</h2>
+  <div class="tips-grid">
+
+    <article class="card">
+      <h3>🚦 緑が正しく検知されない</h3>
+      <p>・左右で緑のHSV範囲が違いすぎる<br>・明るさや照明で検知値が変わる<br>・<code>is_green_left</code> と <code>is_green_right</code> の範囲を調整</p>
+      <p style="color:#16a34a; font-weight:600;">🌱 HSVの範囲を見直そう！</p>
+    </article>
+
+    <article class="card">
+      <h3>🕹️ 左右の動きが不安定</h3>
+      <p>・モーター出力が固定で補正がない<br>・ラインを見失ったときの制御が弱い<br>・前回方向（<code>last_direction</code>）の扱いを改善</p>
+      <p style="color:#2b7bd3; font-weight:600;">⚙️ 前回方向で補正！</p>
+    </article>
+
+    <article class="card">
+      <h3>🖤 黒ラインが正しく認識されない</h3>
+      <p>・明度Vと彩度Sの閾値が適切でない<br>・周囲の明るさや影で誤判定<br>・<code>v_l < 60 and s_l < 100</code> を環境に合わせて調整</p>
+      <p style="color:#16a34a; font-weight:600;">🎨 閾値を環境に合わせよう！</p>
+    </article>
+
+    <article class="card">
+      <h3>↔️ 左右が逆になる／旋回方向がおかしい</h3>
+      <p>・モーター接続ポート（A/B）が逆<br>・コードで左右モーター出力の割り当てを確認<br>・センサー配線と方向を確認</p>
+      <p style="color:#2b7bd3; font-weight:600;">🧭 モーターとセンサー接続をチェック！</p>
+    </article>
+
+    <article class="card">
+      <h3>⏱️ 緑検知後の旋回時間が長すぎる／短すぎる</h3>
+      <p>・<code>time.sleep(1.5)</code> の値を環境や旋回速度に合わせる<br>・モーター出力と時間のバランスを確認</p>
+      <p style="color:#16a34a; font-weight:600;">⏳ 旋回時間を微調整！</p>
+    </article>
+
+  </div>
+</div>
 
 
         <video controls>
