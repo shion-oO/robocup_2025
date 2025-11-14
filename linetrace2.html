@@ -836,14 +836,16 @@ import numpy as np
 from etrobo_python import ETRobo, Motor, ColorSensor
 import time
 
-last_direction = "RIGHT"  # ?????????
+last_direction = "RIGHT"  
 
+# ① HSV値を取得する処理
 def get_hsv_from_sensor(sensor: ColorSensor):
     r, g, b = sensor.get_raw_color()
     rgb = np.uint8([[[r, g, b]]])
     hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV)
     return hsv[0][0]
 
+# ② 緑色であるか判定する処理
 def is_green(h, s, v):
     return (75 <= h <= 100) and (s == 0 or s >= 150) and v >= 160
 
@@ -857,13 +859,12 @@ def trace_and_turn_on_green(right_motor: Motor, left_motor: Motor,
         left_is_green = is_green(h_l, s_l, v_l)
         right_is_green = is_green(h_r, s_r, v_r)
 
-        # === ?????? ? ???? ===
+        # ③ 左右両方が緑 → 完全停止
         if left_is_green and right_is_green:
             print(f"[STOP] BOTH GREEN: L=({h_l},{s_l},{v_l}) | R=({h_r},{s_r},{v_r})")
             left_motor.set_power(0)
             right_motor.set_power(0)
 
-            # ?????????
             while True:
                 h_l, s_l, v_l = get_hsv_from_sensor(color_sensor_left)
                 h_r, s_r, v_r = get_hsv_from_sensor(color_sensor_right)
@@ -873,7 +874,7 @@ def trace_and_turn_on_green(right_motor: Motor, left_motor: Motor,
                 time.sleep(0.1)
             return
 
-        # === ???????? ===
+        # ④ 左側だけ緑 → 左折動作に入る
         if left_is_green:
             print(f"[LEFT TURN] LEFT GREEN. HSV=({h_l},{s_l},{v_l})")
             start_time = time.time()
@@ -883,6 +884,7 @@ def trace_and_turn_on_green(right_motor: Motor, left_motor: Motor,
                 time.sleep(0.05)
             return
 
+        # ⑤ 右側だけ緑 → 右折動作に入る
         if right_is_green:
             print(f"[RIGHT TURN] RIGHT GREEN. HSV=({h_r},{s_r},{v_r})")
             start_time = time.time()
@@ -892,13 +894,15 @@ def trace_and_turn_on_green(right_motor: Motor, left_motor: Motor,
                 time.sleep(0.05)
             return
 
-        # === ?????????? ===
+        # ⑥ 緑が無い場合 → 黒ライン追従
+        # ▼ 黒と判断（左センサー側）
         if v_l < 60 and s_l < 100:
             power = 30
             left_motor.set_power(power)
             right_motor.set_power(power)
             last_direction = "STRAIGHT"
         else:
+            # ▼ 黒ではない場合は「前回の方向」をもとに補正
             if last_direction in ["STRAIGHT", "RIGHT"]:
                 left_motor.set_power(60)
                 right_motor.set_power(0)
@@ -913,7 +917,7 @@ def trace_and_turn_on_green(right_motor: Motor, left_motor: Motor,
     except Exception as e:
         print(f"[ERROR] {e}")
 
-# === ???? ===
+# ETRoboの設定と0.1秒周期ループ開始
 (ETRobo(backend='raspike_art')
  .add_device('right_motor', device_type=Motor, port='B')
  .add_device('left_motor', device_type=Motor, port='A')
@@ -925,12 +929,58 @@ def trace_and_turn_on_green(right_motor: Motor, left_motor: Motor,
       </div>
 
       <div class="desc-box">
-        <h3>(プログラムの説明)</h3>
-        <p><b>1️⃣ 緑検知：</b> HSV色空間で緑色の範囲を抽出し、交差点位置を検出します。</p>
-        <p><b>2️⃣ 動作判断：</b> 緑を見つけたら右折動作を実行し、方向転換を行います。</p>
-        <p><b>3️⃣ 通常走行：</b> 緑が見つからない場合は白黒ラインの追従を続けます。</p>
-      </div>
-    </div>
+  <h3>プログラムの説明</h3>
+
+  <p><b>① HSV値を取得する処理（get_hsv_from_sensor）</b><br>
+  この関数では、カラーセンサーのRGB値を読み取り、OpenCVでHSVに変換しています。<br>
+  RGB値をそのまま使うより色の判定が安定するため、HSV空間で色を認識するようにしています。
+  </p>
+
+  <p><b>② 緑色であるか判定する処理（is_green）</b><br>
+  「75〜100の色相（H）」「彩度（S）が0または高い」「明度（V）が明るい」という特徴から、<br>
+  明るい緑色を検出しています。
+  </p>
+
+  <p><b>③ 左右両方が緑 → 完全停止（STOP）</b><br>
+  左右どちらのセンサーも緑を検出した場合、<br>
+  交差点中央などでロボットを停止させるための動作です。<br><br>
+  さらにその状態から抜けるまで緑が一定時間続く場面で勝手に動かないように安全停止しています。
+  </p>
+
+  <p><b>④ 左側だけ緑 → 左折動作に入る</b><br>
+  左センサーが緑を検出したときは、<br>
+  左モーターだけを回し、右を止めることで左に大きく旋回します。<br><br>
+  8.5秒という長めの時間は、<br>
+  大きく曲がってラインに戻る想定だと思われます。
+  </p>
+
+  <p><b>⑤ 右側だけ緑 → 右折動作に入る</b><br>
+  こちらは左折の完全な反対で、<br>
+  右モーターだけ動かして右旋回します。
+  </p>
+
+  <p><b>⑥ 緑が無い場合 → 黒ライン追従（または補正動作）</b><br>
+  ▼ 黒と判断（左センサー側）<br>
+  明度（V）が低く、彩度（S）も低い → 黒とみなし、直進方向として扱います。<br><br>
+
+  ▼ 黒ではない場合は「前回の方向」をもとに補正<br>
+  黒が見つからないときの処理です。<br>
+  ・直近が右寄りなら → 左方向へ補正<br>
+  ・直近が左寄りなら → 右方向へ補正<br><br>
+
+  というように、前回の方向を覚えて補正し続ける仕組みです。<br>
+  これはラインを見失ったときの自動復帰アルゴリズムとしてよく使われます。
+  </p>
+
+  <p><b>⑦ 最後にETRoboの設定と0.1秒周期ループ開始</b><br>
+  この部分では、<br>
+  ・モーター<br>
+  ・左右のカラーセンサー<br>
+  ・メイン動作関数（trace_and_turn_on_green）<br><br>
+  を登録し、0.1秒（100ms）ごとに制御処理を繰り返すよう設定しています。
+  </p>
+
+</div>
 
 
     <!-- ▼ 学習のやり方セクション ▼ -->
