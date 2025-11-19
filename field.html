@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>フィールド</title>
   <style>
+    :root { --sidebar-width: 250px; }
+    * { box-sizing: border-box; }
+
     body {
       font-family: 'Helvetica Neue', sans-serif;
       background-color: #f0f4f8;
@@ -13,111 +16,145 @@
       color: #2c3e50;
     }
 
+    .wrapper { min-height: 100vh; position: relative; }
+
+    /* ハンバーガー */
+    .menu-icon {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      cursor: pointer;
+      z-index: 2000;
+      width: 30px;
+      height: 25px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .menu-icon div {
+      height: 4px;
+      background-color: #2c3e50;
+      border-radius: 5px;
+      transition: 0.3s ease;
+    }
+    .menu-icon.open div:nth-child(1) { transform: translateY(10px) rotate(45deg); }
+    .menu-icon.open div:nth-child(2) { opacity: 0; }
+    .menu-icon.open div:nth-child(3) { transform: translateY(-10px) rotate(-45deg); }
+
+    /* サイドバー */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -250px;
+      width: var(--sidebar-width);
+      height: 100%;
+      background-color: #ffffff;
+      padding: 20px;
+      box-shadow: 4px 0 12px rgba(0,0,0,0.1);
+      transition: left 0.28s ease-in-out;
+      z-index: 1500;
+      overflow-y: auto;
+    }
+    .sidebar.open { left: 0; }
+    .sidebar ul { list-style: none; padding: 0; margin: 0; margin-top: 10px; }
+    .sidebar li { margin-bottom: 12px; }
+    details summary {
+      cursor: pointer;
+      padding: 6px 0;
+      font-weight: bold;
+      border-bottom: 1px solid #ddd;
+      color: #2c3e50;
+      list-style: none;
+    }
+    details ul { padding-left: 15px; margin-top: 6px; }
+    .sidebar a {
+      color: #2c3e50;
+      text-decoration: none;
+      font-weight: bold;
+      display: block;
+      padding: 6px 0;
+    }
+    .sidebar a:hover { color: #3498db; }
+
+    /* メイン領域 */
+    .main-container {
+      transition: margin-left 0.28s ease-in-out;
+      margin-left: 0;
+      padding: 24px;
+    }
+
     header {
       background-color: #3498db;
       color: white;
       padding: 20px;
       text-align: center;
+      border-radius: 6px;
     }
-
-    h1 {
-      margin: 0;
-      font-size: 2em;
-    }
+    h1 { margin: 0; font-size: 2em; }
 
     nav {
       background-color: #ecf0f1;
       padding: 10px 20px;
+      margin-top: 14px;
+      border-radius: 6px;
     }
-
     nav a {
       color: #3498db;
       text-decoration: none;
       margin-right: 15px;
       font-weight: bold;
     }
-
-    nav a:hover {
-      text-decoration: underline;
-    }
+    nav a:hover { text-decoration: underline; }
 
     main {
       padding: 40px 20px;
-      max-width: 900px;
-      margin: 0 auto;
+      margin: 18px auto 40px;
       background-color: #ffffff;
       border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+      width: 100%;
+      max-width: none;
     }
 
-    section {
-      margin-bottom: 40px;
+    /* sectionカード風 */
+    .section {
+      background:#fff;
+      border-radius:12px;
+      border:1px solid #e3f2fd;
+      margin: 0 0 32px 0;
+      box-shadow:0 6px 18px rgba(43,123,211,0.06);
+      padding: 24px 28px;
+      width: 100%;
     }
-
-    h2 {
-      border-bottom: 2px solid #3498db;
-      padding-bottom: 5px;
-      margin-bottom: 15px;
+    .title {
+      background:#e3f2fd;
+      color:#000;
+      border-radius:12px 12px 0 0;
+      padding:10px 16px;
+      font-weight:bold;
+      border-bottom:2px solid #fff;
+      margin-bottom:12px;
     }
-
-    p {
-      line-height: 1.8;
-    }
-
-    pre {
-      background-color: #f4f4f4;
-      padding: 15px;
-      border-radius: 5px;
-      font-family: monospace;
-      overflow-x: auto;
-    }
+    .content { padding:16px; }
+    .content img, .content iframe { display:block; width:80%; margin:16px auto; border-radius:8px; }
 
     footer {
-      text-align: center;
-      padding: 20px;
-      background-color: #ecf0f1;
-      margin-top: 20px;
+      text-align:center;
+      padding:20px;
+      background-color:#ecf0f1;
+      margin-top:20px;
+      border-radius:6px;
     }
 
-    ul {
-      padding-left: 20px;
+    @media (max-width: 800px) {
+      .sidebar { left: -250px; }
+      .sidebar.open { left: 0; }
+      .main-container { padding: 12px; }
+      main { padding: 20px; margin: 12px auto; }
+      .content img, .content iframe { width:100%; }
     }
 
-    h3 {
-      color: #2c3e50;
-      margin-top: 20px;
-    }
-
-    /* レスキューフィールド用の簡易スタイル */
-    .section-box {
-      background: #fff;
-      border-radius: 12px;
-      margin-bottom: 30px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      padding: 16px;
-      transition: transform 0.2s;
-    }
-    .section-box:hover {
-      transform: translateY(-5px);
-    }
-    .section-box .title {
-      background: #e3f2fd;
-      color: #000;
-      font-weight: bold;
-      padding: 10px 16px;
-      border-radius: 12px 12px 0 0;
-      border-bottom: 3px solid #fff;
-      font-size: 18px;
-      margin-bottom: 10px;
-    }
-    .section-box img, .section-box iframe {
-      display: block;
-      width: 80%;
-      margin: 24px auto;
-      border-radius: 10px;
-    }
-
-     /* 右上の次へボタン */
+    /* 右上の次へボタン */
     #nextButton {
       position: fixed;
       top: 20px;
@@ -132,166 +169,221 @@
       z-index: 2000;
       transition: 0.3s;
     }
-
-    #nextButton:hover {
-      background-color: #2980b9;
-    }
-
-
+    #nextButton:hover { background-color: #2980b9; }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>フィールド</h1>
-  </header>
+<div class="wrapper">
 
-  <nav>
-    <a href="robocup_home.html">ホーム</a>
-    <a href="gaiyou.html">概要</a>
-    <a href="koudoukihann.html">行動規範</a>
-    <a href="robot.html">ロボット</a>
-    <a href="kyougi.html">競技</a>
+  <!-- ハンバーガー -->
+  <div class="menu-icon" id="menuIcon" onclick="toggleMenu()">
+    <div></div><div></div><div></div>
+  </div>
+
+  <!-- サイドバー -->
+  <nav class="sidebar" id="sidebar">
+    <ul>
+      <li>
+        <details>
+          <summary>はじめに</summary>
+          <ul>
+            <li><a href="about.html">ロボカップジュニアについて</a></li>
+          </ul>
+        </details>
+      </li>
+      <li>
+        <details>
+          <summary>1. ルール</summary>
+          <ul>
+            <li><a href="gaiyou.html">1.1 概要</a></li>
+            <li><a href="koudoukihann.html">1.2 行動規範</a></li>
+            <li><a href="field.html">1.3 フィールド</a></li>
+            <li><a href="robot.html">1.4 ロボット</a></li>
+            <li><a href="kyougi.html">1.5 競技</a></li>
+          </ul>
+        </details>
+      </li>
+      <li>
+        <details>
+          <summary>2. 実践</summary>
+          <ul>
+            <li><a href="linetrace.html">白黒ライントレース</a></li>
+            <li><a href="linetrace2.html">交差点付きライントレース</a></li>
+            <li><a href="linetrace3.html">ギャップライントレース</a></li>
+            <li><a href="goal.html">ゴールタイル</a></li>
+            <li><a href="speedbanmp.html">スピードバンプ</a></li>
+            <li><a href="syougaibutu.html">障害物</a></li>
+            <li><a href="gareki.html">瓦礫</a></li>
+            <li><a href="seesaw.html">シーソー</a></li>
+            <li><a href="keisyaro.html">傾斜路</a></li>
+            <li><a href="ball1.html">ボール検知の学習</a></li>
+            <li><a href="blackball.html">黒色ボール</a></li>
+            <li><a href="silverball.html">銀色ボール</a></li>
+          </ul>
+        </details>
+      </li>
+    </ul>
   </nav>
 
+  <!-- メイン -->
+  <div class="main-container" id="mainContainer">
+    <header>
+      <h1>フィールド</h1>
+    </header>
 
-          <!-- 右上固定 次へボタン -->
-  <a href="koudoukihann.html" id="nextButton">次へ →</a>
+    <nav>
+      <a href="robocup_home.html">ホーム</a>
+      <a href="gaiyou.html">概要</a>
+      <a href="koudoukihann.html">行動規範</a>
+      <a href="robot.html">ロボット</a>
+      <a href="kyougi.html">競技</a>
+    </nav>
 
-  <main>
+    <a href="robot.html" id="nextButton">次へ →</a>
 
-    <!-- レスキューロボット競技フィールド説明を追加 -->
-    <div class="section-box">
-      <div class="title">🗺️ 競技フィールドについて</div>
-      <div>
-        ・フィールドは、さまざまなパターンの 30 cm x 30 cm のタイルで構成されます。競技運営者はタイルの最終選択とその配置を競技当日まで明らかにしません。<br>
-        ・競技フィールドには、スタートタイルとゴールタイルを除き、少なくとも 8 枚のタイルを設定します。
+    <main>
+      <!-- セクションごとにカード化 -->
+      <div class="section">
+        <div class="title">🗺️ 競技フィールドについて</div>
+        <div class="content">
+          ・フィールドは、さまざまなパターンの 30 cm x 30 cm のタイルで構成されます。競技運営者はタイルの最終選択とその配置を競技当日まで明らかにしません。<br>
+          ・競技フィールドには、スタートタイルとゴールタイルを除き、少なくとも 8 枚のタイルを設定します。
+        </div>
       </div>
-    </div>
 
-    <div class="section-box">
-      <div class="title">🏁 床</div>
-      <div>
-        ・床は白色です。床は滑らかな床または凹凸のある床(リノリウムやカーペットなど)のいずれかで、タイル間に高さ3mmまでの段差がある場合があります。<br>
-        ・競技者は、タイルが高い台の上に取り付けられていたり、床から持ち上げられていたりするため、コースから外れてしまったロボットは、タイルに戻るのが困難になる可能性があることに注意する必要があります。<br>
-        ・ロボットは、他のタイルの上に橋を形成するタイルの下を移動できるように設計されていなければなりません。各タイルの出入り口は25cm、最低高さ(床と天井の間のスペース)は25cmです。
+      <div class="section">
+        <div class="title">🏁 床</div>
+        <div class="content">
+          ・床は白色です。滑らかな床または凹凸のある床(リノリウムやカーペットなど)のいずれかで、タイル間に高さ3mmまでの段差がある場合があります。<br>
+          ・ロボットは橋を形成するタイル下を通過できるように設計する必要があります。各タイルの出入り口は25cm、最低高さは25cmです。
+        </div>
       </div>
-    </div>
 
-    <div class="section-box">
-      <div class="title">⬛ 黒線</div>
-      <div>
-        ・幅1〜2cmの黒線は、電気絶縁テープや印刷素材で作成されます。黒線が床に道を形成します。<br>
-        ・黒線の直線部分にはギャップが設置される場合があります。ギャップの長さは最大20cmで、各ギャップの前に少なくとも5cmの直線があります。<br>
-        ・タイルと経路の配置はラウンドごとに異なる場合があります。<br>
-        ・黒線はフィールドの端・壁・障害物から10cm離れた位置に配置します。<br>
-        ・黒線はゴールタイルで終了し、中央に赤いテープ(25mm×300mm)が貼られています。
-        <iframe src="https://drive.google.com/file/d/1nSIIGYiLOoj2QnYVomIWaxVDKiOOhz5t/preview"
-            width="440"
-            height="220"></iframe>
+      <div class="section">
+        <div class="title">⬛ 黒線</div>
+        <div class="content">
+          ・幅1〜2cmの黒線は電気絶縁テープや印刷素材で作成されます。<br>
+          ・黒線の直線部分にはギャップが設置される場合があります。最大長さ20cm。<br>
+          ・タイルと経路の配置はラウンドごとに異なる場合があります。<br>
+          ・黒線はフィールドの端・壁・障害物から10cm離れて配置。<br>
+          ・黒線はゴールタイルで終了、中央に赤テープ(25mm×300mm)。<br>
+          <iframe src="https://drive.google.com/file/d/1nSIIGYiLOoj2QnYVomIWaxVDKiOOhz5t/preview" width="440" height="220"></iframe>
+        </div>
       </div>
-    </div>
 
-    <!-- 他のセクションも同様にコピー -->
-    <div class="section-box">
-      <div class="title">📍 チェックポイント</div>
-      <div>
-        ・競技進行停止が発生した場合にロボットが手動で戻されるタイルです。<br>
-        ・得点要素のあるタイルには配置されません。<br>
-        ・スタートタイルも再スタート可能なチェックポイントです。<br>
-        ・マーカーは厚さ5〜12mm、直径70mmまでの円形が使用されます。<br>
-        ・数と位置は運営者によって決定されます。
+      <!-- 以下、他のセクションも同じくコピー -->
+      <div class="section">
+        <div class="title">📍 チェックポイント</div>
+        <div class="content">
+          ・競技進行停止時、ロボットが手動で戻されるタイル。<br>
+          ・得点要素タイルには配置されません。<br>
+          ・スタートタイルも再スタート可能。<br>
+          ・マーカーは厚さ5〜12mm、直径70mmまでの円形。<br>
+          ・数と位置は運営者決定。
+        </div>
       </div>
-    </div>
 
-    <div class="section-box">
-      <div class="title">🧱 スピードバンプ・瓦礫・障害物</div>
-      <div>
-        ・スピードバンプは高さ1cm以下で白色です。黒線と重なる部分は黒く塗られます。<br>
-        ・瓦礫は高さ最大3mmで固定されず、小さな木片などで構成されます。<br>
-        ・障害物は高さ15cm以上で固定可能です。ロボットは回避または押しても構いません。<br>
-        ・障害物は端から25cm以内や傾斜付近には設置されません。<br>
-        ・救助ゾーン内の障害物は得点になりません。
+      <div class="section">
+        <div class="title">🧱 スピードバンプ・瓦礫・障害物</div>
+        <div class="content">
+          ・スピードバンプは高さ1cm以下で白色。黒線と重なる部分は黒く塗られます。<br>
+          ・瓦礫は高さ最大3mmで固定されず、小さな木片などで構成。<br>
+          ・障害物は高さ15cm以上で固定可能。回避または押しても可。<br>
+          ・障害物は端から25cm以内や傾斜付近に設置されません。<br>
+          ・救助ゾーン内の障害物は得点対象外。
+        </div>
       </div>
-    </div>
 
-       <div class="section-box">
-      <div class="title">🔀 交差点と行き止まり</div>
-      <div>
-        ・救助ゾーンを除くどこにでも交差点を設置できます。<br>
-        ・交差点マーカーは緑色で25mm×25mm、進行方向を示します。<br>
-        ・マーカーがない場合は直進します。<br>
-        ・行き止まりは2つの緑マーカー（線の両側）で示され、Uターンが必要です。<br>
-        ・交差点は三叉路・十字路の形があり、常に黒線は垂直です。<br>
-        ・交差点マーカーは交差点の直前に設置されます。<br>
-        <iframe src="https://drive.google.com/file/d/1O24QokNuQfcaQimI_7l1fB1kYDLrH1Ax/preview"
-            width="480"
-            height="320"></iframe>
-        <iframe src="https://drive.google.com/file/d/1pD15pVkA9JhJMsC0VblAE4TbaS8iVJKP/preview"
-            width="480"
-            height="320"></iframe>
+      <div class="section">
+        <div class="title">🔀 交差点と行き止まり</div>
+        <div class="content">
+          ・救助ゾーンを除くどこにでも交差点設置可。<br>
+          ・交差点マーカーは緑色25mm×25mm、進行方向を示す。<br>
+          ・マーカーがない場合は直進。<br>
+          ・行き止まりは2つの緑マーカーで示されUターン必要。<br>
+          ・交差点は三叉路・十字路。黒線は常に垂直。<br>
+          <iframe src="https://drive.google.com/file/d/1O24QokNuQfcaQimI_7l1fB1kYDLrH1Ax/preview" width="480" height="320"></iframe>
+          <iframe src="https://drive.google.com/file/d/1pD15pVkA9JhJMsC0VblAE4TbaS8iVJKP/preview" width="480" height="320"></iframe>
+        </div>
       </div>
-    </div>
 
-    <div class="section-box">
-      <div class="title">⛰️ 傾斜路</div>
-      <div>
-        ・タイルを使って上り・下りができるようにします。角度は最大25度。<br>
-        ・複数のタイルで構成されても1つの傾斜路としてカウント。<br>
-        ・黒線上にギャップ・交差点・障害物などが設置されることもあります。
+      <div class="section">
+        <div class="title">⛰️ 傾斜路</div>
+        <div class="content">
+          ・タイルで上り・下り可能。角度最大25度。<br>
+          ・複数タイルで構成されても1つの傾斜路としてカウント。<br>
+          ・黒線上にギャップ・交差点・障害物も設置される場合あり。
+        </div>
       </div>
-    </div>
 
-    <div class="section-box">
-      <div class="title">⚖️ シーソー</div>
-      <div>
-        ・中央のヒンジを中心に回転できるタイルです。<br>
-        ・傾きは20度未満で、直線形状。<br>
-        ・得点要素は存在しません。<br>
-        <iframe src="https://drive.google.com/file/d/1O5UP_hg52of1LdeS3AjHhsin9BhOQNkL/preview"
-            width="480"
-            height="320"></iframe>
+      <div class="section">
+        <div class="title">⚖️ シーソー</div>
+        <div class="content">
+          ・中央ヒンジを中心に回転可能。<br>
+          ・傾き20度未満で直線形状。<br>
+          ・得点要素なし。<br>
+          <iframe src="https://drive.google.com/file/d/1O5UP_hg52of1LdeS3AjHhsin9BhOQNkL/preview" width="480" height="320"></iframe>
+        </div>
       </div>
-    </div>
 
-    <div class="section-box">
-      <div class="title">🚑 救助ゾーン</div>
-      <div>
-        ・黒線は救助ゾーンの入り口で終わり、出口から再び始まります。<br>
-        ・救助ゾーンは120cm×90cmで高さ10cm以上の壁に囲まれています。<br>
-        ・入口は銀テープ、出口は黒テープが貼られます。<br>
-        ・生存者と死亡者の避難場所（赤・緑三角形）があります。<br>
-        ・障害物は設置される場合がありますが得点対象外です。<br>
-        <iframe src="https://drive.google.com/file/d/1MsFtxk8GBHcv56guDDQDkQSv4SADmQOi/preview"
-            width="480"
-            height="320"></iframe>
+      <div class="section">
+        <div class="title">🚑 救助ゾーン</div>
+        <div class="content">
+          ・黒線は救助ゾーン入り口で終わり、出口から再開。<br>
+          ・救助ゾーンは120cm×90cm、高さ10cm以上の壁。<br>
+          ・入口は銀テープ、出口は黒テープ。<br>
+          ・生存者・死亡者の避難場所あり。<br>
+          ・障害物は得点対象外。<br>
+          <iframe src="https://drive.google.com/file/d/1MsFtxk8GBHcv56guDDQDkQSv4SADmQOi/preview" width="480" height="320"></iframe>
+        </div>
       </div>
-    </div>
 
-    <div class="section-box">
-      <div class="title">🧍 被災者</div>
-      <div>
-        ・直径4〜5cm、最大80gのボール状。重心は偏っています。<br>
-        ・死亡者は黒く導電性なし、生存者は銀色で反射・導電性あり。<br>
-        ・救助ゾーンに生存者2、死亡者1がランダム配置されます。
+      <div class="section">
+        <div class="title">🧍 被災者</div>
+        <div class="content">
+          ・直径4〜5cm、最大80gのボール状。重心は偏りあり。<br>
+          ・死亡者は黒色、導電性なし。生存者は銀色、反射・導電性あり。<br>
+          ・救助ゾーンに生存者2、死亡者1をランダム配置。
+        </div>
       </div>
-    </div>
 
-    <div class="section-box">
-      <div class="title">🌤️ 環境条件</div>
-      <div>
-        ・競技会と練習場の環境が異なる可能性を想定しておきましょう。<br>
-        ・照明・磁気の影響に注意。干渉に対応できる設計が必要です。<br>
-        ・観客のフラッシュなどの光干渉にも備えましょう。<br>
-        ・すべての測定値の許容誤差は±10%です。
+      <div class="section">
+        <div class="title">🌤️ 環境条件</div>
+        <div class="content">
+          ・競技会と練習場の環境が異なる可能性を想定。<br>
+          ・照明・磁気の影響に注意。干渉対応設計必要。<br>
+          ・観客のフラッシュ等光干渉にも備える。<br>
+          ・測定値の許容誤差は±10%。
+        </div>
       </div>
-    </div>
 
-  </main>
+    </main>
 
-  <footer>
-    <p>&copy; 2025　愛知工業大学　水野勝教研究室</p>
-  </footer>
+    <footer>
+      <p>&copy; 2025 愛知工業大学 水野勝教研究室</p>
+    </footer>
+
+  </div> <!-- /.main-container -->
+</div> <!-- /.wrapper -->
+
+<script>
+  function toggleMenu() {
+    const sidebar = document.getElementById('sidebar');
+    const menuIcon = document.getElementById('menuIcon');
+    sidebar.classList.toggle('open');
+    menuIcon.classList.toggle('open');
+  }
+
+  document.addEventListener('click', function(e) {
+    const sidebar = document.getElementById('sidebar');
+    const menuIcon = document.getElementById('menuIcon');
+    if (!e.target.closest('.sidebar') && !e.target.closest('.menu-icon') && sidebar.classList.contains('open')) {
+      sidebar.classList.remove('open');
+      menuIcon.classList.remove('open');
+    }
+  });
+</script>
 
 </body>
 </html>
