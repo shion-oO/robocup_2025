@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>行動規範</title>
+  <title>ロボカップジュニアについて</title>
   <style>
+    /* ベース */
     :root { --sidebar-width: 250px; }
     * { box-sizing: border-box; }
-
     body {
       font-family: 'Helvetica Neue', sans-serif;
       background-color: #f0f4f8;
@@ -16,7 +16,10 @@
       color: #2c3e50;
     }
 
-    .wrapper { min-height: 100vh; position: relative; }
+    .wrapper {
+      min-height: 100vh;
+      position: relative;
+    }
 
     /* ハンバーガー */
     .menu-icon {
@@ -64,6 +67,7 @@
       font-weight: bold;
       border-bottom: 1px solid #ddd;
       color: #2c3e50;
+      list-style: none;
     }
     details ul { padding-left: 15px; margin-top: 6px; }
     .sidebar a {
@@ -76,8 +80,13 @@
     .sidebar a:hover { color: #3498db; }
 
     /* メイン領域 */
-    .main-container { transition: margin-left 0.28s ease-in-out; margin-left: 0; padding: 24px; }
+    .main-container {
+      transition: margin-left 0.28s ease-in-out;
+      margin-left: 0;
+      padding: 24px;
+    }
 
+    /* ページ本体 */
     header {
       background-color: #3498db;
       color: white;
@@ -86,7 +95,6 @@
       border-radius: 6px;
     }
     h1 { margin: 0; font-size: 2em; }
-
     nav {
       background-color: #ecf0f1;
       padding: 10px 20px;
@@ -111,7 +119,8 @@
       max-width: none;
     }
 
-    .section-card {
+    /* sectionカード風 */
+    .section {
       background:#fff;
       border-radius:12px;
       border:1px solid #e3f2fd;
@@ -120,15 +129,29 @@
       padding: 24px 28px;
       width: 100%;
     }
-    .card-head {
+    .title {
       background:#e3f2fd;
       color:#000;
       border-radius:12px 12px 0 0;
       padding:10px 16px;
       font-weight:bold;
       border-bottom:2px solid #fff;
+      margin-bottom:12px;
     }
-    .card-body { padding:16px; }
+    .content { padding:16px; }
+
+    table {
+      border-collapse:collapse;
+      width:100%;
+      font-family:inherit;
+      margin-top:10px;
+    }
+    table th, table td {
+      border:1px solid #bbb;
+      padding:10px;
+      text-align:center;
+      background:#fff;
+    }
 
     footer {
       text-align:center;
@@ -138,6 +161,7 @@
       border-radius:6px;
     }
 
+    /* レスポンシブ */
     @media (max-width: 800px) {
       .sidebar { left: -250px; }
       .sidebar.open { left: 0; }
@@ -145,7 +169,7 @@
       main { padding: 20px; margin: 12px auto; }
     }
 
-    /* 右上 次へボタン */
+    /* 右上の次へボタン */
     #nextButton {
       position: fixed;
       top: 20px;
@@ -160,8 +184,10 @@
       z-index: 2000;
       transition: 0.3s;
     }
-    #nextButton:hover { background-color: #2980b9; }
 
+    #nextButton:hover {
+      background-color: #2980b9;
+    }
   </style>
 </head>
 <body>
@@ -184,6 +210,7 @@
           </ul>
         </details>
       </li>
+
       <li>
         <details>
           <summary>1. ルール</summary>
@@ -196,6 +223,7 @@
           </ul>
         </details>
       </li>
+
       <li>
         <details>
           <summary>2. 実践</summary>
@@ -221,78 +249,100 @@
   <!-- メイン -->
   <div class="main-container" id="mainContainer">
     <header>
-      <h1>行動規範</h1>
+      <h1>ロボカップジュニアについて</h1>
     </header>
 
     <nav>
       <a href="robocup_home.html">ホーム</a>
-      <a href="gaiyou.html">概要</a>
+      <a href="koudoukihann.html">行動規範</a>
       <a href="field.html">フィールド</a>
       <a href="robot.html">ロボット</a>
       <a href="kyougi.html">競技</a>
     </nav>
 
-    <!-- 右上 次へボタン -->
+    <!-- 右上固定 次へボタン -->
     <a href="gaiyou.html" id="nextButton">次へ →</a>
 
     <main>
-      <!-- ここに行動規範の内容 -->
-      <div class="section-card">
-        <div class="card-head">🌟 精神（Spirit）</div>
-        <div class="card-body">
-          ・ロボカップジュニアの目的や理念を大切にしよう。<br><br>
-          ・勝ち負けだけでなく、挑戦や学びを楽しむことも大切❕<br>
-          <strong>🏆 勝敗よりも“学び”を重視</strong>
+      <!-- 1.1 -->
+      <div class="section">
+        <div class="title">🤖 1.1 ロボカップジュニアとは</div>
+        <div class="content">
+          ロボカップジュニアは、<b>19歳以下</b>の子どもたちを対象とした競技です。<br>
+          子どもたちの<b>好奇心や探究心を引き出し</b>、<b>自ら挑戦できる場</b>を提供しています。<br><br>
+
+          競技には以下の<b>3つのリーグ</b>があります。<br>
+          ・サッカーリーグ<br>
+          ・レスキューリーグ<br>
+          ・OnStage（オンステージ）リーグ<br><br>
+
+          これらのリーグは<b>誰でも参加可能</b>であり、出場するロボットはリモコンで操作するのではなく、<b>自ら判断して行動する「自律型ロボット」</b>です。<br><br>
+
+          ロボットの設計・製作を通して、<b>次世代のロボカップを担う人材の育成</b>を目的としています。<br>
+          3つのリーグを通じて、<b>次世代のリーダーとして必要な基礎的な知識と協調性</b>を学ぶことができます。<br><br>
+
+          大会は次の順番で進みます。<br>
+          <b>ノード大会（地区予選） → ブロック大会 → 全国大会（ジャパンオープン） → 世界大会</b><br><br>
+
+          全国各地で熱い戦いが繰り広げられ、<b>世界大会を目指してチームが競い合います。</b>
         </div>
       </div>
 
-      <div class="section-card">
-        <div class="card-head">⚖️ フェアプレー（Fair Play）</div>
-        <div class="card-body">
-          ・意図的にフィールドやロボットを壊す行為は失格になるよ。<br><br>
-          ・みんなが公平に参加できるように心がけよう。<br>
-          <strong>🤝 ルールとマナーを守ろう</strong>
+      <!-- 1.2 -->
+      <div class="section">
+        <div class="title">🚑 1.2 レスキューとは</div>
+        <div class="content">
+          レスキューリーグは、<b>災害現場での救助活動を模した競技</b>です。<br>
+          リモコン操作に頼らず、<b>ロボット自身が周囲の状況を判断</b>し、さまざまな障害を乗り越えて<b>被災者を救助</b>する<b>速さと確実さ</b>を競います。<br><br>
+
+          レスキューリーグは次の<b>2種類</b>に分類されます。<br>
+          ・日本リーグレスキュー<br>
+          ・ワールドリーグレスキュー<br><br>
+
+          それぞれのコースには<b>難易度の違い</b>があります。
         </div>
       </div>
 
-      <div class="section-card">
-        <div class="card-head">🧭 ふるまい（Behavior）</div>
-        <div class="card-body">
-          ・最新の公式ルールと追加説明を確認する責任がある。<br><br>
-          ・他チームの作業エリアには許可なく入らない。<br><br>
-          ・不正があれば退場や失格になることがある。
+      <!-- 1.2.1 -->
+      <div class="section">
+        <div class="title">🇯🇵 1.2.1 日本リーグ レスキュー・ライン・エントリー</div>
+        <div class="content">
+          日本リーグレスキューは、<b>小学生以上</b>の子どもを対象とした競技です。<br>
+          下の写真は「<b>ロボカップジュニア 日本リーグ レスキュー・ライン・エントリー（2024年度版）</b>」のコース例です。<br><br>
+
+          このコースには、次の<b>6つの課題</b>があります。<br>
+          ・ライントレース<br>
+          ・ギャップ<br>
+          ・バンプ<br>
+          ・傾斜路<br>
+          ・障害物<br>
+          ・救助ゾーン<br><br>
+
+          それぞれの課題をクリアすることで<b>ポイントが与えられます。</b><br>
+          <iframe src="https://drive.google.com/file/d/1sG6UAhETUXQ18UJ6jS2r9bXhlaV2jijp/preview"
+              width="440"
+              height="220"></iframe>
         </div>
       </div>
 
-      <div class="section-card">
-        <div class="card-head">👩‍🏫 メンター（Mentors）</div>
-        <div class="card-body">
-          <ul>
-            <li>メンターは生徒の作業エリアに入れない</li>
-            <li>競技前・競技中にロボットの構築・修理・プログラミングは禁止</li>
-            <li>干渉があれば警告、再発で失格になることがある</li>
-            <li>ロボットはチームメンバー自身の成果であること</li>
-          </ul>
-        </div>
-      </div>
+      <!-- 1.2.2 -->
+      <div class="section">
+        <div class="title">🌍 1.2.2 ワールドリーグ レスキュー・ライン</div>
+        <div class="content">
+          ワールドリーグレスキューは、<b>競技年度の7月1日時点で14歳～19歳</b>の参加者が対象です。<br>
+          下の写真は「<b>ロボカップジュニア ワールドリーグ レスキュー・ライン（2024年度版）</b>」のコース例です。<br><br>
 
-      <div class="section-card">
-        <div class="card-head">🕊️ 倫理と誠実さ（Ethics）</div>
-        <div class="card-body">
-          <ul>
-            <li>不正・違法行為は認めない</li>
-            <li>他チームの作業を代行することは禁止</li>
-            <li>授賞式後でも不正が判明すれば賞は取り消される</li>
-            <li>重大・繰り返しの違反は即失格になる場合がある</li>
-          </ul>
-        </div>
-      </div>
+          このコースには、日本リーグの6つの課題に加えて、次の<b>2つの課題</b>が追加されます。<br>
+          ・シーソー<br>
+          ・交差点<br><br>
 
-      <div class="section-card">
-        <div class="card-head">💡 情報共有（Sharing）</div>
-        <div class="card-body">
-          ・大会の後は、使ったアイデアや発見を他チームと共有しよう。<br><br>
-          ・質問し合って学び合う雰囲気を作ろう！
+          そのため、<b>全8種類の課題</b>が設定されています。<br>
+          難易度は<b>日本リーグよりも高く</b>、初心者には<b>やや難しい内容</b>となっています。<br><br>
+
+          ⚠️各課題の詳細なルールは、<b>「ルール項目」</b>を、攻略方法は<b>「実践要項」</b>を参考にしてください。<br>
+          <iframe src="https://drive.google.com/file/d/1Fu3p8l9zIoutaptsOCUtvD7lbmSmYIhj/preview"
+              width="440"
+              height="220"></iframe>
         </div>
       </div>
 
@@ -303,7 +353,6 @@
     </footer>
 
   </div> <!-- /.main-container -->
-
 </div> <!-- /.wrapper -->
 
 <script>
@@ -314,7 +363,6 @@
     menuIcon.classList.toggle('open');
   }
 
-  // サイドバー外クリックで閉じる
   document.addEventListener('click', function(e) {
     const sidebar = document.getElementById('sidebar');
     const menuIcon = document.getElementById('menuIcon');
