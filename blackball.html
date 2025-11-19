@@ -179,40 +179,40 @@ from etrobo_python import ETRobo
 from etrobo_python.device import Motor, SonarSensor
 
 # =========================
-# 1. Servo??????
+# 1. サーボモーター対応確認
 # =========================
 try:
     from etrobo_python import Servo
-    HAS_SERVO = True
+    HAS_SERVO = True  # サーボモーターが利用可能
 except ImportError:
-    HAS_SERVO = False
+    HAS_SERVO = False  # サーボモーターはなし
 
-device_type_arm = Servo if HAS_SERVO else Motor
-
-# =========================
-# 2. ?????
-# =========================
-PORT_LEFT_MOTOR = 'A'
-PORT_RIGHT_MOTOR = 'B'
-PORT_ARM_LEFT = 'C'
-PORT_ARM_RIGHT = 'F'
-PORT_ULTRASONIC = 'E'
+device_type_arm = Servo if HAS_SERVO else Motor  # アームに使うデバイスを選択
 
 # =========================
-# 3. ???????
+# 2. 各デバイスの接続ポート
 # =========================
-POWER = 100
-MOVE_POWER = 100
-FORWARD_POWER = 120
-TURN_POWER = 120
-FORWARD_TIME = 1.0
-TURN_TIME = 1.5
-ARM_MOVE_TIME = 0.6
-ARM_MOVE_TIME2 = 0.5
-WALL_DISTANCE = 85  # cm ????????
+PORT_LEFT_MOTOR = 'A'    # 左モーター
+PORT_RIGHT_MOTOR = 'B'   # 右モーター
+PORT_ARM_LEFT = 'C'      # 左アーム
+PORT_ARM_RIGHT = 'F'     # 右アーム
+PORT_ULTRASONIC = 'E'    # 超音波センサー
 
 # =========================
-# 4. ?????
+# 3. 動作パラメータ
+# =========================
+POWER = 100           # アーム動作のパワー
+MOVE_POWER = 100      # 移動用モーターのパワー
+FORWARD_POWER = 120   # 前進用パワー
+TURN_POWER = 120      # 回転用パワー
+FORWARD_TIME = 1.0    # 前進時間（秒）
+TURN_TIME = 1.5       # 回転時間（秒）
+ARM_MOVE_TIME = 0.6   # アーム下降時間（秒）
+ARM_MOVE_TIME2 = 0.5  # アーム上昇時間（秒）
+WALL_DISTANCE = 85    # 超音波センサーで壁と判断する距離（cm）
+
+# =========================
+# 4. カメラ設定
 # =========================
 from picamera2 import Picamera2
 picam2 = Picamera2()
@@ -220,104 +220,105 @@ picam2.configure(picam2.create_preview_configuration(
     main={"format": "RGB888", "size": (320, 320)}
 ))
 picam2.start()
-time.sleep(1.0)
+time.sleep(1.0)  # カメラ準備時間
 
 # =========================
-# 5. ????????
+# 5. 黒色検出関数
 # =========================
 def detect_black(frame):
+    """画像内に黒色領域があるか判定"""
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     lower_black = np.array([0, 0, 0])
     upper_black = np.array([180, 255, 50])
-    mask = cv2.inRange(hsv, lower_black, upper_black)
+    mask = cv2.inRange(hsv, lower_black, upper_black)  # 黒色マスク
 
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     for cnt in contours:
         area = cv2.contourArea(cnt)
-        if area > 1000:
+        if area > 1000:  # 十分大きい黒色ならTrue
             return True
     return False
 
 # =========================
-# 6. ???????
+# 6. ボールすくい動作
 # =========================
 def scoop_ball(arm_left, arm_right, left_motor, right_motor):
-    print("[INFO] Scooping ball...")
+    """ボールを拾って壁に運ぶ一連の動作"""
+    print("[INFO] ボールをすくいます")
 
-    # ???????
-    print("[INFO] Lowering arm (DOWN)")
+    # アームを下げる
+    print("[INFO] アームを下げる")
     arm_left.set_power(-POWER)
     arm_right.set_power(POWER)
     time.sleep(ARM_MOVE_TIME)
 
-    # ????????
-    print("[INFO] Dragging ball to wall (10s)")
+    # 壁まで前進
+    print("[INFO] ボールを壁まで運ぶ（10秒）")
     left_motor.set_power(70)
     right_motor.set_power(70)
     time.sleep(10.0)
     left_motor.set_power(0)
     right_motor.set_power(0)
 
-    # ??
-    print("[INFO] Backing up")
+    # 後退
+    print("[INFO] 後退")
     left_motor.set_power(-60)
     right_motor.set_power(-60)
     time.sleep(4.0)
     left_motor.set_power(0)
     right_motor.set_power(0)
 
-    # ???????
-    print("[INFO] Raising arm (UP)")
+    # アームを上げる
+    print("[INFO] アームを上げる")
     arm_left.set_power(POWER)
     arm_right.set_power(-POWER)
     time.sleep(ARM_MOVE_TIME2)
 
-    # ????????
-    print("[INFO] Dragging ball to wall (10s)")
+    # 再度壁まで前進
+    print("[INFO] 壁まで運ぶ（4秒）")
     left_motor.set_power(70)
     right_motor.set_power(70)
     time.sleep(4.0)
     left_motor.set_power(0)
     right_motor.set_power(0)
 
-    # ???????
-    print("[INFO] Lowering arm (DOWN)")
+    # アームを下げる
+    print("[INFO] アームを下げる")
     arm_left.set_power(-POWER)
     arm_right.set_power(POWER)
     time.sleep(ARM_MOVE_TIME)
 
-    print("[INFO] Scoop complete")
+    print("[INFO] すくい動作完了")
     arm_left.set_power(0)
     arm_right.set_power(0)
 
 # =========================
-# 7. ?????? + ????????????
+# 7. ランダムウォーク＋超音波回避探索
 # =========================
 def rescue_sequence(left_motor, right_motor, arm_left, arm_right, ultrasonic, **kwargs):
-    print("[INFO] Starting random walk search with ultrasonic wall avoidance...")
+    """黒い物体探索＋発見時にボールすくい"""
+    print("[INFO] ランダムウォーク探索開始（超音波で壁回避）")
     found_black = False
     stop_counter = 0
 
     while True:
         frame = picam2.capture_array()
         frame = cv2.resize(frame, (320, 320))
-        detected = detect_black(frame)
-        distance = ultrasonic.get_distance()
-        print(f"[INFO] Distance: {distance:.1f} cm")
+        detected = detect_black(frame)  # 黒色検出
+        distance = ultrasonic.get_distance()  # 超音波測距
+        print(f"[INFO] 距離: {distance:.1f} cm")
 
-        # --- ??????? ---
         if detected:
             stop_counter += 1
-            print(f"[INFO] Black detected ({stop_counter}/3)")
+            print(f"[INFO] 黒色検出 ({stop_counter}/3)")
             if stop_counter >= 3:
                 found_black = True
                 break
         else:
             stop_counter = 0
-
-            # --- ??? ---
-            if distance > 0 and distance < WALL_DISTANCE:
-                print("[INFO] Wall detected! Backing up and turning...")
+            if 0 < distance < WALL_DISTANCE:
+                # 壁回避
+                print("[INFO] 壁検出！後退して回転")
                 left_motor.set_power(-MOVE_POWER)
                 right_motor.set_power(-MOVE_POWER)
                 time.sleep(0.8)
@@ -329,60 +330,60 @@ def rescue_sequence(left_motor, right_motor, arm_left, arm_right, ultrasonic, **
                     left_motor.set_power(TURN_POWER)
                     right_motor.set_power(-TURN_POWER)
                 time.sleep(0.8)
-
             else:
-                # --- ????????forward / left / right / backward?---
+                # ランダムウォーク動作
                 action = random.choice(["forward", "left", "right", "backward"])
                 if action == "forward":
-                    print("[RANDOM WALK] Moving forward fast")
+                    print("[RANDOM WALK] 前進")
                     left_motor.set_power(FORWARD_POWER)
                     right_motor.set_power(FORWARD_POWER)
                     time.sleep(FORWARD_TIME)
                 elif action == "backward":
-                    print("[RANDOM WALK] Moving backward fast")
+                    print("[RANDOM WALK] 後退")
                     left_motor.set_power(-FORWARD_POWER)
                     right_motor.set_power(-FORWARD_POWER)
                     time.sleep(FORWARD_TIME)
                 elif action == "left":
-                    print("[RANDOM WALK] Sharp left turn")
+                    print("[RANDOM WALK] 左旋回")
                     left_motor.set_power(-TURN_POWER)
                     right_motor.set_power(TURN_POWER)
                     time.sleep(TURN_TIME)
                 elif action == "right":
-                    print("[RANDOM WALK] Sharp right turn")
+                    print("[RANDOM WALK] 右旋回")
                     left_motor.set_power(TURN_POWER)
                     right_motor.set_power(-TURN_POWER)
                     time.sleep(TURN_TIME)
 
-            # ??????
+            # モーター停止
             left_motor.set_power(0)
             right_motor.set_power(0)
             time.sleep(0.3)
 
     if found_black:
-        print("[INFO] Black object confirmed ? initiating scoop!")
+        print("[INFO] 黒色確認！すくい動作開始")
         scoop_ball(arm_left, arm_right, left_motor, right_motor)
 
     cv2.destroyAllWindows()
-    print("[INFO] Rescue sequence complete.")
+    print("[INFO] 探索・救出動作完了")
 
 # =========================
-# 8. ETRobo ????
+# 8. ETRobo デバイス初期化＆実行
 # =========================
 device_type_arm = Servo if HAS_SERVO else Motor
 print(f"HAS_SERVO = {HAS_SERVO}")
-print(f"Using device_type_arm = {device_type_arm}")
+print(f"使用するアームデバイス = {device_type_arm}")
 
 (
-    ETRobo(backend='raspike_art')  # Bluetooth?? 'bt'
+    ETRobo(backend='raspike_art')  # Bluetoothの場合は 'bt'
     .add_device('left_motor', Motor, port=PORT_LEFT_MOTOR)
     .add_device('right_motor', Motor, port=PORT_RIGHT_MOTOR)
     .add_device('arm_left', device_type_arm, port=PORT_ARM_LEFT)
     .add_device('arm_right', device_type_arm, port=PORT_ARM_RIGHT)
     .add_device('ultrasonic', SonarSensor, port=PORT_ULTRASONIC)
-    .add_handler(rescue_sequence)
-    .dispatch(interval=0.5, port='/dev/ttyACM0')
+    .add_handler(rescue_sequence)  # 探索・救出処理を登録
+    .dispatch(interval=0.5, port='/dev/ttyACM0')  # 実行開始
 )
+
 </code></pre>
       </div>
 
