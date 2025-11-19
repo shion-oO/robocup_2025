@@ -198,6 +198,8 @@ last_direction = "RIGHT"  # 初期値は右
 # 戻り値：
 #   - (H, S, V) のタプル
 # =========================================
+
+# ② センサーのRGBをHSVに変換する関数
 def get_hsv_from_sensor(color_sensor: ColorSensor):
     # カラーセンサーからRGB値を取得
     r, g, b = color_sensor.get_raw_color()
@@ -219,24 +221,29 @@ def get_hsv_from_sensor(color_sensor: ColorSensor):
 #   - left_motor: 左モーター
 #   - color_sensor: カラーセンサー
 # =========================================
+
+# ③ ラインを追跡したり、色を判定したりする関数
 def line_trace_by_sensor(right_motor: Motor, left_motor: Motor, color_sensor: ColorSensor):
     global last_direction  # 直前の方向を保持するためグローバル変数を使用
 
     try:
-        # HSV値を取得
+        # ③-1. HSV値の取得
         h, s, v = get_hsv_from_sensor(color_sensor)
 
+        # ③-2. 赤色の判定
         # --- 赤色検知条件 ---
         # 色相(H)：0〜10 または 160〜180
         # 彩度(S)：100以上
         # 明度(V)：100以上
         is_red = (0 <= h <= 10 or 160 <= h <= 180) and s >= 100 and v >= 100
 
+        # ③-3. 緑色の判定
         # --- 緑色検知条件 ---
         # 色相(H)：50〜90
         # 彩度・明度：100以上
         is_green = 50 <= h <= 90 and s >= 100 and v >= 100
 
+        # ③-4. 赤 or 緑を見つけたら停止
         # --- 赤または緑を検知した場合 ---
         if is_red or is_green:
             print(f"[STOP] {'Red' if is_red else 'Green'} detected! HSV=({h}, {s}, {v})")
@@ -246,6 +253,7 @@ def line_trace_by_sensor(right_motor: Motor, left_motor: Motor, color_sensor: Co
             # 5秒間停止
             time.sleep(5)
 
+        # ③-5. ライン（黒）を見つけた場合
         # --- ライン上（黒っぽい領域）を検知した場合 ---
         elif v < 60 and s < 100:
             # 直進動作
@@ -254,6 +262,7 @@ def line_trace_by_sensor(right_motor: Motor, left_motor: Motor, color_sensor: Co
             left_motor.set_power(power)
             last_direction = "STRAIGHT"
 
+        # ③-6. ラインが見つからない（白地）なら旋回
         # --- 白地など明るい場所の場合 ---
         else:
             # 前回の進行方向に応じて旋回
@@ -282,11 +291,14 @@ def line_trace_by_sensor(right_motor: Motor, left_motor: Motor, color_sensor: Co
 #   - デバイス（モーター・カラーセンサー）を登録
 #   - line_trace_by_sensor 関数を周期的に呼び出し
 # =========================================
+
+# ④ ロボットのデバイス登録（初期設定）
 (
     ETRobo(backend='raspyke')  # SPIKE用バックエンド
     .add_device('right_motor', device_type=Motor, port='B')  # 右モーターをポートBに接続
     .add_device('left_motor', device_type=Motor, port='C')   # 左モーターをポートCに接続
     .add_device('color_sensor', device_type=ColorSensor, port='S2')  # カラーセンサーをS2に接続
+    # ⑤ メインループの開始
     .add_handler(line_trace_by_sensor)  # 定期的に呼び出す関数を登録
     .dispatch(interval=0.1)  # 0.1秒ごとに実行
 )
