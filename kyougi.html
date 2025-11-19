@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>競技</title>
   <style>
+    :root { --sidebar-width: 250px; }
+    * { box-sizing: border-box; }
+
     body {
       font-family: 'Helvetica Neue', sans-serif;
       background-color: #f0f4f8;
@@ -13,74 +16,118 @@
       color: #2c3e50;
     }
 
+    .wrapper { min-height: 100vh; position: relative; }
+
+    /* ハンバーガー */
+    .menu-icon {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      cursor: pointer;
+      z-index: 2000;
+      width: 30px;
+      height: 25px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .menu-icon div {
+      height: 4px;
+      background-color: #2c3e50;
+      border-radius: 5px;
+      transition: 0.3s ease;
+    }
+    .menu-icon.open div:nth-child(1) { transform: translateY(10px) rotate(45deg); }
+    .menu-icon.open div:nth-child(2) { opacity: 0; }
+    .menu-icon.open div:nth-child(3) { transform: translateY(-10px) rotate(-45deg); }
+
+    /* サイドバー */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -250px;
+      width: var(--sidebar-width);
+      height: 100%;
+      background-color: #ffffff;
+      padding: 20px;
+      box-shadow: 4px 0 12px rgba(0,0,0,0.1);
+      transition: left 0.28s ease-in-out;
+      z-index: 1500;
+      overflow-y: auto;
+    }
+    .sidebar.open { left: 0; }
+    .sidebar ul { list-style: none; padding: 0; margin: 0; margin-top: 10px; }
+    .sidebar li { margin-bottom: 12px; }
+    details summary {
+      cursor: pointer;
+      padding: 6px 0;
+      font-weight: bold;
+      border-bottom: 1px solid #ddd;
+      color: #2c3e50;
+      list-style: none;
+    }
+    details ul { padding-left: 15px; margin-top: 6px; }
+    .sidebar a {
+      color: #2c3e50;
+      text-decoration: none;
+      font-weight: bold;
+      display: block;
+      padding: 6px 0;
+    }
+    .sidebar a:hover { color: #3498db; }
+
+    /* メイン領域 */
+    .main-container {
+      transition: margin-left 0.28s ease-in-out;
+      margin-left: 0;
+      padding: 24px;
+    }
+
     header {
       background-color: #3498db;
       color: white;
       padding: 20px;
       text-align: center;
+      border-radius: 6px;
     }
-
-    h1 {
-      margin: 0;
-      font-size: 2em;
-    }
-
-    nav {
-      background-color: #ecf0f1;
-      padding: 10px 20px;
-    }
-
-    nav a {
-      color: #3498db;
-      text-decoration: none;
-      margin-right: 15px;
-      font-weight: bold;
-    }
-
-    nav a:hover {
-      text-decoration: underline;
-    }
+    h1 { margin: 0; font-size: 2em; }
 
     main {
       padding: 40px 20px;
-      max-width: 900px;
-      margin: 0 auto;
+      margin: 18px auto 40px;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+      width: 100%;
+      max-width: none;
     }
 
+    /* sectionカード風 */
     .section {
-      background: #fff;
-      border-radius: 12px;
-      margin-bottom: 25px;
-      padding: 0;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-      transition: transform 0.3s, box-shadow 0.3s;
-      cursor: default;
+      background:#fff;
+      border-radius:12px;
+      border:1px solid #e3f2fd;
+      margin: 0 0 32px 0;
+      box-shadow:0 6px 18px rgba(43,123,211,0.06);
+      padding: 24px 28px;
+      width: 100%;
     }
-
     .section:hover {
       transform: translateY(-5px);
       box-shadow: 0 12px 24px rgba(0,0,0,0.15);
     }
-
     .title {
-      background: #e3f2fd;
-      color: #000;
-      font-weight: bold;
-      padding: 12px 18px;
-      border-radius: 12px 12px 0 0;
-      font-size: 18px;
-      border-bottom: 2px solid #fff;
+      background:#e3f2fd;
+      color:#000;
+      border-radius:12px 12px 0 0;
+      padding:10px 16px;
+      font-weight:bold;
+      border-bottom:2px solid #fff;
+      margin-bottom:12px;
+      font-size:18px;
     }
-
-    .content {
-      padding: 20px 25px;
-      font-size: 16px;
-      color: #444;
-    }
-
-    .content br {
-      line-height: 1.8;
-    }
+    .content { padding:16px; font-size:16px; color:#444; }
+    .content ul { padding-left:20px; line-height:1.8; }
 
     iframe, img {
       display: block;
@@ -92,132 +139,244 @@
       box-shadow: 0 6px 14px rgba(0,0,0,0.12);
       transition: transform 0.3s;
     }
+    iframe:hover, img:hover { transform: scale(1.02); }
 
-    iframe:hover, img:hover {
-      transform: scale(1.02);
-    }
-
-    .important {
-      font-weight: bold;
-      color: #e53935;
-    }
-
-    .point-line {
-      display: block;
-      margin-bottom: 5px;
-    }
+    .important { font-weight: bold; color: #e53935; }
+    .point-line { display: block; margin-bottom: 5px; }
 
     footer {
-      text-align: center;
-      padding: 20px;
-      background-color: #ecf0f1;
-      margin-top: 20px;
+      text-align:center;
+      padding:20px;
+      background-color:#ecf0f1;
+      margin-top:20px;
+      border-radius:6px;
     }
+
+    @media (max-width: 800px) {
+      .sidebar { left: -250px; }
+      .sidebar.open { left: 0; }
+      .main-container { padding: 12px; }
+      main { padding: 20px; margin: 12px auto; }
+    }
+
+ nav {
+      background-color: #ecf0f1;
+      padding: 10px 20px;
+      margin-top: 14px;
+      border-radius: 6px;
+    }
+    nav a {
+      color: #3498db;
+      text-decoration: none;
+      margin-right: 15px;
+      font-weight: bold;
+    }
+    nav a:hover { text-decoration: underline; }
+
+         /* 右上の次へボタン */
+    #nextButton {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      z-index: 2000;
+      transition: 0.3s;
+    }
+
+    #nextButton:hover {
+      background-color: #2980b9;
+    }
+
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>競技</h1>
-  </header>
+<div class="wrapper">
 
-  <nav>
-    <a href="robocup_home.html">ホーム</a>
-    <a href="gaiyou.html">概要</a>
-    <a href="koudoukihann.html">行動規範</a>
-    <a href="field.html">フィールド</a>
-    <a href="robot.html">ロボット</a>
+  <!-- ハンバーガー -->
+  <div class="menu-icon" id="menuIcon" onclick="toggleMenu()">
+    <div></div><div></div><div></div>
+  </div>
+
+  <!-- サイドバー -->
+  <nav class="sidebar" id="sidebar">
+    <ul>
+      <li>
+        <details>
+          <summary>はじめに</summary>
+          <ul>
+            <li><a href="robocup_home.html">ロボカップジュニアについて</a></li>
+          </ul>
+        </details>
+      </li>
+      <li>
+        <details>
+          <summary>1. ルール</summary>
+          <ul>
+            <li><a href="gaiyou.html">概要</a></li>
+            <li><a href="koudoukihann.html">行動規範</a></li>
+            <li><a href="field.html">フィールド</a></li>
+            <li><a href="robot.html">ロボット</a></li>
+            <li><a href="kyougi.html" style="color:#3498db;">競技</a></li>
+          </ul>
+        </details>
+      </li>
+      <li>
+        <details>
+          <summary>2. 実践</summary>
+          <ul>
+            <li><a href="linetrace.html">白黒ライントレース</a></li>
+            <li><a href="linetrace2.html">交差点付きライントレース</a></li>
+            <li><a href="linetrace3.html">ギャップライントレース</a></li>
+            <li><a href="goal.html">ゴールタイル</a></li>
+            <li><a href="speedbump.html">スピードバンプ</a></li>
+            <li><a href="syougaibutu.html">障害物</a></li>
+            <li><a href="gareki.html">瓦礫</a></li>
+            <li><a href="seesaw.html">シーソー</a></li>
+            <li><a href="keisyaro.html">傾斜路</a></li>
+            <li><a href="ball1.html">ボール検知の学習</a></li>
+            <li><a href="blackball.html">黒色ボール</a></li>
+            <li><a href="silverball.html">銀色ボール</a></li>
+          </ul>
+        </details>
+      </li>
+    </ul>
   </nav>
 
-  <main>
-    <!-- ここから競技ルールの内容 -->
-    <div class="section">
-      <div class="title">🏃‍♂️ 競技前の練習</div>
-      <div class="content">
-        ・競技期間中、チームは調整やテストのために練習フィールドを使用できる場合があります。<br>
-        ・競技フィールドでのテスト可否は大会運営者の判断によります。
-      </div>
-    </div>
 
-    <div class="section">
-      <div class="title">👥 チームメンバー</div>
-      <div class="content">
-        ・<span class="important">キャプテン1名、副キャプテン1名を指名する</span>。<br>
-        ・審判の指示がない限り、この2名のみがフィールドに入ることができる。<br>
-        ・<span class="important">得点走行中にロボットを操作できるのはキャプテンのみ</span>。<br>
-        ・フィールド周辺の他のメンバーや観客は、少なくとも150cm離れる。<br>
-        ・得点走行中に誰もフィールドに触れてはならない。<br>
-        ・<span class="important">プレマッピングは禁止</span>。発覚した場合は即失格。
-      </div>
-    </div>
+      <!-- 右上固定 次へボタン -->
+  <a href="linetrace.html" id="nextButton">次へ →</a>
 
-    <div class="section">
-      <div class="title">⏱️ 競技開始</div>
-      <div class="content">
-        ・競技時間は最大8分間（キャリブレーションと得点走行を含む）。<br>
-        ・キャリブレーションはセンサーの調整であり、プレマッピングには含まれない。<br>
-        ・開始時刻は定められた時間に行われ、遅れても延長はされない。<br>
-        ・キャリブレーション中はロボットを動かしてはならない。<br>
-        ・得点走行開始後は、<span class="important">プログラム修正や再キャリブレーションは禁止</span>。<br>
-        ・開始後にフィールド構成がランダムで一部変更される場合がある。
-      </div>
-    </div>
+  <!-- メイン -->
+  <div class="main-container" id="mainContainer">
+    <header>
+      <h1>競技</h1>
+    </header>
 
-    <div class="section">
-      <div class="title">🤖 得点走行</div>
-      <div class="content">
-        ・ロボットはスタートタイルの正しい位置から出発する。<br>
-        ・落下した部品はそのままフィールドに残る。<br>
-        ・ロボットは自律的にフィールド情報を認識し、コースをたどり救助ゾーンに入り、被災者を救助後ゴールタイルへ進む。<br>
-        ・ロボットの半分以上がタイル内にあり、ラインをたどっていれば「到達」とみなす。
-      </div>
-    </div>
 
-    <div class="section">
-      <div class="title">⏸️ 競技進行停止</div>
-      <div class="content">
-        ・次の場合、競技進行停止とする：<br>
-        ① キャプテンが宣言した場合<br>
-        ② 黒線を外れて戻れない場合<br>
-        ③ 誤った経路に進んだ場合<br>
-        ・停止後は、ロボットを直前のチェックポイントタイルに戻す。<br>
-        ・停止の回数に制限はないが、3回連続でチェックポイントに到達できない場合は次に進める。<br>
-        ・救助ゾーン内で停止した場合、被災者はその位置のままとなる。<br>
-        ・必要に応じて、進行方向のシーソーを正しい位置に戻すことができる。<br>
-        <iframe src="https://drive.google.com/file/d/1QDeo0XKutB5Hes6vsRXEPJI1jaZv-r94/preview" width="480" height="320"></iframe>
-      </div>
-    </div>
+      <nav>
+      <a href="robocup_home.html">ホーム</a>
+      <a href="gaiyou.html">概要</a>
+      <a href="koudoukihann.html">行動規範</a>
+      <a href="field.html">フィールド</a>
+      <a href="robot.html">ロボット</a>
+    </nav>
 
-    <div class="section">
-      <div class="title">💯 得点</div>
-      <div class="content">
-        <span class="point-line">・ギャップ・スピードバンプ・交差点・行き止まり・傾斜路：<span class="important">各10点</span></span>
-        <span class="point-line">・障害物・シーソー：<span class="important">各20点</span></span>
-        <span class="point-line">・チェックポイント到達時に通過したタイルに応じて追加点：1回目5点／タイル、2回目3点／タイル、3回目1点／タイル</span>
-        <span class="point-line">・同じ障害は1回しか得点にならない。</span>
-        <span class="point-line">・被災者を正しい避難場所に運ぶと救助成功（SVR）となり、得点に乗数が加わる：生存者救助×1.4、死亡者救助×1.4</span>
-        <span class="point-line">・救助ゾーンで停止した場合、救助乗数は減算されるが最低1.25を下回らない。</span>
-        <span class="point-line">・ゴールタイルに到達し5秒間完全停止で脱出ボーナス（Exit Bonus）が与えられる。</span>
-        <span class="point-line">・最終得点は救助ゾーン乗数を含む得点全体により算出される。</span>
-        <iframe src="https://drive.google.com/file/d/1dtmm5L6Ql-MJOZrl5is3UHmlpqkJfwY2/preview" width="480" height="320"></iframe>
+    <main>
+      <!-- ここから競技ルールの内容 -->
+      <div class="section">
+        <div class="title">🏃‍♂️ 競技前の練習</div>
+        <div class="content">
+          ・競技期間中、チームは調整やテストのために練習フィールドを使用できる場合があります。<br>
+          ・競技フィールドでのテスト可否は大会運営者の判断によります。
+        </div>
       </div>
-    </div>
 
-    <div class="section">
-      <div class="title">🏁 競技終了</div>
-      <div class="content">
-        ・チームは任意の時点で競技を終了でき、キャプテンが審判に終了を申告する。<br>
-        ・終了時までに獲得したポイントが最終得点となる。<br>
-        ・競技は次のいずれかで終了する：<br>
-        ①8分経過<br>
-        ②キャプテンが終了を宣言ゴールタイルで5秒間完全停止。<br>
+      <div class="section">
+        <div class="title">👥 チームメンバー</div>
+        <div class="content">
+          ・<span class="important">キャプテン1名、副キャプテン1名を指名する</span>。<br>
+          ・審判の指示がない限り、この2名のみがフィールドに入ることができる。<br>
+          ・<span class="important">得点走行中にロボットを操作できるのはキャプテンのみ</span>。<br>
+          ・フィールド周辺の他のメンバーや観客は、少なくとも150cm離れる。<br>
+          ・得点走行中に誰もフィールドに触れてはならない。<br>
+          ・<span class="important">プレマッピングは禁止</span>。発覚した場合は即失格。
+        </div>
       </div>
-    </div>
-  </main>
 
-  <footer>
-    <p>&copy; 2025　愛知工業大学　水野勝教研究室 </p>
-  </footer>
+      <div class="section">
+        <div class="title">⏱️ 競技開始</div>
+        <div class="content">
+          ・競技時間は最大8分間（キャリブレーションと得点走行を含む）。<br>
+          ・キャリブレーションはセンサーの調整であり、プレマッピングには含まれない。<br>
+          ・開始時刻は定められた時間に行われ、遅れても延長はされない。<br>
+          ・キャリブレーション中はロボットを動かしてはならない。<br>
+          ・得点走行開始後は、<span class="important">プログラム修正や再キャリブレーションは禁止</span>。<br>
+          ・開始後にフィールド構成がランダムで一部変更される場合がある。
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="title">🤖 得点走行</div>
+        <div class="content">
+          ・ロボットはスタートタイルの正しい位置から出発する。<br>
+          ・落下した部品はそのままフィールドに残る。<br>
+          ・ロボットは自律的にフィールド情報を認識し、コースをたどり救助ゾーンに入り、被災者を救助後ゴールタイルへ進む。<br>
+          ・ロボットの半分以上がタイル内にあり、ラインをたどっていれば「到達」とみなす。
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="title">⏸️ 競技進行停止</div>
+        <div class="content">
+          ・次の場合、競技進行停止とする：<br>
+          ① キャプテンが宣言した場合<br>
+          ② 黒線を外れて戻れない場合<br>
+          ③ 誤った経路に進んだ場合<br>
+          ・停止後は、ロボットを直前のチェックポイントタイルに戻す。<br>
+          ・停止の回数に制限はないが、3回連続でチェックポイントに到達できない場合は次に進める。<br>
+          ・救助ゾーン内で停止した場合、被災者はその位置のままとなる。<br>
+          ・必要に応じて、進行方向のシーソーを正しい位置に戻すことができる。<br>
+          <iframe src="https://drive.google.com/file/d/1QDeo0XKutB5Hes6vsRXEPJI1jaZv-r94/preview" width="480" height="320"></iframe>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="title">💯 得点</div>
+        <div class="content">
+          <span class="point-line">・ギャップ・スピードバンプ・交差点・行き止まり・傾斜路：<span class="important">各10点</span></span>
+          <span class="point-line">・障害物・シーソー：<span class="important">各20点</span></span>
+          <span class="point-line">・チェックポイント到達時に通過したタイルに応じて追加点：1回目5点／タイル、2回目3点／タイル、3回目1点／タイル</span>
+          <span class="point-line">・同じ障害は1回しか得点にならない。</span>
+          <span class="point-line">・被災者を正しい避難場所に運ぶと救助成功（SVR）となり、得点に乗数が加わる：生存者救助×1.4、死亡者救助×1.4</span>
+          <span class="point-line">・救助ゾーンで停止した場合、救助乗数は減算されるが最低1.25を下回らない。</span>
+          <span class="point-line">・ゴールタイルに到達し5秒間完全停止で脱出ボーナス（Exit Bonus）が与えられる。</span>
+          <span class="point-line">・最終得点は救助ゾーン乗数を含む得点全体により算出される。</span>
+          <iframe src="https://drive.google.com/file/d/1dtmm5L6Ql-MJOZrl5is3UHmlpqkJfwY2/preview" width="480" height="320"></iframe>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="title">🏁 競技終了</div>
+        <div class="content">
+          ・チームは任意の時点で競技を終了でき、キャプテンが審判に終了を申告する。<br>
+          ・終了時までに獲得したポイントが最終得点となる。<br>
+          ・競技は次のいずれかで終了する：<br>
+          ①8分経過<br>
+          ②キャプテンが終了を宣言ゴールタイルで5秒間完全停止。<br>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 愛知工業大学 水野勝教研究室</p>
+    </footer>
+  </div> <!-- /.main-container -->
+</div> <!-- /.wrapper -->
+
+<script>
+  function toggleMenu() {
+    const sidebar = document.getElementById('sidebar');
+    const menuIcon = document.getElementById('menuIcon');
+    sidebar.classList.toggle('open');
+    menuIcon.classList.toggle('open');
+  }
+
+  document.addEventListener('click', function(e) {
+    const sidebar = document.getElementById('sidebar');
+    const menuIcon = document.getElementById('menuIcon');
+    if (!e.target.closest('.sidebar') && !e.target.closest('.menu-icon') && sidebar.classList.contains('open')) {
+      sidebar.classList.remove('open');
+      menuIcon.classList.remove('open');
+    }
+  });
+</script>
 
 </body>
 </html>
