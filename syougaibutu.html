@@ -402,7 +402,6 @@ def line_trace_and_avoid(right_motor: Motor, left_motor: Motor, sonar: SonarSens
     <b style="color:#000;">dispatch(interval=0.05)</b>：0.05秒（50ミリ秒）ごとに line_trace_and_avoid を呼ぶ。これがロボットの制御ループの周期です（20Hz）。
   </p>
 </div>
-
 <!-- ▼ よくある問題と改善のヒント ▼ -->
 <div class="tips-section">
   <h2>よくある問題と改善のヒント</h2>
@@ -445,6 +444,28 @@ def line_trace_and_avoid(right_motor: Motor, left_motor: Motor, sonar: SonarSens
          ・避けている間にライン判定が迷う</p>
       <p style="color:#16a34a; font-weight:600;">🔄 回避後のライン再検出を工夫！</p>
     </article>
+
+    <article class="card">
+      <h3>💡 カメラ映像が暗い</h3>
+      <p>・照明不足でライン検出が不安定<br>
+         ・ライトを追加、または明るさ補正</p>
+      <p style="color:#2b7bd3; font-weight:600;">💡 明るさを確保！</p>
+    </article>
+
+    <article class="card">
+      <h3>⚡ モーターが急に止まる</h3>
+      <p>・バッテリー不足<br>
+         ・モーターや配線に接触不良<br>
+         ・ETRoboの電源設定を確認</p>
+      <p style="color:#16a34a; font-weight:600;">🔌 電源と接続を確認！</p>
+    </article>
+
+    <article class="card">
+      <h3>🔀 進行方向がふらつく</h3>
+      <p>・PID制御や差分制御の微調整が必要<br>
+         ・左右モーターのパワー差を確認</p>
+      <p style="color:#2b7bd3; font-weight:600;">🎯 速度バランスを調整！</p>
+    </article>
   </div>
 </div>
 
@@ -483,7 +504,6 @@ def line_trace_and_avoid(right_motor: Motor, left_motor: Motor, sonar: SonarSens
   }
 }
 </style>
-
 
 
 

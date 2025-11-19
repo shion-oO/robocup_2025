@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ロボット</title>
   <style>
+    :root { --sidebar-width: 250px; }
+    * { box-sizing: border-box; }
+
     body {
       font-family: 'Helvetica Neue', sans-serif;
       background-color: #f0f4f8;
@@ -13,174 +16,311 @@
       color: #2c3e50;
     }
 
+    .wrapper { min-height: 100vh; position: relative; }
+
+    /* ハンバーガー */
+    .menu-icon {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      cursor: pointer;
+      z-index: 2000;
+      width: 30px;
+      height: 25px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .menu-icon div {
+      height: 4px;
+      background-color: #2c3e50;
+      border-radius: 5px;
+      transition: 0.3s ease;
+    }
+    .menu-icon.open div:nth-child(1) { transform: translateY(10px) rotate(45deg); }
+    .menu-icon.open div:nth-child(2) { opacity: 0; }
+    .menu-icon.open div:nth-child(3) { transform: translateY(-10px) rotate(-45deg); }
+
+    /* サイドバー */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -250px;
+      width: var(--sidebar-width);
+      height: 100%;
+      background-color: #ffffff;
+      padding: 20px;
+      box-shadow: 4px 0 12px rgba(0,0,0,0.1);
+      transition: left 0.28s ease-in-out;
+      z-index: 1500;
+      overflow-y: auto;
+    }
+    .sidebar.open { left: 0; }
+    .sidebar ul { list-style: none; padding: 0; margin: 0; margin-top: 10px; }
+    .sidebar li { margin-bottom: 12px; }
+    details summary {
+      cursor: pointer;
+      padding: 6px 0;
+      font-weight: bold;
+      border-bottom: 1px solid #ddd;
+      color: #2c3e50;
+      list-style: none;
+    }
+    details ul { padding-left: 15px; margin-top: 6px; }
+    .sidebar a {
+      color: #2c3e50;
+      text-decoration: none;
+      font-weight: bold;
+      display: block;
+      padding: 6px 0;
+    }
+    .sidebar a:hover { color: #3498db; }
+
+    /* メイン領域 */
+    .main-container {
+      transition: margin-left 0.28s ease-in-out;
+      margin-left: 0;
+      padding: 24px;
+    }
+
     header {
       background-color: #3498db;
       color: white;
       padding: 20px;
       text-align: center;
+      border-radius: 6px;
     }
-
-    h1 {
-      margin: 0;
-      font-size: 2em;
-    }
-
-    nav {
-      background-color: #ecf0f1;
-      padding: 10px 20px;
-    }
-
-    nav a {
-      color: #3498db;
-      text-decoration: none;
-      margin-right: 15px;
-      font-weight: bold;
-    }
-
-    nav a:hover {
-      text-decoration: underline;
-    }
+    h1 { margin: 0; font-size: 2em; }
 
     main {
       padding: 40px 20px;
-      max-width: 900px;
-      margin: 0 auto;
+      margin: 18px auto 40px;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+      width: 100%;
+      max-width: none;
     }
 
+    /* sectionカード風 */
     .section {
-      background: #fff;
-      border-radius: 12px;
-      margin-bottom: 25px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-      transition: transform 0.3s, box-shadow 0.3s;
-      cursor: default;
+      background:#fff;
+      border-radius:12px;
+      border:1px solid #e3f2fd;
+      margin: 0 0 32px 0;
+      box-shadow:0 6px 18px rgba(43,123,211,0.06);
+      padding: 24px 28px;
+      width: 100%;
     }
-
     .section:hover {
       transform: translateY(-5px);
       box-shadow: 0 12px 24px rgba(0,0,0,0.15);
     }
-
     .title {
-      background: #e3f2fd;
-      color: #000;
-      font-weight: bold;
-      padding: 12px 18px;
-      border-radius: 12px 12px 0 0;
-      font-size: 18px;
-      border-bottom: 2px solid #fff;
+      background:#e3f2fd;
+      color:#000;
+      border-radius:12px 12px 0 0;
+      padding:10px 16px;
+      font-weight:bold;
+      border-bottom:2px solid #fff;
+      margin-bottom:12px;
+      font-size:18px;
     }
-
-    .content {
-      padding: 20px 25px;
-      font-size: 16px;
-      color: #444;
-    }
-
-    ul {
-      margin: 0;
-      padding-left: 1.2em;
-      line-height: 1.8;
-    }
+    .content { padding:16px; font-size:16px; color:#444; }
+    .content ul { padding-left:20px; line-height:1.8; }
 
     footer {
-      text-align: center;
-      padding: 20px;
-      background-color: #ecf0f1;
-      margin-top: 20px;
+      text-align:center;
+      padding:20px;
+      background-color:#ecf0f1;
+      margin-top:20px;
+      border-radius:6px;
     }
+
+    @media (max-width: 800px) {
+      .sidebar { left: -250px; }
+      .sidebar.open { left: 0; }
+      .main-container { padding: 12px; }
+      main { padding: 20px; margin: 12px auto; }
+    }
+
+    /* 右上の次へボタン */
+    #nextButton {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      z-index: 2000;
+      transition: 0.3s;
+    }
+    #nextButton:hover { background-color: #2980b9; }
+
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>ロボット</h1>
-  </header>
+<div class="wrapper">
 
-  <nav>
-    <a href="robocup_home.html">ホーム</a>
-    <a href="gaiyou.html">概要</a>
-    <a href="koudoukihann.html">行動規範</a>
-    <a href="field.html">フィールド</a>
-    <a href="kyougi.html">競技</a>
+  <!-- ハンバーガー -->
+  <div class="menu-icon" id="menuIcon" onclick="toggleMenu()">
+    <div></div><div></div><div></div>
+  </div>
+
+  <!-- サイドバー -->
+  <nav class="sidebar" id="sidebar">
+    <ul>
+      <li>
+        <details>
+          <summary>はじめに</summary>
+          <ul>
+            <li><a href="robocup_home.html">ロボカップジュニアについて</a></li>
+          </ul>
+        </details>
+      </li>
+      <li>
+        <details open>
+          <summary>1. ルール</summary>
+          <ul>
+            <li><a href="gaiyou.html">概要</a></li>
+            <li><a href="koudoukihann.html">行動規範</a></li>
+            <li><a href="field.html">フィールド</a></li>
+            <li><a href="robot.html" style="color:#3498db;">ロボット</a></li>
+            <li><a href="kyougi.html">競技</a></li>
+          </ul>
+        </details>
+      </li>
+      <li>
+        <details>
+          <summary>2. 実践</summary>
+          <ul>
+            <li><a href="linetrace.html">白黒ライントレース</a></li>
+            <li><a href="linetrace2.html">交差点付きライントレース</a></li>
+            <li><a href="linetrace3.html">ギャップライントレース</a></li>
+            <li><a href="goal.html">ゴールタイル</a></li>
+            <li><a href="speedbump.html">スピードバンプ</a></li>
+            <li><a href="syougaibutu.html">障害物</a></li>
+            <li><a href="gareki.html">瓦礫</a></li>
+            <li><a href="seesaw.html">シーソー</a></li>
+            <li><a href="keisyaro.html">傾斜路</a></li>
+            <li><a href="ball1.html">ボール検知の学習</a></li>
+            <li><a href="blackball.html">黒色ボール</a></li>
+            <li><a href="silverball.html">銀色ボール</a></li>
+          </ul>
+        </details>
+      </li>
+    </ul>
   </nav>
 
-  <main>
-    <!-- 🤖 制御 -->
-    <div class="section">
-      <div class="title">🤖 制御（Control）</div>
-      <div class="content">
-        <ul>
-          <li>ロボットは自律制御で動作しなければならない。</li>
-          <li>遠隔操作や外部からの情報送信は禁止。</li>
-          <li>スタートはチームキャプテンが手動で行う。</li>
-          <li>事前にマップされた動きは禁止。</li>
-          <li>フィールドを損傷する行為は禁止。</li>
-        </ul>
-      </div>
-    </div>
+  <!-- メイン -->
+  <div class="main-container" id="mainContainer">
+    <header>
+      <h1>ロボット</h1>
+    </header>
 
-    <!-- 🛠️ 構築 -->
-    <div class="section">
-      <div class="title">🛠️ 構築（Construction）</div>
-      <div class="content">
-        <ul>
-          <li>ロボットは生徒自身のオリジナル作品であること。</li>
-          <li>課題に特化した市販キットやセンサーの使用は禁止。</li>
-          <li>レーザーは class 1 または class 2 のみ、データシート提出必須。</li>
-          <li>無線通信はロボット内部またはチーム内のみ許可（Bluetooth/ZigBee）。</li>
-          <li>衝突・転落に耐えられる安全な保護が必要。</li>
-          <li>持ち上げ用ハンドルと明確なスタート/ストップスイッチを設置。</li>
-        </ul>
-      </div>
-    </div>
+    <a href="kyougi.html" id="nextButton">次へ →</a>
 
-    <!-- 👥 チーム -->
-    <div class="section">
-      <div class="title">👥 チーム（Team）</div>
-      <div class="content">
-        <ul>
-          <li>フィールド上で使用できるロボットは1台のみ。</li>
-          <li>各メンバーは自分の役割を説明できること。</li>
-          <li>1人が複数チームに登録することは禁止。</li>
-          <li>Rescue Lineは最大2回まで出場可能。</li>
-          <li>競技中、メンターや保護者はチームと同行できない。</li>
-        </ul>
+    <main>
+      <!-- 🤖 制御 -->
+      <div class="section">
+        <div class="title">🤖 制御（Control）</div>
+        <div class="content">
+          <ul>
+            <li>ロボットは自律制御で動作しなければならない。</li>
+            <li>遠隔操作や外部からの情報送信は禁止。</li>
+            <li>スタートはチームキャプテンが手動で行う。</li>
+            <li>事前にマップされた動きは禁止。</li>
+            <li>フィールドを損傷する行為は禁止。</li>
+          </ul>
+        </div>
       </div>
-    </div>
 
-    <!-- 🔍 検査 -->
-    <div class="section">
-      <div class="title">🔍 検査（Inspection）</div>
-      <div class="content">
-        <ul>
-          <li>審判は競技前および競技中にロボットを検査する。</li>
-          <li>他チームのロボットを流用・模倣することは禁止。</li>
-          <li>競技中に変更を加えた場合は再検査必須。</li>
-          <li>チームメンバーは動作原理や準備内容を説明できること。</li>
-          <li>技術文書、ソースコード、ジャーナル、ポスターを提出（期限：競技3週間前）。</li>
-        </ul>
+      <!-- 🛠️ 構築 -->
+      <div class="section">
+        <div class="title">🛠️ 構築（Construction）</div>
+        <div class="content">
+          <ul>
+            <li>ロボットは生徒自身のオリジナル作品であること。</li>
+            <li>課題に特化した市販キットやセンサーの使用は禁止。</li>
+            <li>レーザーは class 1 または class 2 のみ、データシート提出必須。</li>
+            <li>無線通信はロボット内部またはチーム内のみ許可（Bluetooth/ZigBee）。</li>
+            <li>衝突・転落に耐えられる安全な保護が必要。</li>
+            <li>持ち上げ用ハンドルと明確なスタート/ストップスイッチを設置。</li>
+          </ul>
+        </div>
       </div>
-    </div>
 
-    <!-- ⚠️ 違反 -->
-    <div class="section">
-      <div class="title">⚠️ 違反（Violation）</div>
-      <div class="content">
-        <ul>
-          <li>不適合が見つかった場合は修正・再検査まで競技に参加不可。</li>
-          <li>修正は大会スケジュール内で行う。</li>
-          <li>規定を満たさないロボットは競技失格。</li>
-          <li>競技中のメンターによる援助は禁止。</li>
-          <li>ルール違反は減点・失格・大会失格の可能性あり。</li>
-        </ul>
+      <!-- 👥 チーム -->
+      <div class="section">
+        <div class="title">👥 チーム（Team）</div>
+        <div class="content">
+          <ul>
+            <li>フィールド上で使用できるロボットは1台のみ。</li>
+            <li>各メンバーは自分の役割を説明できること。</li>
+            <li>1人が複数チームに登録することは禁止。</li>
+            <li>Rescue Lineは最大2回まで出場可能。</li>
+            <li>競技中、メンターや保護者はチームと同行できない。</li>
+          </ul>
+        </div>
       </div>
-    </div>
-  </main>
 
-  <footer>
-    <p>&copy; 2025　愛知工業大学　水野勝教研究室 </p>
-  </footer>
+      <!-- 🔍 検査 -->
+      <div class="section">
+        <div class="title">🔍 検査（Inspection）</div>
+        <div class="content">
+          <ul>
+            <li>審判は競技前および競技中にロボットを検査する。</li>
+            <li>他チームのロボットを流用・模倣することは禁止。</li>
+            <li>競技中に変更を加えた場合は再検査必須。</li>
+            <li>チームメンバーは動作原理や準備内容を説明できること。</li>
+            <li>技術文書、ソースコード、ジャーナル、ポスターを提出（期限：競技3週間前）。</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ⚠️ 違反 -->
+      <div class="section">
+        <div class="title">⚠️ 違反（Violation）</div>
+        <div class="content">
+          <ul>
+            <li>不適合が見つかった場合は修正・再検査まで競技に参加不可。</li>
+            <li>修正は大会スケジュール内で行う。</li>
+            <li>規定を満たさないロボットは競技失格。</li>
+            <li>競技中のメンターによる援助は禁止。</li>
+            <li>ルール違反は減点・失格・大会失格の可能性あり。</li>
+          </ul>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 愛知工業大学 水野勝教研究室</p>
+    </footer>
+  </div> <!-- /.main-container -->
+</div> <!-- /.wrapper -->
+
+<script>
+  function toggleMenu() {
+    const sidebar = document.getElementById('sidebar');
+    const menuIcon = document.getElementById('menuIcon');
+    sidebar.classList.toggle('open');
+    menuIcon.classList.toggle('open');
+  }
+
+  document.addEventListener('click', function(e) {
+    const sidebar = document.getElementById('sidebar');
+    const menuIcon = document.getElementById('menuIcon');
+    if (!e.target.closest('.sidebar') && !e.target.closest('.menu-icon') && sidebar.classList.contains('open')) {
+      sidebar.classList.remove('open');
+      menuIcon.classList.remove('open');
+    }
+  });
+</script>
 
 </body>
 </html>
