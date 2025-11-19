@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>行動規範</title>
   <style>
+    :root { --sidebar-width: 250px; }
+    * { box-sizing: border-box; }
+
     body {
       font-family: 'Helvetica Neue', sans-serif;
       background-color: #f0f4f8;
@@ -13,195 +16,330 @@
       color: #2c3e50;
     }
 
+    .wrapper { min-height: 100vh; position: relative; }
+
+    /* ハンバーガー */
+    .menu-icon {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      cursor: pointer;
+      z-index: 2000;
+      width: 30px;
+      height: 25px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .menu-icon div {
+      height: 4px;
+      background-color: #2c3e50;
+      border-radius: 5px;
+      transition: 0.3s ease;
+    }
+    .menu-icon.open div:nth-child(1) { transform: translateY(10px) rotate(45deg); }
+    .menu-icon.open div:nth-child(2) { opacity: 0; }
+    .menu-icon.open div:nth-child(3) { transform: translateY(-10px) rotate(-45deg); }
+
+    /* サイドバー */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -250px;
+      width: var(--sidebar-width);
+      height: 100%;
+      background-color: #ffffff;
+      padding: 20px;
+      box-shadow: 4px 0 12px rgba(0,0,0,0.1);
+      transition: left 0.28s ease-in-out;
+      z-index: 1500;
+      overflow-y: auto;
+    }
+    .sidebar.open { left: 0; }
+    .sidebar ul { list-style: none; padding: 0; margin: 0; margin-top: 10px; }
+    .sidebar li { margin-bottom: 12px; }
+    details summary {
+      cursor: pointer;
+      padding: 6px 0;
+      font-weight: bold;
+      border-bottom: 1px solid #ddd;
+      color: #2c3e50;
+    }
+    details ul { padding-left: 15px; margin-top: 6px; }
+    .sidebar a {
+      color: #2c3e50;
+      text-decoration: none;
+      font-weight: bold;
+      display: block;
+      padding: 6px 0;
+    }
+    .sidebar a:hover { color: #3498db; }
+
+    /* メイン */
+    .main-container { transition: margin-left 0.28s ease-in-out; margin-left: 0; padding: 24px; }
+
     header {
       background-color: #3498db;
       color: white;
       padding: 20px;
       text-align: center;
+      border-radius: 6px;
     }
-
-    h1 {
-      margin: 0;
-      font-size: 2em;
-    }
+    h1 { margin: 0; font-size: 2em; }
 
     nav {
       background-color: #ecf0f1;
       padding: 10px 20px;
+      margin-top: 14px;
+      border-radius: 6px;
     }
-
     nav a {
       color: #3498db;
       text-decoration: none;
       margin-right: 15px;
       font-weight: bold;
     }
-
-    nav a:hover {
-      text-decoration: underline;
-    }
+    nav a:hover { text-decoration: underline; }
 
     main {
       padding: 40px 20px;
-      max-width: 900px;
-      margin: 0 auto;
+      margin: 18px auto 40px;
       background-color: #ffffff;
       border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+      width: 100%;
+      max-width: none;
     }
 
-    section {
-      margin-bottom: 40px;
+    /* セクションカード */
+    .section-card {
+      background:#fff;
+      border-radius:12px;
+      border:1px solid #e3f2fd;
+      margin: 0 0 32px 0;
+      box-shadow:0 6px 18px rgba(43,123,211,0.06);
+      padding: 24px 28px;
+      width: 100%;
     }
+    .card-head {
+      background:#e3f2fd;
+      color:#000;
+      border-radius:12px 12px 0 0;
+      padding:10px 16px;
+      font-weight:bold;
+      border-bottom:2px solid #fff;
+    }
+    .card-body { padding:16px; }
 
-    h2 {
-      border-bottom: 2px solid #3498db;
-      padding-bottom: 5px;
-      margin-bottom: 15px;
-    }
-
-    p {
-      line-height: 1.8;
-    }
-
-    pre {
-      background-color: #f4f4f4;
-      padding: 15px;
-      border-radius: 5px;
-      font-family: monospace;
-      overflow-x: auto;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 20px;
-    }
-
-    .card {
-      background-color: #ecf0f1;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
-    .emoji {
-      font-size: 1.5em;
-    }
-
-    .desc {
-      margin: 10px 0;
-    }
-
-    .list {
-      list-style-type: disc;
-      padding-left: 20px;
-    }
-
-    .note {
-      font-weight: bold;
-      margin-top: 10px;
-    }
-
-    .note.green {
-      color: #27ae60;
-    }
+    h2 { margin-bottom:20px; }
 
     footer {
-      text-align: center;
-      padding: 20px;
-      background-color: #ecf0f1;
-      margin-top: 20px;
+      text-align:center;
+      padding:20px;
+      background-color:#ecf0f1;
+      margin-top:20px;
+      border-radius:6px;
     }
+
+    /* レスポンシブ */
+    @media (max-width: 800px) {
+      .sidebar { left: -250px; }
+      .sidebar.open { left: 0; }
+      .main-container { padding: 12px; }
+      main { padding: 20px; margin: 12px auto; }
+    }
+
+
+     /* 右上の次へボタン */
+    #nextButton {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      z-index: 2000;
+      transition: 0.3s;
+    }
+
+    #nextButton:hover {
+      background-color: #2980b9;
+    }
+
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>行動規範</h1>
-  </header>
+<div class="wrapper">
 
-  <nav>
-    <a href="robocup_home.html">ホーム</a>
-    <a href="gaiyou.html">概要</a>
-    <a href="field.html">フィールド</a>
-    <a href="robot.html">ロボット</a>
-    <a href="kyougi.html">競技</a>
+  <!-- ハンバーガー -->
+  <div class="menu-icon" id="menuIcon" onclick="toggleMenu()">
+    <div></div><div></div><div></div>
+  </div>
+
+  <!-- サイドバー -->
+  <nav class="sidebar" id="sidebar">
+    <ul>
+      <li>
+        <details>
+          <summary>はじめに</summary>
+          <ul>
+            <li><a href="about.html">ロボカップジュニアについて</a></li>
+          </ul>
+        </details>
+      </li>
+      <li>
+        <details>
+          <summary>1. ルール</summary>
+          <ul>
+            <li><a href="gaiyou.html">1.1 概要</a></li>
+            <li><a href="koudoukihann.html">1.2 行動規範</a></li>
+            <li><a href="field.html">1.3 フィールド</a></li>
+            <li><a href="robot.html">1.4 ロボット</a></li>
+            <li><a href="kyougi.html">1.5 競技</a></li>
+          </ul>
+        </details>
+      </li>
+      <li>
+        <details>
+          <summary>2. 実践</summary>
+          <ul>
+            <li><a href="linetrace.html">白黒ライントレース</a></li>
+            <li><a href="linetrace2.html">交差点付きライントレース</a></li>
+            <li><a href="linetrace3.html">ギャップライントレース</a></li>
+            <li><a href="goal.html">ゴールタイル</a></li>
+            <li><a href="speedbanmp.html">スピードバンプ</a></li>
+            <li><a href="syougaibutu.html">障害物</a></li>
+            <li><a href="gareki.html">瓦礫</a></li>
+            <li><a href="seesaw.html">シーソー</a></li>
+            <li><a href="keisyaro.html">傾斜路</a></li>
+            <li><a href="ball1.html">ボール検知の学習</a></li>
+            <li><a href="blackball.html">黒色ボール</a></li>
+            <li><a href="silverball.html">銀色ボール</a></li>
+          </ul>
+        </details>
+      </li>
+    </ul>
   </nav>
 
-  <main>
-    <section>
-      <h2>行動規範</h2>
-      <div class="grid">
+    <!-- 右上固定 次へボタン -->
+  <a href="field.html" id="nextButton">次へ →</a>
+
+  <!-- メイン -->
+  <div class="main-container" id="mainContainer">
+    <header>
+      <h1>行動規範</h1>
+    </header>
+
+    <nav>
+      <a href="robocup_home.html">ホーム</a>
+      <a href="gaiyou.html">概要</a>
+      <a href="field.html">フィールド</a>
+      <a href="robot.html">ロボット</a>
+      <a href="kyougi.html">競技</a>
+    </nav>
+
+    <main>
+      <section>
+        <h2>行動規範</h2>
 
         <!-- 🌟 精神 -->
-        <article class="card">
-          <h3><span class="emoji">🌟</span>精神<br>（Spirit）</h3>
-          <p class="desc">
+        <div class="section-card">
+          <div class="card-head">🌟 精神（Spirit）</div>
+          <div class="card-body">
             ・ロボカップジュニアの目的や理念を大切にしよう。<br><br>
-            ・勝ち負けだけでなく、挑戦や学びを楽しむことも大切❕
-          </p>
-          <p class="note green">🏆 勝敗よりも“学び”を重視</p>
-        </article>
+            ・勝ち負けだけでなく、挑戦や学びを楽しむことも大切❕<br>
+            <strong>🏆 勝敗よりも“学び”を重視</strong>
+          </div>
+        </div>
 
         <!-- ⚖️ フェアプレー -->
-        <article class="card">
-          <h3><span class="emoji">⚖️</span>フェアプレー<br>（Fair Play）</h3>
-          <p class="desc">
+        <div class="section-card">
+          <div class="card-head">⚖️ フェアプレー（Fair Play）</div>
+          <div class="card-body">
             ・意図的にフィールドやロボットを壊す行為は失格になるよ。<br><br>
-            ・みんなが公平に参加できるように心がけよう。
-          </p>
-          <p class="note green">🤝 ルールとマナーを守ろう</p>
-        </article>
+            ・みんなが公平に参加できるように心がけよう。<br>
+            <strong>🤝 ルールとマナーを守ろう</strong>
+          </div>
+        </div>
 
         <!-- 🧭 ふるまい -->
-        <article class="card">
-          <h3><span class="emoji">🧭</span>ふるまい<br>（Behavior）</h3>
-          <p class="desc">
+        <div class="section-card">
+          <div class="card-head">🧭 ふるまい（Behavior）</div>
+          <div class="card-body">
             ・最新の公式ルールと追加説明を確認する責任がある。<br><br>
             ・他チームの作業エリアには許可なく入らない。<br><br>
             ・不正があれば退場や失格になることがある。
-          </p>
-        </article>
+          </div>
+        </div>
 
         <!-- 👩‍🏫 メンター -->
-        <article class="card">
-          <h3><span class="emoji">👩‍🏫</span>メンター<br>（Mentors）</h3>
-          <ul class="list">
-            <li>メンターは生徒の作業エリアに入れない</li><br>
-            <li>競技前・競技中にロボットの構築・修理・プログラミングは禁止</li><br>
-            <li>干渉があれば警告、再発で失格になることがある</li><br>
-            <li>ロボットはチームメンバー自身の成果であること</li>
-          </ul>
-        </article>
+        <div class="section-card">
+          <div class="card-head">👩‍🏫 メンター（Mentors）</div>
+          <div class="card-body">
+            <ul>
+              <li>メンターは生徒の作業エリアに入れない</li>
+              <li>競技前・競技中にロボットの構築・修理・プログラミングは禁止</li>
+              <li>干渉があれば警告、再発で失格になることがある</li>
+              <li>ロボットはチームメンバー自身の成果であること</li>
+            </ul>
+          </div>
+        </div>
 
         <!-- 🕊️ 倫理 -->
-        <article class="card">
-          <h3><span class="emoji">🕊️</span>倫理と誠実さ<br>（Ethics）</h3>
-          <ul class="list">
-            <li>不正・違法行為は認めない</li><br>
-            <li>他チームの作業を代行することは禁止</li><br>
-            <li>授賞式後でも不正が判明すれば賞は取り消される</li><br>
-            <li>重大・繰り返しの違反は即失格になる場合がある</li>
-          </ul>
-        </article>
+        <div class="section-card">
+          <div class="card-head">🕊️ 倫理と誠実さ（Ethics）</div>
+          <div class="card-body">
+            <ul>
+              <li>不正・違法行為は認めない</li>
+              <li>他チームの作業を代行することは禁止</li>
+              <li>授賞式後でも不正が判明すれば賞は取り消される</li>
+              <li>重大・繰り返しの違反は即失格になる場合がある</li>
+            </ul>
+          </div>
+        </div>
 
         <!-- 💡 情報共有 -->
-        <article class="card">
-          <h3><span class="emoji">💡</span>情報共有<br>（Sharing）</h3>
-          <p class="desc">
+        <div class="section-card">
+          <div class="card-head">💡 情報共有（Sharing）</div>
+          <div class="card-body">
             ・大会の後は、使ったアイデアや発見を他チームと共有しよう。<br><br>
             ・質問し合って学び合う雰囲気を作ろう！
-          </p>
-        </article>
+          </div>
+        </div>
 
-      </div>
-    </section>
-  </main>
+      </section>
+    </main>
 
-  <footer>
-    <p>&copy; 愛知工業大学　水野勝教研究室 2025</p>
-  </footer>
+    <footer>
+      <p>&copy; 愛知工業大学　水野勝教研究室 2025</p>
+    </footer>
+
+  </div> <!-- /.main-container -->
+
+</div> <!-- /.wrapper -->
+
+<script>
+  function toggleMenu() {
+    const sidebar = document.getElementById('sidebar');
+    const menuIcon = document.getElementById('menuIcon');
+    sidebar.classList.toggle('open');
+    menuIcon.classList.toggle('open');
+  }
+
+  document.addEventListener('click', function(e) {
+    const sidebar = document.getElementById('sidebar');
+    const menuIcon = document.getElementById('menuIcon');
+    if (!e.target.closest('.sidebar') && !e.target.closest('.menu-icon') && sidebar.classList.contains('open')) {
+      sidebar.classList.remove('open');
+      menuIcon.classList.remove('open');
+    }
+  });
+</script>
 
 </body>
 </html>
