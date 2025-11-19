@@ -168,75 +168,221 @@
       ロボットが黒いラインに沿って正確に走行する様子を撮影した動画です。
     </div>
 
-    <h2>linetrace.py</h2>
+    <h2>rai_sarch.py</h2>
     <div class="code-section">
       <div class="code-box">
-        <pre><code># OpenCVライブラリを使用して画像処理を行うためにインポート
+        <pre><code>import time
 import cv2
 import numpy as np
+import random
+from etrobo_python import ETRobo
+from etrobo_python.device import Motor, SonarSensor
+
+# =========================
+# 1. Servo??????
+# =========================
+try:
+    from etrobo_python import Servo
+    HAS_SERVO = True
+except ImportError:
+    HAS_SERVO = False
+
+device_type_arm = Servo if HAS_SERVO else Motor
+
+# =========================
+# 2. ?????
+# =========================
+PORT_LEFT_MOTOR = 'A'
+PORT_RIGHT_MOTOR = 'B'
+PORT_ARM_LEFT = 'C'
+PORT_ARM_RIGHT = 'F'
+PORT_ULTRASONIC = 'E'
+
+# =========================
+# 3. ???????
+# =========================
+POWER = 100
+MOVE_POWER = 100
+FORWARD_POWER = 120
+TURN_POWER = 120
+FORWARD_TIME = 1.0
+TURN_TIME = 1.5
+ARM_MOVE_TIME = 0.6
+ARM_MOVE_TIME2 = 0.5
+WALL_DISTANCE = 85  # cm ????????
+
+# =========================
+# 4. ?????
+# =========================
 from picamera2 import Picamera2
-from etrobo_python import ETRobo, Motor
-import time
+picam2 = Picamera2()
+picam2.configure(picam2.create_preview_configuration(
+    main={"format": "RGB888", "size": (320, 320)}
+))
+picam2.start()
+time.sleep(1.0)
 
-cam0 = Picamera2(0)
-cam0.configure(cam0.create_preview_configuration(main={"format": 'XRGB8888', "size": (320, 240)}))
-cam0.start()
-time.sleep(1)
-
-cam1 = Picamera2(1)
-cam1.configure(cam1.create_preview_configuration(main={"format": 'XRGB8888', "size": (320, 240)}))
-cam1.start()
-time.sleep(1)
-
-last_direction = "CENTER"
-
-def get_direction(frame, last_direction):
-    hsv = cv2.cvtColor(frame, cv2.COLOR_RGB2HSV)
-    lower_black = (0, 0, 0)
-    upper_black = (180, 255, 80)
+# =========================
+# 5. ????????
+# =========================
+def detect_black(frame):
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    lower_black = np.array([0, 0, 0])
+    upper_black = np.array([180, 255, 50])
     mask = cv2.inRange(hsv, lower_black, upper_black)
-    mask = cv2.GaussianBlur(mask, (5, 5), 0)
-    height, width = mask.shape
-    roi_bottom = mask[height-40:height, :]
-    contours, _ = cv2.findContours(roi_bottom, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    direction = last_direction
-    if contours:
-        cx = np.mean([cv2.moments(c)["m10"]/cv2.moments(c)["m00"] for c in contours if cv2.moments(c)["m00"] != 0])
-        if cx < width//2 - 20:
-            direction = "LEFT"
-        elif cx > width//2 + 20:
-            direction = "RIGHT"
-        else:
-            direction = "CENTER"
-    return direction
 
-def line_trace_by_camera(right_motor: Motor, left_motor: Motor, **kwargs):
-    global last_direction
-    try:
-        frame0 = cam0.capture_array()
-        direction = get_direction(frame0, last_direction)
-        last_direction = direction
-        print("進行方向:", direction)
-        base_speed = 90 if direction == "CENTER" else 50
-        diff = 55
-        if direction == "LEFT":
-            right_motor.set_power(base_speed + diff)
-            left_motor.set_power(base_speed - diff)
-        elif direction == "RIGHT":
-            right_motor.set_power(base_speed - diff)
-            left_motor.set_power(base_speed + diff)
-        else:
-            right_motor.set_power(base_speed)
-            left_motor.set_power(base_speed)
-    except Exception as e:
-        print("エラー:", e)
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    for cnt in contours:
+        area = cv2.contourArea(cnt)
+        if area > 1000:
+            return True
+    return False
 
-if __name__ == "__main__":
-    robo = (ETRobo(backend='raspike_art')
-            .add_device('right_motor', device_type=Motor, port='A')
-            .add_device('left_motor', device_type=Motor, port='B')
-            .add_handler(line_trace_by_camera))
-    robo.dispatch(interval=0.05)
+# =========================
+# 6. ???????
+# =========================
+def scoop_ball(arm_left, arm_right, left_motor, right_motor):
+    print("[INFO] Scooping ball...")
+
+    # ???????
+    print("[INFO] Lowering arm (DOWN)")
+    arm_left.set_power(-POWER)
+    arm_right.set_power(POWER)
+    time.sleep(ARM_MOVE_TIME)
+
+    # ????????
+    print("[INFO] Dragging ball to wall (10s)")
+    left_motor.set_power(70)
+    right_motor.set_power(70)
+    time.sleep(10.0)
+    left_motor.set_power(0)
+    right_motor.set_power(0)
+
+    # ??
+    print("[INFO] Backing up")
+    left_motor.set_power(-60)
+    right_motor.set_power(-60)
+    time.sleep(4.0)
+    left_motor.set_power(0)
+    right_motor.set_power(0)
+
+    # ???????
+    print("[INFO] Raising arm (UP)")
+    arm_left.set_power(POWER)
+    arm_right.set_power(-POWER)
+    time.sleep(ARM_MOVE_TIME2)
+
+    # ????????
+    print("[INFO] Dragging ball to wall (10s)")
+    left_motor.set_power(70)
+    right_motor.set_power(70)
+    time.sleep(4.0)
+    left_motor.set_power(0)
+    right_motor.set_power(0)
+
+    # ???????
+    print("[INFO] Lowering arm (DOWN)")
+    arm_left.set_power(-POWER)
+    arm_right.set_power(POWER)
+    time.sleep(ARM_MOVE_TIME)
+
+    print("[INFO] Scoop complete")
+    arm_left.set_power(0)
+    arm_right.set_power(0)
+
+# =========================
+# 7. ?????? + ????????????
+# =========================
+def rescue_sequence(left_motor, right_motor, arm_left, arm_right, ultrasonic, **kwargs):
+    print("[INFO] Starting random walk search with ultrasonic wall avoidance...")
+    found_black = False
+    stop_counter = 0
+
+    while True:
+        frame = picam2.capture_array()
+        frame = cv2.resize(frame, (320, 320))
+        detected = detect_black(frame)
+        distance = ultrasonic.get_distance()
+        print(f"[INFO] Distance: {distance:.1f} cm")
+
+        # --- ??????? ---
+        if detected:
+            stop_counter += 1
+            print(f"[INFO] Black detected ({stop_counter}/3)")
+            if stop_counter >= 3:
+                found_black = True
+                break
+        else:
+            stop_counter = 0
+
+            # --- ??? ---
+            if distance > 0 and distance < WALL_DISTANCE:
+                print("[INFO] Wall detected! Backing up and turning...")
+                left_motor.set_power(-MOVE_POWER)
+                right_motor.set_power(-MOVE_POWER)
+                time.sleep(0.8)
+                turn_dir = random.choice(["left", "right"])
+                if turn_dir == "left":
+                    left_motor.set_power(-TURN_POWER)
+                    right_motor.set_power(TURN_POWER)
+                else:
+                    left_motor.set_power(TURN_POWER)
+                    right_motor.set_power(-TURN_POWER)
+                time.sleep(0.8)
+
+            else:
+                # --- ????????forward / left / right / backward?---
+                action = random.choice(["forward", "left", "right", "backward"])
+                if action == "forward":
+                    print("[RANDOM WALK] Moving forward fast")
+                    left_motor.set_power(FORWARD_POWER)
+                    right_motor.set_power(FORWARD_POWER)
+                    time.sleep(FORWARD_TIME)
+                elif action == "backward":
+                    print("[RANDOM WALK] Moving backward fast")
+                    left_motor.set_power(-FORWARD_POWER)
+                    right_motor.set_power(-FORWARD_POWER)
+                    time.sleep(FORWARD_TIME)
+                elif action == "left":
+                    print("[RANDOM WALK] Sharp left turn")
+                    left_motor.set_power(-TURN_POWER)
+                    right_motor.set_power(TURN_POWER)
+                    time.sleep(TURN_TIME)
+                elif action == "right":
+                    print("[RANDOM WALK] Sharp right turn")
+                    left_motor.set_power(TURN_POWER)
+                    right_motor.set_power(-TURN_POWER)
+                    time.sleep(TURN_TIME)
+
+            # ??????
+            left_motor.set_power(0)
+            right_motor.set_power(0)
+            time.sleep(0.3)
+
+    if found_black:
+        print("[INFO] Black object confirmed ? initiating scoop!")
+        scoop_ball(arm_left, arm_right, left_motor, right_motor)
+
+    cv2.destroyAllWindows()
+    print("[INFO] Rescue sequence complete.")
+
+# =========================
+# 8. ETRobo ????
+# =========================
+device_type_arm = Servo if HAS_SERVO else Motor
+print(f"HAS_SERVO = {HAS_SERVO}")
+print(f"Using device_type_arm = {device_type_arm}")
+
+(
+    ETRobo(backend='raspike_art')  # Bluetooth?? 'bt'
+    .add_device('left_motor', Motor, port=PORT_LEFT_MOTOR)
+    .add_device('right_motor', Motor, port=PORT_RIGHT_MOTOR)
+    .add_device('arm_left', device_type_arm, port=PORT_ARM_LEFT)
+    .add_device('arm_right', device_type_arm, port=PORT_ARM_RIGHT)
+    .add_device('ultrasonic', SonarSensor, port=PORT_ULTRASONIC)
+    .add_handler(rescue_sequence)
+    .dispatch(interval=0.5, port='/dev/ttyACM0')
+)
 </code></pre>
       </div>
 
