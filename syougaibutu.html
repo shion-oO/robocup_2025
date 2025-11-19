@@ -403,6 +403,71 @@ def line_trace_and_avoid(right_motor: Motor, left_motor: Motor, sonar: SonarSens
   </p>
 </div>
 
+<!-- ▼ よくある問題と改善のヒント ▼ -->
+<div class="tips-section">
+  <h2>よくある問題と改善のヒント</h2>
+  <div class="tips-grid">
+    <article class="card">
+      <h3>🚗 まっすぐ進まない</h3>
+      <p>・左右のモーターの出力が同じか確認<br>
+         ・タイヤの摩耗で進行方向がずれる<br>
+         ・<code>base_speed</code> を調整</p>
+      <p style="color:#16a34a; font-weight:600;">⚙️ バランスを微調整！</p>
+    </article>
+
+    <article class="card">
+      <h3>🕵️‍♂️ ラインを見失う</h3>
+      <p>・カメラの高さや角度を調整<br>
+         ・<code>roi_bottom</code> の範囲を広げる<br>
+         ・明るさを上げる／ライト使用</p>
+      <p style="color:#2b7bd3; font-weight:600;">🔍 カメラ・明るさを調整！</p>
+    </article>
+
+    <article class="card">
+      <h3>⚫ 間違った場所を黒と判定</h3>
+      <p>・黒のしきい値が広すぎる<br>
+         ・影や暗い部分も黒と認識<br>
+         ・HSV値を微調整して正しい黒を検出</p>
+      <p style="color:#16a34a; font-weight:600;">🎨 しきい値を調整！</p>
+    </article>
+
+    <article class="card">
+      <h3>↔️ 左右が逆になる</h3>
+      <p>・カメラ映像が左右反転<br>
+         ・OpenCVで <code>cv2.flip(frame,1)</code> 使用<br>
+         ・モーター接続（A・B）確認</p>
+      <p style="color:#2b7bd3; font-weight:600;">🧭 映像と接続をチェック！</p>
+    </article>
+
+    <article class="card">
+      <h3>🛑 障害物を避けたあとラインに戻れない</h3>
+      <p>・回避の向きやカメラの範囲でラインが見えない<br>
+         ・避けている間にライン判定が迷う</p>
+      <p style="color:#16a34a; font-weight:600;">🔄 回避後のライン再検出を工夫！</p>
+    </article>
+  </div>
+</div>
+
+<style>
+.tips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+.card {
+  background: #f7f9fc;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  padding: 15px;
+  box-shadow: 1px 1px 5px rgba(0,0,0,0.1);
+}
+.card h3 {
+  margin-top: 0;
+  font-size: 1.1em;
+}
+</style>
+
 
 <div class="learn-section">
   <h2>📘 学習のやり方</h2>
