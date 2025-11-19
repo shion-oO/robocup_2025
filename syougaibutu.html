@@ -450,23 +450,41 @@ def line_trace_and_avoid(right_motor: Motor, left_motor: Motor, sonar: SonarSens
 
 <style>
 .tips-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 15px;
-  margin-top: 15px;
+  display: flex;
+  flex-wrap: wrap;         /* 狭い画面では折り返す */
+  gap: 15px;               /* カード間の余白 */
+  justify-content: flex-start;
 }
+
 .card {
+  flex: 1 1 220px;         /* 最小幅220px、余った幅で伸縮 */
+  max-width: 250px;        /* 最大幅250px */
   background: #f7f9fc;
   border-radius: 10px;
   border: 1px solid #d1d5db;
   padding: 15px;
   box-shadow: 1px 1px 5px rgba(0,0,0,0.1);
 }
+
 .card h3 {
   margin-top: 0;
   font-size: 1.1em;
 }
+
+/* スマホなど幅480px未満では縦並びに */
+@media (max-width: 480px) {
+  .tips-grid {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .card {
+    max-width: 100%;
+  }
+}
 </style>
+
+
 
 
 <div class="learn-section">
