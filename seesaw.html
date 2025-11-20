@@ -143,9 +143,141 @@
       line-height: 1.8;
     }
 
+
+            footer {
+      text-align:center;
+      padding:20px;
+      background-color:#ecf0f1;
+      margin-top:20px;
+      border-radius:6px;
+    }
+
+
+             /* 右上の次へボタン */
+    #nextButton {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+      z-index: 2000;
+      transition: 0.3s;
+    }
+
+    #nextButton:hover {
+      background-color: #2980b9;
+    }
+
+    
+    /* サイドバーを左に固定 */
+.sidebar {
+  position: fixed;       /* 画面に固定 */
+  top: 0;                /* 上から0 */
+  left: 0;               /* 左から0 */
+  height: 100%;          /* 画面の高さいっぱい */
+  width: 250px;          /* サイドバーの幅 */
+  background-color: #ecf0f1;
+  padding: 20px;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+  overflow-y: auto;      /* 高さオーバーしたらスクロール */
+  transform: translateX(-100%); /* 初期は画面外に隠す */
+  transition: transform 0.3s ease;
+  z-index: 1000;
+}
+
+/* 開いた状態 */
+.sidebar.open {
+  transform: translateX(0);
+}
+
+/* ハンバーガー位置調整 */
+.menu-icon {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1100;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.menu-icon div {
+  width: 30px;
+  height: 4px;
+  background-color: #e3f2fd;
+  border-radius: 2px;
+}
+
   </style>
 </head>
 <body>
+
+
+
+
+
+  
+
+
+  <div class="wrapper">
+
+  <!-- ハンバーガー -->
+  <div class="menu-icon" id="menuIcon" onclick="toggleMenu()">
+    <div></div><div></div><div></div>
+  </div>
+
+  <!-- サイドバー -->
+  <nav class="sidebar" id="sidebar">
+    <ul>
+      <li>
+        <details>
+          <summary>はじめに</summary>
+          <ul>
+            <li><a href="robocup_home.html">ロボカップジュニアについて</a></li>
+          </ul>
+        </details>
+      </li>
+      <li>
+        <details>
+          <summary>1. ルール</summary>
+          <ul>
+            <li><a href="gaiyou.html">概要</a></li>
+            <li><a href="koudoukihann.html">行動規範</a></li>
+            <li><a href="field.html">フィールド</a></li>
+            <li><a href="robot.html">ロボット</a></li>
+            <li><a href="kyougi.html" style="color:#3498db;">競技</a></li>
+          </ul>
+        </details>
+      </li>
+      <li>
+        <details>
+          <summary>2. 実践</summary>
+          <ul>
+            <li><a href="linetrace.html">白黒ライントレース</a></li>
+            <li><a href="linetrace2.html">交差点付きライントレース</a></li>
+            <li><a href="linetrace3.html">ギャップライントレース</a></li>
+            <li><a href="goal.html">ゴールタイル</a></li>
+            <li><a href="speedbump.html">スピードバンプ</a></li>
+            <li><a href="syougaibutu.html">障害物</a></li>
+            <li><a href="gareki.html">瓦礫</a></li>
+            <li><a href="seesaw.html">シーソー</a></li>
+            <li><a href="keisyaro.html">傾斜路</a></li>
+            <li><a href="ball1.html">ボール検知の学習</a></li>
+            <li><a href="blackball.html">黒色ボール</a></li>
+            <li><a href="silverball.html">銀色ボール</a></li>
+          </ul>
+        </details>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- 右上固定 次へボタン -->
+  <a href="keisyaro.html" id="nextButton">次へ →</a>
 
   <header>
     <h1>シーソー</h1>
@@ -430,19 +562,49 @@ if __name__ == "__main__":
 
 
     <!-- ▼ 学習のやり方セクション ▼ -->
-    <div class="learn-section">
-      <h2>📘 学習のやり方</h2>
-      <p>シーソーの学習では、次の手順で理解を深めましょう。</p>
-      <ol class="learn-list">
-        <li><b>動作の確認：</b> まずは動画を見て、ロボットがどのように黒線をたどるか観察します。</li>
-        <li><b>コードの理解：</b> 各関数の役割（カメラ取得・画像処理・モーター制御）を順に読み解きます。</li>
-        <li><b>実験と調整：</b> 黒線の太さやカメラの位置を変えて、プログラムの反応を試してみましょう。</li>
-        <li><b>応用：</b> 速度やカーブ処理の調整、または交差点対応の改良などを行ってみます。</li>
-      </ol>
-      <p>実際にロボットを動かしながら学ぶことで、「センサー」と「プログラム制御」の関係を深く理解できます。</p>
-    </div>
+<div class="learn-section">
+  <h2>📘 学習のやり方</h2>
+  <p>シーソーの学習では、次の手順で理解を深めましょう。</p>
+  <ol class="learn-list">
+    <li><b>動作の確認：</b> まずは動画を見て、ロボットがシーソー上でどのようにバランスを取りながら走行するか観察します。</li>
+    <li><b>コードの理解：</b> センサー情報の取得方法やモーター制御の仕組みを読み解き、傾斜走行時の処理を理解します。</li>
+    <li><b>実験と調整：</b> シーソーの角度や速度を変えて、ロボットが安定して走行できるか試してみます。</li>
+    <li><b>応用：</b> バランス制御アルゴリズムの調整や、加速度や減速度の調整、傾斜の変化への対応を工夫してみます。</li>
+  </ol>
+  <p>実際にロボットをシーソーで動かしながら学ぶことで、「傾斜センサー」と「バランス制御」の関係を深く理解できます。</p>
+</div>
+
 
   </main>
+
+
+  
+
+      <footer>
+      <p>&copy; 2025　愛知工業大学　水野勝教研究室 </p>
+    </footer>
+
+ </div> <!-- /.main-container -->
+
+</div> <!-- /.wrapper -->
+
+<script>
+  function toggleMenu() {
+    const sidebar = document.getElementById('sidebar');
+    const menuIcon = document.getElementById('menuIcon');
+    sidebar.classList.toggle('open');
+    menuIcon.classList.toggle('open');
+  }
+
+  document.addEventListener('click', function(e) {
+    const sidebar = document.getElementById('sidebar');
+    const menuIcon = document.getElementById('menuIcon');
+    if (!e.target.closest('.sidebar') && !e.target.closest('.menu-icon') && sidebar.classList.contains('open')) {
+      sidebar.classList.remove('open');
+      menuIcon.classList.remove('open');
+    }
+  });
+</script>
 
 </body>
 </html>
