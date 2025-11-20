@@ -544,80 +544,91 @@ def line_trace_and_avoid(right_motor: Motor, left_motor: Motor, sonar: SonarSens
 <div class="tips-section">
   <h2>よくある問題と改善のヒント</h2>
   <div class="tips-grid">
+
+    <!-- 1 -->
     <article class="card">
       <h3>🚗 まっすぐ進まない</h3>
-      <p>・左右のモーターの出力が同じか確認<br>
-         ・タイヤの摩耗で進行方向がずれる<br>
-         ・<code>base_speed</code> を調整</p>
-      <p style="color:#16a34a; font-weight:600;">⚙️ バランスを微調整！</p>
+      <p>・左右モーターの出力バランスを確認<br>
+         ・タイヤの摩耗で進行方向がずれることも<br>
+         ・<code>base_speed</code> を微調整する</p>
+      <p class="tip-label green">⚙️ バランスを整えよう！</p>
     </article>
 
+    <!-- 2 -->
     <article class="card">
       <h3>🕵️‍♂️ ラインを見失う</h3>
       <p>・カメラの高さや角度を調整<br>
-         ・<code>roi_bottom</code> の範囲を広げる<br>
-         ・明るさを上げる／ライト使用</p>
-      <p style="color:#2b7bd3; font-weight:600;">🔍 カメラ・明るさを調整！</p>
+         ・ROI（検出範囲）を広げる<br>
+         ・明るさを上げる／ライトを使用</p>
+      <p class="tip-label blue">🔍 カメラ調整がカギ！</p>
     </article>
 
+    <!-- 3 -->
     <article class="card">
-      <h3>⚫ 間違った場所を黒と判定</h3>
+      <h3>⚫ 影や床を黒と判定してしまう</h3>
       <p>・黒のしきい値が広すぎる<br>
-         ・影や暗い部分も黒と認識<br>
-         ・HSV値を微調整して正しい黒を検出</p>
-      <p style="color:#16a34a; font-weight:600;">🎨 しきい値を調整！</p>
+         ・影や暗い部分も黒と認識しがち<br>
+         ・HSVの黒判定を微調整する</p>
+      <p class="tip-label green">🎨 しきい値を調整！</p>
     </article>
 
+    <!-- 4 -->
     <article class="card">
       <h3>↔️ 左右が逆になる</h3>
-      <p>・カメラ映像が左右反転<br>
-         ・OpenCVで <code>cv2.flip(frame,1)</code> 使用<br>
-         ・モーター接続（A・B）確認</p>
-      <p style="color:#2b7bd3; font-weight:600;">🧭 映像と接続をチェック！</p>
+      <p>・カメラ映像が左右反転している<br>
+         ・<code>cv2.flip(frame, 1)</code> を使う<br>
+         ・モーターのA/B接続を確認</p>
+      <p class="tip-label blue">🧭 映像と接続をチェック！</p>
     </article>
 
+    <!-- 5 -->
     <article class="card">
-      <h3>🛑 障害物を避けたあとラインに戻れない</h3>
-      <p>・回避の向きやカメラの範囲でラインが見えない<br>
-         ・避けている間にライン判定が迷う</p>
-      <p style="color:#16a34a; font-weight:600;">🔄 回避後のライン再検出を工夫！</p>
+      <h3>🛑 回避後にラインへ戻れない</h3>
+      <p>・回避の角度が大きく、ラインが視野外になる<br>
+         ・回避中に別の黒タイルを拾う可能性<br>
+         ・回避時のみトレースを停止する工夫が有効</p>
+      <p class="tip-label green">🔄 再検出しやすい動きに！</p>
     </article>
 
+    <!-- 6 -->
     <article class="card">
       <h3>💡 カメラ映像が暗い</h3>
       <p>・照明不足でライン検出が不安定<br>
-         ・ライトを追加、または明るさ補正</p>
-      <p style="color:#2b7bd3; font-weight:600;">💡 明るさを確保！</p>
+         ・ライトや明るさ補正で改善</p>
+      <p class="tip-label blue">💡 明るさを確保！</p>
     </article>
 
+    <!-- 7 -->
     <article class="card">
       <h3>⚡ モーターが急に止まる</h3>
-      <p>・バッテリー不足<br>
-         ・モーターや配線に接触不良<br>
-         ・ETRoboの電源設定を確認</p>
-      <p style="color:#16a34a; font-weight:600;">🔌 電源と接続を確認！</p>
+      <p>・バッテリー残量不足<br>
+         ・モーターや配線が接触不良<br>
+         ・電源設定を確認する</p>
+      <p class="tip-label green">🔌 電源チェックを忘れずに！</p>
     </article>
 
+    <!-- 8 -->
     <article class="card">
       <h3>🔀 進行方向がふらつく</h3>
-      <p>・PID制御や差分制御の微調整が必要<br>
-         ・左右モーターのパワー差を確認</p>
-      <p style="color:#2b7bd3; font-weight:600;">🎯 速度バランスを調整！</p>
+      <p>・PID／差分制御の調整不足<br>
+         ・左右モーターのパワー差が原因のことも</p>
+      <p class="tip-label blue">🎯 速度バランスを調整！</p>
     </article>
+
   </div>
 </div>
 
 <style>
 .tips-grid {
   display: flex;
-  flex-wrap: wrap;         /* 狭い画面では折り返す */
-  gap: 15px;               /* カード間の余白 */
+  flex-wrap: wrap;
+  gap: 15px;
   justify-content: flex-start;
 }
 
 .card {
-  flex: 1 1 220px;         /* 最小幅220px、余った幅で伸縮 */
-  max-width: 250px;        /* 最大幅250px */
+  flex: 1 1 220px;
+  max-width: 250px;
   background: #f7f9fc;
   border-radius: 10px;
   border: 1px solid #d1d5db;
@@ -630,18 +641,24 @@ def line_trace_and_avoid(right_motor: Motor, left_motor: Motor, sonar: SonarSens
   font-size: 1.1em;
 }
 
-/* スマホなど幅480px未満では縦並びに */
+.tip-label {
+  font-weight: 600;
+}
+
+.green { color: #16a34a; }
+.blue  { color: #2b7bd3; }
+
+/* スマホ対応 */
 @media (max-width: 480px) {
   .tips-grid {
     flex-direction: column;
-    align-items: stretch;
   }
-
   .card {
     max-width: 100%;
   }
 }
 </style>
+
 
 
 

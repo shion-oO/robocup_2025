@@ -165,8 +165,13 @@
       お使いのブラウザは動画再生に対応していません。
     </video>
     <div class="caption">
-    ロボットがシーソーを走行する様子を撮影した動画です。
-    </div>
+  ロボットがシーソーを走行する様子を撮影した動画です。<br>
+  この走行は、白黒ライントレースと同じプログラムコードで実行しており、<br>
+  シーソーを組み込んだ後も安定してラインを追従しています。<br>
+  なお、二輪構成ではロボットの重量バランスの関係で登坂が難しかったため、<br>
+  本動画では四輪構成に変更して走行しています。
+</div>
+
 
     <h2>linetrace.py</h2>
     <div class="code-section">
@@ -239,6 +244,7 @@ if __name__ == "__main__":
     robo.dispatch(interval=0.05)
 </code></pre>
       </div>
+      
 
       <div class="desc-box">
         <h3>プログラムの説明</h3>
@@ -302,6 +308,126 @@ if __name__ == "__main__":
 
   <p>これにより、ロボットはカメラの映像をもとにリアルタイムで黒線を追跡し、自動走行することができます。</p>
 </div>
+
+<!-- ▼ よくある問題と改善のヒント ▼ -->
+<div class="tips-section">
+  <h2>よくある問題と改善のヒント</h2>
+  <div class="tips-grid">
+
+    <!-- 1 -->
+    <article class="card">
+      <h3>🚗 まっすぐ進まない</h3>
+      <p>・左右モーターの出力バランスを確認<br>
+         ・タイヤの摩耗で進行方向がずれることも<br>
+         ・<code>base_speed</code> を微調整する</p>
+      <p class="tip-label green">⚙️ バランスを整えよう！</p>
+    </article>
+
+    <!-- 2 -->
+    <article class="card">
+      <h3>🕵️‍♂️ ラインを見失う</h3>
+      <p>・カメラの高さや角度を調整<br>
+         ・ROI（検出範囲）を広げる<br>
+         ・明るさを上げる／ライトを使用</p>
+      <p class="tip-label blue">🔍 カメラ調整がカギ！</p>
+    </article>
+
+    <!-- 3 -->
+    <article class="card">
+      <h3>⚫ 影や床を黒と判定してしまう</h3>
+      <p>・黒のしきい値が広すぎる<br>
+         ・影や暗い部分も黒と認識しがち<br>
+         ・HSVの黒判定を微調整する</p>
+      <p class="tip-label green">🎨 しきい値を調整！</p>
+    </article>
+
+    <!-- 4 -->
+    <article class="card">
+      <h3>↔️ 左右が逆になる</h3>
+      <p>・カメラ映像が左右反転している<br>
+         ・<code>cv2.flip(frame, 1)</code> を使う<br>
+         ・モーターのA/B接続を確認</p>
+      <p class="tip-label blue">🧭 映像と接続をチェック！</p>
+    </article>
+
+    <!-- 5 -->
+    <article class="card">
+      <h3>🛑 回避後にラインへ戻れない</h3>
+      <p>・回避の角度が大きく、ラインが視野外になる<br>
+         ・回避中に別の黒タイルを拾う可能性<br>
+         ・回避時のみトレースを停止する工夫が有効</p>
+      <p class="tip-label green">🔄 再検出しやすい動きに！</p>
+    </article>
+
+    <!-- 6 -->
+    <article class="card">
+      <h3>💡 カメラ映像が暗い</h3>
+      <p>・照明不足でライン検出が不安定<br>
+         ・ライトや明るさ補正で改善</p>
+      <p class="tip-label blue">💡 明るさを確保！</p>
+    </article>
+
+    <!-- 7 -->
+    <article class="card">
+      <h3>⚡ モーターが急に止まる</h3>
+      <p>・バッテリー残量不足<br>
+         ・モーターや配線が接触不良<br>
+         ・電源設定を確認する</p>
+      <p class="tip-label green">🔌 電源チェックを忘れずに！</p>
+    </article>
+
+    <!-- 8 -->
+    <article class="card">
+      <h3>🔀 進行方向がふらつく</h3>
+      <p>・PID／差分制御の調整不足<br>
+         ・左右モーターのパワー差が原因のことも</p>
+      <p class="tip-label blue">🎯 速度バランスを調整！</p>
+    </article>
+
+  </div>
+</div>
+
+<style>
+.tips-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: flex-start;
+}
+
+.card {
+  flex: 1 1 220px;
+  max-width: 250px;
+  background: #f7f9fc;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  padding: 15px;
+  box-shadow: 1px 1px 5px rgba(0,0,0,0.1);
+}
+
+.card h3 {
+  margin-top: 0;
+  font-size: 1.1em;
+}
+
+.tip-label {
+  font-weight: 600;
+}
+
+.green { color: #16a34a; }
+.blue  { color: #2b7bd3; }
+
+/* スマホ対応 */
+@media (max-width: 480px) {
+  .tips-grid {
+    flex-direction: column;
+  }
+  .card {
+    max-width: 100%;
+  }
+}
+</style>
+
 
     <!-- ▼ 学習のやり方セクション ▼ -->
     <div class="learn-section">
