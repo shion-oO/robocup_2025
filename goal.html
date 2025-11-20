@@ -213,6 +213,12 @@
       background-color: #2980b9;
     }
 
+            .tips-grid {
+  display: flex;          /* 横並びにする */
+  flex-wrap: wrap;        /* 画面幅に合わせて折り返す */
+  gap: 16px;              /* ボックス間の隙間 */
+}
+
 
   </style>
 </head>
@@ -505,6 +511,44 @@ def line_trace_by_sensor(right_motor: Motor, left_motor: Motor, color_sensor: Co
     を自動で繰り返し、走行し続けます。
   </p>
 </div>
+
+<div class="tips-section">
+  <h2>よくある問題と改善のヒント</h2>
+  <div class="tips-grid">
+
+    <article class="desc-box">
+      <h3>🚦 ゴールタイルが正しく検知されない</h3>
+      <p>・明度や照明の影響でゴールタイル色が正しく判定されない<br>・HSV閾値が環境に合っていない<br>・<code>v</code> や <code>s</code> の範囲を調整</p>
+      <p style="color:#16a34a; font-weight:600;">🌱 HSVの閾値を見直そう！</p>
+    </article>
+
+    <article class="desc-box">
+      <h3>🕹️ ライン追跡が不安定</h3>
+      <p>・ラインを外したときに復帰が遅い<br>・旋回幅や方向が環境によって合わない<br>・前回方向（<code>last_direction</code>）を活用して補正</p>
+      <p style="color:#2b7bd3; font-weight:600;">⚙️ 前回方向で補正しよう！</p>
+    </article>
+
+    <article class="desc-box">
+      <h3>🖤 黒ラインが正しく認識されない</h3>
+      <p>・明度Vと彩度Sの閾値が適切でない<br>・影や照明変化で誤判定<br>・<code>v < 60 and s < 100</code> を環境に合わせて調整</p>
+      <p style="color:#16a34a; font-weight:600;">🎨 ライン判定の閾値を調整しよう！</p>
+    </article>
+
+    <article class="desc-box">
+      <h3>↔️ 旋回方向がおかしい／ゴールタイル通過後の停止がずれる</h3>
+      <p>・モーター接続や左右割り当てが間違っている<br>・コード内の旋回処理や停止判定位置を確認<br>・センサー配線と出力方向をチェック</p>
+      <p style="color:#2b7bd3; font-weight:600;">🧭 旋回方向と停止判定を確認しよう！</p>
+    </article>
+
+    <article class="desc-box">
+      <h3>⏱️ 停止タイミングが早すぎる／遅すぎる</h3>
+      <p>・ゴールタイル上での停止時間や距離が合っていない<br>・<code>time.sleep()</code> やモーター出力の調整が必要</p>
+      <p style="color:#16a34a; font-weight:600;">⏳ 停止位置・時間を微調整しよう！</p>
+    </article>
+
+  </div>
+</div>
+
 
     <!-- ▼ 学習のやり方セクション ▼ -->
     <div class="learn-section">
