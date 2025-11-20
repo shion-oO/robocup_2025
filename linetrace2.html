@@ -712,6 +712,61 @@ def trace_with_green_turn(right_motor: Motor, left_motor: Motor,
 
 </div>
 
+<div class="tips-section">
+  <h2>よくある問題と改善のヒント</h2>
+  <div class="tips-grid">
+
+    <article class="desc-box">
+      <h3>🌱 緑色が正しく検知されない</h3>
+      <p>・<code>is_green()</code> のHSV範囲がコース環境と合っていない<br>
+         ・明るさによってVの値が大きく上下する<br>
+         ・左右センサーでHSVが大きくばらつく場合あり</p>
+      <p style="color:#16a34a; font-weight:600;">📌 <code>75 ≤ H ≤ 100</code> や <code>v ≥ 160</code> を調整しよう！</p>
+    </article>
+
+    <article class="desc-box">
+      <h3>🕒 緑を見逃す／誤検知する</h3>
+      <p>・交差点処理の後、<code>ignore_green_until</code> が短すぎる／長すぎる<br>
+         ・黒2つ検知後すぐに緑が来ると無視されてしまう<br>
+         ・コースの速度と距離に対して無視時間がズレている</p>
+      <p style="color:#16a34a; font-weight:600;">⏳ 無視時間（0.8秒）を環境に合わせて微調整！</p>
+    </article>
+
+    <article class="desc-box">
+      <h3>🎨 黒ラインが正しく認識されない</h3>
+      <p>・<code>is_black()</code> の S/V 閾値が環境に合っていない<br>
+         ・影や反射で黒が灰色に見えることがある<br>
+         ・センサーの高さや角度がズレている可能性</p>
+      <p style="color:#16a34a; font-weight:600;">🖤 <code>s < 100</code>、<code>v < 80</code> を調整してみよう！</p>
+    </article>
+
+    <article class="desc-box">
+      <h3>↔️ 旋回方向が不安定・逆になる</h3>
+      <p>・モーター A/B の接続が逆<br>
+         ・左右モーターへの出力指定が間違っている<br>
+         ・センサー位置（左＝C / 右＝D）が逆の可能性</p>
+      <p style="color:#2b7bd3; font-weight:600;">🧭 接続ポートとセンサー向きを確認しよう！</p>
+    </article>
+
+    <article class="desc-box">
+      <h3>🏎️ 緑検知後の旋回がうまく行かない</h3>
+      <p>・旋回時間（0.7秒 / 1.0秒）がコースに合っていない<br>
+         ・出力が強すぎてオーバーシュート<br>
+         ・弱すぎてラインに戻れない</p>
+      <p style="color:#2b7bd3; font-weight:600;">⚙️ 旋回時間と出力バランスを調整！</p>
+    </article>
+
+    <article class="desc-box">
+      <h3>📉 ライントレースが不安定</h3>
+      <p>・<code>set_motor_power_safe()</code> の反応が遅い<br>
+         ・黒が片側だけの時の補正が弱い<br>
+         ・両方黒でも進行方向の推定が働かない</p>
+      <p style="color:#2b7bd3; font-weight:600;">🎯 補正パワー 30/70 の比率を環境に合わせよう！</p>
+    </article>
+
+  </div>
+</div>
+
         <video controls>
       <source src="midori_u.mp4" type="video/mp4">
       お使いのブラウザは動画再生に対応していません。
@@ -959,6 +1014,69 @@ def trace_with_green_turn(right_motor: Motor, left_motor: Motor,
   </p>
 </div>
 
+<div class="tips-section">
+  <h2>よくある問題と改善のヒント</h2>
+  <div class="tips-grid">
+
+    <article class="desc-box">
+      <h3>🌱 緑色が正しく検知されない</h3>
+      <p>・<code>is_green()</code> のHSV範囲が環境に合っていない<br>
+         ・V（明るさ）の変動が大きく、緑が白っぽく見える<br>
+         ・サンプル平均（<code>get_stable_hsv()</code>）が遅すぎることがある</p>
+      <p style="color:#16a34a; font-weight:600;">📌 H(75-100) と V(160↑) を再調整しよう！</p>
+    </article>
+
+    <article class="desc-box">
+      <h3>📉 HSVが安定しない / 遅い</h3>
+      <p>・<code>get_stable_hsv()</code> のサンプル数10が多すぎて反応が鈍い<br>
+         ・delay(0.02) × 10回で 0.2秒の遅延 → ライントレースが遅れる<br>
+         ・平均化により黒線や緑の変化を取り逃すことがある</p>
+      <p style="color:#2b7bd3; font-weight:600;">⚙️ samplesを3〜5に減らすと反応UP！</p>
+    </article>
+
+    <article class="desc-box">
+      <h3>↩️ Uターンがうまくいかない</h3>
+      <p>・左右両方が緑になっていない（片側が黒に近い）<br>
+         ・モーター出力が強すぎて回りすぎる<br>
+         ・<code>time.sleep(18.0)</code> が誤記で動作停止してしまう</p>
+      <p style="color:#16a34a; font-weight:600;">🔁 Uターンの出力 & 角度を再調整</p>
+    </article>
+
+    <article class="desc-box">
+      <h3>↔️ 左右折のタイミングが不安定</h3>
+      <p>・緑判定後の旋回ループ時間（0.7秒）がコースに合っていない<br>
+         ・その後の調整（1.0秒）が長すぎる/短すぎる<br>
+         ・緑でも黒に近い色だと判定がブレる</p>
+      <p style="color:#2b7bd3; font-weight:600;">⏱️ 旋回時間を0.5〜0.8秒で調整しよう！</p>
+    </article>
+
+    <article class="desc-box">
+      <h3>🖤 黒ラインが検知されない</h3>
+      <p>・黒ラインの材質で V や S が高く出る場合がある<br>
+         ・<code>is_black()</code> の <code>v < 80</code> が厳しすぎる<br>
+         ・センサー位置が離れすぎると黒以外も拾いやすい</p>
+      <p style="color:#16a34a; font-weight:600;">🎨 <code>s < 120</code> / <code>v < 100</code> に緩和してもOK！</p>
+    </article>
+
+    <article class="desc-box">
+      <h3>🕹️ ライントレースが揺れる / 蛇行する</h3>
+      <p>・左30 / 右70 の補正が強すぎて蛇行<br>
+         ・センサー平均化の遅延で反応がワンテンポ遅れ<br>
+         ・直進60/60 → 速度が速すぎて制御が追いつかない</p>
+      <p style="color:#2b7bd3; font-weight:600;">⚙️ 補正は40/70 or 50/70に調整すると安定！</p>
+    </article>
+
+    <article class="desc-box">
+      <h3>🚦 黒が見えない時の動作がおかしい</h3>
+      <p>・両方黒以外のときの「NO BLACK」処理が粗い<br>
+         ・黒が消えたときの復帰処理が直進のみで弱い<br>
+         ・前回方向（<code>last_direction</code>）を利用していない</p>
+      <p style="color:#16a34a; font-weight:600;">🧭 前回方向で復帰補正を入れると改善！</p>
+    </article>
+
+  </div>
+</div>
+
 
 
             <video controls>
@@ -1122,6 +1240,105 @@ def trace_and_turn_on_green(right_motor: Motor, left_motor: Motor,
   を登録し、0.1秒（100ms）ごとに制御処理を繰り返すよう設定しています。
   </p>
 
+</div>
+
+<div class="tips-section">
+  <h2>よくある問題と改善のヒント</h2>
+  <div class="tips-grid">
+
+    <!-- 1 -->
+    <article class="desc-box">
+      <h3>🌱 緑色の判定がうまくいかない</h3>
+      <p>・<code>is_green()</code> の条件が厳しすぎて緑と判定されないことがあります。</p>
+      <ul>
+        <li>H の範囲（75〜100）が狭い</li>
+        <li>S が <code>0 or >=150</code> のため、彩度が中間の緑を拾えない</li>
+        <li>照明が強くて V が160を下回る</li>
+      </ul>
+      <p style="color:#16a34a; font-weight:600;">📌 H=70〜110、S=80〜255、V=120〜255 などに緩めると安定！</p>
+    </article>
+
+    <!-- 2 -->
+    <article class="desc-box">
+      <h3>🚦 両方緑で停止したあと動かなくなる</h3>
+      <p>・停止ループ中に両方の緑判定が解除されないと永久停止します。</p>
+      <ul>
+        <li>緑色の基準が厳しく「常に緑」と判定される</li>
+        <li>センサー位置が近すぎて白部分も緑っぽく映る</li>
+        <li>照明で色が飛んで V が160以上になり続ける</li>
+      </ul>
+      <p style="color:#cc0000; font-weight:600;">🔧 緑判定の条件を緩める or 停止ループにタイムアウトを入れると安心！</p>
+    </article>
+
+    <!-- 3 -->
+    <article class="desc-box">
+      <h3>↩️ 左折・右折の回転が大きすぎる / 小さすぎる</h3>
+      <p>・回転処理が <b>8.5秒</b> 一定で固定されているため、コースと合わないと失敗しやすいです。</p>
+      <ul>
+        <li>電池残量で速度が変わり、回りすぎる</li>
+        <li>床材によって摩擦が変わる</li>
+        <li>センサー位置がズレて緑を早く/遅く検知する</li>
+      </ul>
+      <p style="color:#2b7bd3; font-weight:600;">⏱️ 5.0〜9.0秒で微調整するのがコツ！</p>
+    </article>
+
+    <!-- 4 -->
+    <article class="desc-box">
+      <h3>🖤 黒ラインを見失いやすい</h3>
+      <p>黒判定が <code>s &lt; 100</code> と <code>v &lt; 60</code> のため、黒い床でも Vが高いと黒と認識されません。</p>
+      <ul>
+        <li>黒ラインが明るめの素材</li>
+        <li>照明で V が上がって黒がグレーになる</li>
+      </ul>
+      <p style="color:#16a34a; font-weight:600;">🎨 v&lt;90 / s&lt;120 に緩和すると黒検知が安定！</p>
+    </article>
+
+    <!-- 5 -->
+    <article class="desc-box">
+      <h3>🌀 「前回の方向制御」が暴走する</h3>
+      <p>黒が見つからなかったときに前回方向へ強制的に曲がる仕様ですが、場合によっては蛇行したり壁に突っ込むことがあります。</p>
+      <ul>
+        <li>黒の判定が厳しく「黒なし」が多発する</li>
+        <li>last_direction の更新タイミングが偏る</li>
+        <li>補正の強さ（60 / 0）が急すぎる</li>
+      </ul>
+      <p style="color:#2b7bd3; font-weight:600;">⚙️ 出力を「50 / 20」などに弱めると安定走行に！</p>
+    </article>
+
+    <!-- 6 -->
+    <article class="desc-box">
+      <h3>🕹️ ライントレースが左右どちらかに寄り続ける</h3>
+      <p>プログラムでは「左のみ黒」を条件にしているため、右側の黒を見ていません。</p>
+      <ul>
+        <li>右センサーは緑判定専用になっている</li>
+        <li>片側だけで黒ライン追従すると片寄りが起こる</li>
+      </ul>
+      <p style="color:#16a34a; font-weight:600;">📌 右側にも黒判定を入れると左右バランスが取れる！</p>
+    </article>
+
+    <!-- 7 -->
+    <article class="desc-box">
+      <h3>💥 モーターの急なON/OFFでロボットがガタつく</h3>
+      <p>・set_power() を毎フレーム直接呼んでいるため急停止／急加速が起こります。</p>
+      <ul>
+        <li>特に曲がり動作中のブレが大きい</li>
+        <li>毎回100 → 0 が繰り返される</li>
+      </ul>
+      <p style="color:#2b7bd3; font-weight:600;">🧰 「前回出力を保持する」仕組みを入れると滑らかに！</p>
+    </article>
+
+    <!-- 8 -->
+    <article class="desc-box">
+      <h3>⚠️ センサーの生値（RGB）が不安定</h3>
+      <p>このプログラムでは「1回のRGB → HSV」で判定しているため、明るさ変動に弱いです。</p>
+      <ul>
+        <li>明るさが変わるとH/S/Vが跳ねる</li>
+        <li>黒・緑どちらも誤判定が起きやすい</li>
+      </ul>
+      <p style="color:#16a34a; font-weight:600;">📌 前のプログラムのように「平均化」を入れると安定！</p>
+    </article>
+
+  </div>
 </div>
 
 
