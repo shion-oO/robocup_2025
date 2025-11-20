@@ -144,135 +144,9 @@
       line-height: 1.8;
     }
 
-        /* サイドバーを左に固定 */
-.sidebar {
-  position: fixed;       /* 画面に固定 */
-  top: 0;                /* 上から0 */
-  left: 0;               /* 左から0 */
-  height: 100%;          /* 画面の高さいっぱい */
-  width: 250px;          /* サイドバーの幅 */
-  background-color: #ecf0f1;
-  padding: 20px;
-  box-shadow: 2px 0 8px rgba(0,0,0,0.1);
-  overflow-y: auto;      /* 高さオーバーしたらスクロール */
-  transform: translateX(-100%); /* 初期は画面外に隠す */
-  transition: transform 0.3s ease;
-  z-index: 1000;
-}
-
-/* 開いた状態 */
-.sidebar.open {
-  transform: translateX(0);
-}
-
-/* ハンバーガー位置調整 */
-.menu-icon {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  z-index: 1100;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-.menu-icon div {
-  width: 30px;
-  height: 4px;
-  background-color: #e3f2fd;
-  border-radius: 2px;
-}
-
-
-         /* 右上の次へボタン */
-    #nextButton {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background-color: #4CAF50;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: bold;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
-      z-index: 2000;
-      transition: 0.3s;
-    }
-
-    #nextButton:hover {
-      background-color: #2980b9;
-    }
-
-
-        footer {
-      text-align:center;
-      padding:20px;
-      background-color:#ecf0f1;
-      margin-top:20px;
-      border-radius:6px;
-    }
   </style>
 </head>
 <body>
-
-
-    <div class="wrapper">
-
-  <!-- ハンバーガー -->
-  <div class="menu-icon" id="menuIcon" onclick="toggleMenu()">
-    <div></div><div></div><div></div>
-  </div>
-
-  <!-- サイドバー -->
-  <nav class="sidebar" id="sidebar">
-    <ul>
-      <li>
-        <details>
-          <summary>はじめに</summary>
-          <ul>
-            <li><a href="robocup_home.html">ロボカップジュニアについて</a></li>
-          </ul>
-        </details>
-      </li>
-      <li>
-        <details>
-          <summary>1. ルール</summary>
-          <ul>
-            <li><a href="gaiyou.html">概要</a></li>
-            <li><a href="koudoukihann.html">行動規範</a></li>
-            <li><a href="field.html">フィールド</a></li>
-            <li><a href="robot.html">ロボット</a></li>
-            <li><a href="kyougi.html" style="color:#3498db;">競技</a></li>
-          </ul>
-        </details>
-      </li>
-      <li>
-        <details>
-          <summary>2. 実践</summary>
-          <ul>
-            <li><a href="linetrace.html">白黒ライントレース</a></li>
-            <li><a href="linetrace2.html">交差点付きライントレース</a></li>
-            <li><a href="linetrace3.html">ギャップライントレース</a></li>
-            <li><a href="goal.html">ゴールタイル</a></li>
-            <li><a href="speedbump.html">スピードバンプ</a></li>
-            <li><a href="syougaibutu.html">障害物</a></li>
-            <li><a href="gareki.html">瓦礫</a></li>
-            <li><a href="seesaw.html">シーソー</a></li>
-            <li><a href="keisyaro.html">傾斜路</a></li>
-            <li><a href="ball1.html">ボール検知の学習</a></li>
-            <li><a href="blackball.html">黒色ボール</a></li>
-            <li><a href="silverball.html">銀色ボール</a></li>
-          </ul>
-        </details>
-      </li>
-    </ul>
-  </nav>
-
-
-
-    <!-- 右上固定 次へボタン -->
-  <a href="goal.html" id="nextButton">次へ →</a>
 
   <header>
     <h1>ギャップライントレース</h1>
@@ -367,67 +241,15 @@ if __name__ == "__main__":
       </div>
 
       <div class="desc-box">
-        <h3>プログラムの説明</h3>
-  <p>このプログラムは、「カメラで黒い線（ライン）を見つけて、その線に沿ってロボットを走らせる」ものです。Raspberry Pi に接続されたカメラで床の映像を取り込み、画像処理を使って黒い線の位置を調べ、ロボットのモーターを左右で調整しながら進行方向を決めています。</p>
-
-  <h4>① 最初の部分（ライブラリの読み込み）</h4>
-  <p>ここでは、必要な道具（ライブラリ）を使えるようにしています。</p>
-  <ul>
-    <li><b>cv2（OpenCV）</b>：画像を扱うためのライブラリです。色を変えたり、輪郭を見つけたりできます。</li>
-    <li><b>numpy（np）</b>：数の計算を便利にするライブラリです。</li>
-    <li><b>Picamera2</b>：Raspberry Pi に接続したカメラを操作します。</li>
-    <li><b>ETRobo / Motor</b>：ロボットやモーターを制御するためのライブラリです。</li>
-    <li><b>time</b>：少し待つ（スリープ）機能を使うために読み込んでいます。</li>
-  </ul>
-
-  <h4>② カメラの設定</h4>
-  <p>ここでは、2台のカメラを設定しています。</p>
-  <ul>
-    <li><code>Picamera2(0)</code> は1台目のカメラ、<code>Picamera2(1)</code> は2台目のカメラです。</li>
-    <li><code>size=(320, 240)</code> は画面の大きさ（解像度）で、画像処理を速くしています。</li>
-    <li><code>time.sleep(1)</code> は「1秒待つ」という意味で、カメラが安定するまで待っています。</li>
-  </ul>
-  <p>※1台しかカメラを使っていない場合は、<code>cam1</code> の設定部分を削除しても動作します。</p>
-
-  <h4>③ 前回の方向を記憶する変数</h4>
-  <p>前回の進行方向（左・右・中央）を覚えておくための変数です。線を一時的に見失っても、最後の方向を思い出せるようにしています。</p>
-
-  <h4>④ 黒い線を見つける関数（get_direction）</h4>
-  <p>この関数では、カメラで撮った画像から黒い線の位置を見つけて、「線が左にあるか・中央にあるか・右にあるか」を判断しています。</p>
-
-  <ol>
-    <li><b>色の変換：</b> RGBからHSVに変換し、黒い部分を見やすくします。</li>
-    <li><b>黒だけを取り出す：</b> 明るさが0〜80の部分だけを白くし、黒い線だけを抽出します。</li>
-    <li><b>ぼかし処理：</b> <code>cv2.GaussianBlur</code> でノイズを減らして線を滑らかにします。</li>
-    <li><b>画像の下部分だけを見る：</b> 下から40ピクセルを抽出（ROI）して処理速度と精度を上げます。</li>
-    <li><b>輪郭を見つける：</b> <code>cv2.findContours</code> で黒い部分の形を検出します。</li>
-    <li><b>重心を求める：</b> 黒い線の中央座標を計算して、左右どちらにあるか判断します。</li>
-    <li><b>方向の決定：</b> 
-      <ul>
-        <li>中央より左 → "LEFT"</li>
-        <li>中央より右 → "RIGHT"</li>
-        <li>中央付近 → "CENTER"</li>
-      </ul>
-    </li>
-  </ol>
-
-  <h4>⑤ モーターを動かす関数</h4>
-  <p>カメラで得た「方向情報」をもとに、ロボットのモーターを制御します。</p>
-  <ul>
-    <li><b>base_speed：</b> 基本速度（例：まっすぐ＝90、曲がる＝50）。</li>
-    <li><b>diff：</b> 左右のモーターの差で曲がり角度を調整。</li>
-    <li>右に線がある → 左モーターを速くする。左に線がある → 右モーターを速くする。</li>
-  </ul>
-
-  <h4>⑥ メインの部分（ロボットを動かす設定）</h4>
-  <ul>
-    <li><code>add_device</code>：右と左のモーターを登録。</li>
-    <li><code>add_handler</code>：ライン追跡の関数を登録。</li>
-    <li><code>dispatch(interval=0.05)</code>：0.05秒ごとに関数を呼び出して制御。</li>
-  </ul>
-
-  <p>これにより、ロボットはカメラの映像をもとにリアルタイムで黒線を追跡し、自動走行することができます。</p>
-</div>
+        <h3>(プログラムの説明)</h3>
+        <p>このプログラムは、カメラで黒線を認識しながら走行するロボットの制御を行います。</p>
+        <p><b>1️⃣ カメラ設定：</b> 2台のカメラを起動し、映像を取得できるようにします。</p>
+        <p><b>2️⃣ 画像処理：</b> OpenCVで黒線を検出し、重心位置から進行方向（左・右・中央）を判定します。</p>
+        <p><b>3️⃣ モーター制御：</b> 進行方向に応じて左右のモーター出力を調整し、ライン上を走行します。</p>
+        <p><b>4️⃣ 実行部分：</b> ETRoboライブラリを使い、0.05秒ごとに制御関数を呼び出します。</p>
+        <p>これにより、ロボットは黒線を追いかけるように自動で進むことができます。</p>
+      </div>
+    </div>
 
         <video controls>
       <source src="jyuugi_aki.mp4" type="video/mp4">
@@ -441,52 +263,17 @@ if __name__ == "__main__":
     <!-- ▼ 学習のやり方セクション ▼ -->
     <div class="learn-section">
       <h2>📘 学習のやり方</h2>
-      <p>ギャップライントレースの学習では、通常のライントレースとは異なり、線が「途切れる場面」への対応が重要になります。次の手順で理解を深めましょう。</p>
-
+      <p>ギャップライントレースの学習では、次の手順で理解を深めましょう。</p>
       <ol class="learn-list">
-        <li><b>動作の確認：</b> まずは動画を見て、線が途切れたときにロボットがどのように動作するか観察します。直進維持か、探索動作を入れているかを確認します。</li>
-
-        <li><b>コードの理解：</b> 黒線が見えなくなった場合の処理（前回の方向を保持・探索の仕方・速度調整など）を中心に、通常のライントレース部分との違いを読み解きます。</li>
-
-        <li><b>実験と調整：</b> ギャップの長さを変えたり、照明条件を変えて、
-            ・前回方向の保持が正しく働くか  
-            ・探索（スキャン）動作が適切か  
-            などを確認し、パラメータを調整します。</li>
-
-        <li><b>応用：</b> ギャップが長い場合の処理、左右に大きく振って探索する動作、速度調整、迷い防止ロジックなど、より高度な改善に挑戦してみましょう。</li>
+        <li><b>動作の確認：</b> まずは動画を見て、ロボットがどのように黒線をたどるか観察します。</li>
+        <li><b>コードの理解：</b> 各関数の役割（カメラ取得・画像処理・モーター制御）を順に読み解きます。</li>
+        <li><b>実験と調整：</b> 黒線の太さやカメラの位置を変えて、プログラムの反応を試してみましょう。</li>
+        <li><b>応用：</b> 速度やカーブ処理の調整、または交差点対応の改良などを行ってみます。</li>
       </ol>
-
-      <p>ギャップ区間ではカメラに黒線が映らないため、前回の情報を使う「記憶型制御」や探索動作が重要になります。実機で試しながら調整することで、より安定した走行ができるようになります。</p>
+      <p>実際にロボットを動かしながら学ぶことで、「センサー」と「プログラム制御」の関係を深く理解できます。</p>
     </div>
 
-
   </main>
-
-  
-      <footer>
-      <p>&copy; 2025　愛知工業大学　水野勝教研究室 </p>
-    </footer>
-
-
-    </div> <!-- /.wrapper -->
-
-<script>
-  function toggleMenu() {
-    const sidebar = document.getElementById('sidebar');
-    const menuIcon = document.getElementById('menuIcon');
-    sidebar.classList.toggle('open');
-    menuIcon.classList.toggle('open');
-  }
-
-  document.addEventListener('click', function(e) {
-    const sidebar = document.getElementById('sidebar');
-    const menuIcon = document.getElementById('menuIcon');
-    if (!e.target.closest('.sidebar') && !e.target.closest('.menu-icon') && sidebar.classList.contains('open')) {
-      sidebar.classList.remove('open');
-      menuIcon.classList.remove('open');
-    }
-  });
-</script>
 
 </body>
 </html>
