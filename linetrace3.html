@@ -203,6 +203,15 @@
     #nextButton:hover {
       background-color: #2980b9;
     }
+
+
+        footer {
+      text-align:center;
+      padding:20px;
+      background-color:#ecf0f1;
+      margin-top:20px;
+      border-radius:6px;
+    }
   </style>
 </head>
 <body>
@@ -443,6 +452,32 @@ if __name__ == "__main__":
     </div>
 
   </main>
+
+  
+      <footer>
+      <p>&copy; 2025　愛知工業大学　水野勝教研究室 </p>
+    </footer>
+
+
+    </div> <!-- /.wrapper -->
+
+<script>
+  function toggleMenu() {
+    const sidebar = document.getElementById('sidebar');
+    const menuIcon = document.getElementById('menuIcon');
+    sidebar.classList.toggle('open');
+    menuIcon.classList.toggle('open');
+  }
+
+  document.addEventListener('click', function(e) {
+    const sidebar = document.getElementById('sidebar');
+    const menuIcon = document.getElementById('menuIcon');
+    if (!e.target.closest('.sidebar') && !e.target.closest('.menu-icon') && sidebar.classList.contains('open')) {
+      sidebar.classList.remove('open');
+      menuIcon.classList.remove('open');
+    }
+  });
+</script>
 
 </body>
 </html>
