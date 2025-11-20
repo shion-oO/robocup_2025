@@ -144,6 +144,33 @@
       line-height: 1.8;
     }
 
+    /* トラブルシューティング全体 */
+.trouble-section {
+   display: flex;       /* 子要素を横並びにする */
+  flex-wrap: wrap;     /* 画面幅が狭ければ折り返す */
+  gap: 20px;  
+}
+
+.trouble-box-container {
+  display: flex;       /* 子要素を横並びにする */
+  flex-wrap: wrap;     /* 画面幅が狭ければ折り返す */
+  gap: 20px;           /* ボックス同士の隙間 */
+}
+
+.trouble-box {
+  flex: 1 1 300px;     /* 最小幅300px、余裕があれば横幅拡張 */
+  background: #f7f9fb;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.trouble-box h3 {
+  margin-top: 0;
+  color: #3498db;
+  font-size: 1.2em;
+}
+
   </style>
 </head>
 <body>
@@ -172,12 +199,15 @@
     <div class="code-section">
       <div class="code-box">
         <pre><code># OpenCVライブラリを使用して画像処理を行うためにインポート
+
+# ① 最初の部分（ライブラリの読み込み）
 import cv2
 import numpy as np
 from picamera2 import Picamera2
 from etrobo_python import ETRobo, Motor
 import time
 
+# ② カメラの設定
 cam0 = Picamera2(0)
 cam0.configure(cam0.create_preview_configuration(main={"format": 'XRGB8888', "size": (320, 240)}))
 cam0.start()
@@ -188,8 +218,10 @@ cam1.configure(cam1.create_preview_configuration(main={"format": 'XRGB8888', "si
 cam1.start()
 time.sleep(1)
 
+# ③ 前回の方向を記憶する変数
 last_direction = "CENTER"
 
+# ④ 黒い線を見つける関数（get_direction）
 def get_direction(frame, last_direction):
     hsv = cv2.cvtColor(frame, cv2.COLOR_RGB2HSV)
     lower_black = (0, 0, 0)
@@ -210,6 +242,7 @@ def get_direction(frame, last_direction):
             direction = "CENTER"
     return direction
 
+# ⑤ モーターを動かす関数
 def line_trace_by_camera(right_motor: Motor, left_motor: Motor, **kwargs):
     global last_direction
     try:
@@ -231,6 +264,7 @@ def line_trace_by_camera(right_motor: Motor, left_motor: Motor, **kwargs):
     except Exception as e:
         print("エラー:", e)
 
+# ⑥ メインの部分（ロボットを動かす設定）
 if __name__ == "__main__":
     robo = (ETRobo(backend='raspike_art')
             .add_device('right_motor', device_type=Motor, port='A')
@@ -242,14 +276,145 @@ if __name__ == "__main__":
 
       <div class="desc-box">
         <h3>(プログラムの説明)</h3>
-        <p>このプログラムは、カメラで黒線を認識しながら走行するロボットの制御を行います。</p>
-        <p><b>1️⃣ カメラ設定：</b> 2台のカメラを起動し、映像を取得できるようにします。</p>
-        <p><b>2️⃣ 画像処理：</b> OpenCVで黒線を検出し、重心位置から進行方向（左・右・中央）を判定します。</p>
-        <p><b>3️⃣ モーター制御：</b> 進行方向に応じて左右のモーター出力を調整し、ライン上を走行します。</p>
-        <p><b>4️⃣ 実行部分：</b> ETRoboライブラリを使い、0.05秒ごとに制御関数を呼び出します。</p>
-        <p>これにより、ロボットは黒線を追いかけるように自動で進むことができます。</p>
-      </div>
+        <p>このプログラムは、「カメラで黒い線（ライン）を見つけて、その線に沿ってロボットを走らせる」ものです。Raspberry Pi に接続されたカメラで床の映像を取り込み、画像処理を使って黒い線の位置を調べ、ロボットのモーターを左右で調整しながら進行方向を決めています。</p>
+
+  <h4>① 最初の部分（ライブラリの読み込み）</h4>
+  <p>ここでは、必要な道具（ライブラリ）を使えるようにしています。</p>
+  <ul>
+    <li><b>cv2（OpenCV）</b>：画像を扱うためのライブラリです。色を変えたり、輪郭を見つけたりできます。</li>
+    <li><b>numpy（np）</b>：数の計算を便利にするライブラリです。</li>
+    <li><b>Picamera2</b>：Raspberry Pi に接続したカメラを操作します。</li>
+    <li><b>ETRobo / Motor</b>：ロボットやモーターを制御するためのライブラリです。</li>
+    <li><b>time</b>：少し待つ（スリープ）機能を使うために読み込んでいます。</li>
+  </ul>
+
+  <h4>② カメラの設定</h4>
+  <p>ここでは、2台のカメラを設定しています。</p>
+  <ul>
+    <li><code>Picamera2(0)</code> は1台目のカメラ、<code>Picamera2(1)</code> は2台目のカメラです。</li>
+    <li><code>size=(320, 240)</code> は画面の大きさ（解像度）で、画像処理を速くしています。</li>
+    <li><code>time.sleep(1)</code> は「1秒待つ」という意味で、カメラが安定するまで待っています。</li>
+  </ul>
+  <p>※1台しかカメラを使っていない場合は、<code>cam1</code> の設定部分を削除しても動作します。</p>
+
+  <h4>③ 前回の方向を記憶する変数</h4>
+  <p>前回の進行方向（左・右・中央）を覚えておくための変数です。線を一時的に見失っても、最後の方向を思い出せるようにしています。</p>
+
+  <h4>④ 黒い線を見つける関数（get_direction）</h4>
+  <p>この関数では、カメラで撮った画像から黒い線の位置を見つけて、「線が左にあるか・中央にあるか・右にあるか」を判断しています。</p>
+
+  <ol>
+    <li><b>色の変換：</b> RGBからHSVに変換し、黒い部分を見やすくします。</li>
+    <li><b>黒だけを取り出す：</b> 明るさが0〜80の部分だけを白くし、黒い線だけを抽出します。</li>
+    <li><b>ぼかし処理：</b> <code>cv2.GaussianBlur</code> でノイズを減らして線を滑らかにします。</li>
+    <li><b>画像の下部分だけを見る：</b> 下から40ピクセルを抽出（ROI）して処理速度と精度を上げます。</li>
+    <li><b>輪郭を見つける：</b> <code>cv2.findContours</code> で黒い部分の形を検出します。</li>
+    <li><b>重心を求める：</b> 黒い線の中央座標を計算して、左右どちらにあるか判断します。</li>
+    <li><b>方向の決定：</b> 
+      <ul>
+        <li>中央より左 → "LEFT"</li>
+        <li>中央より右 → "RIGHT"</li>
+        <li>中央付近 → "CENTER"</li>
+      </ul>
+    </li>
+  </ol>
+
+  <h4>⑤ モーターを動かす関数</h4>
+  <p>カメラで得た「方向情報」をもとに、ロボットのモーターを制御します。</p>
+  <ul>
+    <li><b>base_speed：</b> 基本速度（例：まっすぐ＝90、曲がる＝50）。</li>
+    <li><b>diff：</b> 左右のモーターの差で曲がり角度を調整。</li>
+    <li>右に線がある → 左モーターを速くする。左に線がある → 右モーターを速くする。</li>
+  </ul>
+
+  <h4>⑥ メインの部分（ロボットを動かす設定）</h4>
+  <ul>
+    <li><code>add_device</code>：右と左のモーターを登録。</li>
+    <li><code>add_handler</code>：ライン追跡の関数を登録。</li>
+    <li><code>dispatch(interval=0.05)</code>：0.05秒ごとに関数を呼び出して制御。</li>
+  </ul>
+
+  <p>これにより、ロボットはカメラの映像をもとにリアルタイムで黒線を追跡し、自動走行することができます。</p>
+</div>
     </div>
+
+    <main>
+
+<section id="troubleshooting">
+  <h2>📌 よくある問題とヒント</h2>
+
+  <div class="trouble-box-container">
+
+  <!-- ① カメラが起動しない -->
+  <div class="trouble-box">
+    <h3>① 📷 カメラが起動しない</h3>
+    <p>起動時に <code>RuntimeError</code> や <code>Device not found</code> が出る場合…</p>
+    <ul>
+      <li>🔌 ケーブルの接続を再確認</li>
+      <li>🧪 <code>libcamera-hello</code> を実行してカメラ認識テスト</li>
+      <li>🔄 Raspberry Pi を再起動</li>
+    </ul>
+    <p style="color:#16a34a; font-weight:600;">💡 一番多い原因は「ケーブルの向きミス」だよ！</p>
+  </div>
+
+  <!-- ② 2つ目のカメラが映らない -->
+  <div class="trouble-box">
+    <h3>② 🎥 2つ目のカメラが映らない</h3>
+    <p>cam0 と cam1 の割り当てが逆になっている可能性📌</p>
+    <ul>
+      <li>🔁 ケーブル接続位置の左右・上下を再チェック</li>
+      <li>🧭 Picamera2(0) と Picamera2(1) の番号を入れ替えてテスト</li>
+    </ul>
+    <p style="color:#2b7bd3; font-weight:600;">🔍 カメラ順番の確認がポイント！</p>
+  </div>
+
+  <!-- ③ 黒ラインを見失う -->
+  <div class="trouble-box">
+    <h3>③ 🖤 黒ラインを見失う</h3>
+    <ul>
+      <li>💡 環境光が強すぎて黒のコントラストが消えている</li>
+      <li>🎨 黒の HSV (特に V と S) の範囲が厳しすぎる</li>
+    </ul>
+    <p style="color:#16a34a; font-weight:600;">🛠️ <code>upper_black</code> の V を 80 → 90〜120 にすると改善することが多い！</p>
+  </div>
+
+  <!-- ④ ロボットが蛇行する -->
+  <div class="trouble-box">
+    <h3>④ 🌀 ロボットが蛇行する</h3>
+    <p>左右差（<code>diff</code>）の値 55 が強すぎるのが原因かも。</p>
+    <ul>
+      <li>⚙️ <code>diff</code> を 35〜45 に下げてみる</li>
+      <li>🎯 base_speed と diff のバランスも重要</li>
+    </ul>
+    <p style="color:#2b7bd3; font-weight:600;">🚗 安定したライン走行には “適度な差分調整” が大事！</p>
+  </div>
+
+  <!-- ⑤ 進行方向が急に飛ぶ -->
+  <div class="trouble-box">
+    <h3>⑤ ↔️ 進行方向が急に飛ぶ</h3>
+    <p>輪郭ノイズの影響で、cx（重心）が暴れている可能性。</p>
+    <ul>
+      <li>🧹 マスク画像にガウシアンブラーを追加（もう入ってるので値を強くしてもOK）</li>
+      <li>📏 <code>cx</code> 判定閾値（±20）を ±30〜40 に緩める</li>
+    </ul>
+    <p style="color:#16a34a; font-weight:600;">🧠 ノイズに強い “ゆるめ設定” にすると安定する！</p>
+  </div>
+
+  <!-- ⑥ モーターが動かない -->
+  <div class="trouble-box">
+    <h3>⑥ 🔧 モーターが動かない</h3>
+    <p>ポート設定ミス or USB 認識エラーがよくある原因。</p>
+    <ul>
+      <li>🛠️ <code>add_device('right_motor', ..., port='A')</code> のポートを見直す</li>
+      <li>🔌 USB が抜けかけていないかチェック</li>
+      <li>🐍 ETRobo の backend が <code>raspike_art</code> になっているか確認</li>
+    </ul>
+    <p style="color:#2b7bd3; font-weight:600;">💥 ポート違いが “動かない系” の最強原因！</p>
+  </div>
+  </div>
+</section>
+
+</main>
 
         <video controls>
       <source src="jyuugi_aki.mp4" type="video/mp4">
