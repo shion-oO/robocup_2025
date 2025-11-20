@@ -43,7 +43,7 @@
 
     main {
       padding: 40px 20px;
-      max-width: 900px;
+      max-width: 1200px;
       margin: 0 auto;
       background-color: #ffffff;
       border-radius: 10px;
@@ -113,8 +113,13 @@
       margin-bottom:18px;
       box-shadow:0 6px 18px rgba(43,123,211,0.06);
       transition:transform 0.3s;
-      padding:0;
-    }
+        padding: 16px;
+  width: 100%;           /* 幅を親に合わせる */
+  max-width: none;       /* 最大幅制限を解除 */
+  box-sizing: border-box; 
+   width: calc(100% + 40px); /* パディング込みで幅を計算 */
+}
+    
     .section-card:hover {
       transform: translateY(-4px);
     }
