@@ -160,11 +160,11 @@
       display:block;
     }
 
-    .tips-grid {
-      display:grid; 
-      grid-template-columns:repeat(4, 1fr); 
-      gap:12px;
-    }
+        .tips-grid {
+  display: flex;          /* 横並びにする */
+  flex-wrap: wrap;        /* 画面幅に合わせて折り返す */
+  gap: 16px;              /* ボックス間の隙間 */
+}
 
     .card {
       background:#fff; 
@@ -314,7 +314,7 @@
             <li><a href="linetrace2.html">交差点付きライントレース</a></li>
             <li><a href="linetrace3.html">ギャップライントレース</a></li>
             <li><a href="goal.html">ゴールタイル</a></li>
-            <li><a href="speedbump.html">スピードバンプ</a></li>
+            <li><a href="speedbanmp.html">スピードバンプ</a></li>
             <li><a href="syougaibutu.html">障害物</a></li>
             <li><a href="gareki.html">瓦礫</a></li>
             <li><a href="seesaw.html">シーソー</a></li>
