@@ -212,6 +212,12 @@
       border-radius:6px;
     }
 
+                .tips-grid {
+  display: flex;          /* 横並びにする */
+  flex-wrap: wrap;        /* 画面幅に合わせて折り返す */
+  gap: 16px;              /* ボックス間の隙間 */
+}
+
   </style>
 </head>
 <body>
@@ -429,6 +435,29 @@ if __name__ == "__main__":
   <p>これにより、ロボットはカメラの映像をもとにリアルタイムで黒線を追跡し、自動走行することができます。</p>
 </div>
 
+
+<div class="tips-section">
+  <h2>よくある問題と改善のヒント</h2>
+  <div class="tips-grid">
+
+
+
+    <article class="desc-box">
+      <h3>↔️ 左右の旋回が安定しない</h3>
+      <p>・瓦礫通過時に車体が傾き、左右差が出る<br>・モーター出力差（diff）が環境に合っていない<br>・旋回処理や出力差を再調整</p>
+      <p style="color:#2b7bd3; font-weight:600;">🧭 旋回制御とモーター出力差を見直そう！</p>
+    </article>
+
+    <article class="desc-box">
+      <h3>📹 カメラ映像がブレてライン認識が乱れる</h3>
+      <p>・瓦礫で車体やカメラが揺れる<br>・HSV閾値やROI範囲が凸凹走行時に適さない<br>・映像のブレ補正や閾値調整を実施</p>
+      <p style="color:#16a34a; font-weight:600;">⏳ カメラ設定と画像処理を最適化しよう！</p>
+    </article>
+
+  </div>
+</div>
+
+
 <!-- ▼ 学習のやり方セクション ▼ -->
 <div class="learn-section">
   <h2>📘 学習のやり方</h2>
@@ -441,6 +470,9 @@ if __name__ == "__main__":
   </ol>
   <p>実際にロボットを瓦礫の上で動かしながら学ぶことで、「センサー情報」と「安定した走行制御」の関係を深く理解できます。</p>
 </div>
+
+
+
 
 
   </main>

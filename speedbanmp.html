@@ -212,6 +212,13 @@
       border-radius:6px;
     }
 
+            .tips-grid {
+  display: flex;          /* 横並びにする */
+  flex-wrap: wrap;        /* 画面幅に合わせて折り返す */
+  gap: 16px;              /* ボックス間の隙間 */
+}
+
+
   </style>
 </head>
 <body>
@@ -428,6 +435,45 @@ if __name__ == "__main__":
 
   <p>これにより、ロボットはカメラの映像をもとにリアルタイムで黒線を追跡し、自動走行することができます。</p>
 </div>
+
+
+<div class="tips-section">
+  <h2>よくある問題と改善のヒント</h2>
+  <div class="tips-grid">
+
+    <article class="desc-box">
+      <h3>🚧 スピードバンプでロボットが止まる／跳ねる</h3>
+      <p>・段差の高さに対して速度が速すぎる<br>・モーター出力が一律で段差通過が安定しない<br>・加速度センサーや距離センサーで段差を検知して調整</p>
+      <p style="color:#16a34a; font-weight:600;">🌱 通過速度を段差に合わせて調整しよう！</p>
+    </article>
+
+    <article class="desc-box">
+      <h3>🖤 ライン追跡中にバンプで方向がずれる</h3>
+      <p>・段差で車体が傾き、カメラがラインを見失う<br>・前回方向（<code>last_direction</code>）の補正が弱い<br>・段差通過時に方向維持用の処理を追加</p>
+      <p style="color:#2b7bd3; font-weight:600;">⚙️ 前回方向や慣性を活かして補正しよう！</p>
+    </article>
+
+    <article class="desc-box">
+      <h3>⏱️ 減速／加速タイミングが合わない</h3>
+      <p>・バンプ前に減速しすぎて進まない<br>・バンプ後に加速しすぎてラインを外す<br>・速度調整用のパラメータを環境に合わせて微調整</p>
+      <p style="color:#16a34a; font-weight:600;">🎨 減速・加速タイミングを調整しよう！</p>
+    </article>
+
+    <article class="desc-box">
+      <h3>↔️ 左右の旋回が安定しない</h3>
+      <p>・段差通過時に車体が傾き左右差が出る<br>・モーター出力差（diff）が環境に合っていない<br>・旋回処理や出力差を再調整</p>
+      <p style="color:#2b7bd3; font-weight:600;">🧭 旋回制御とモーター出力差を見直そう！</p>
+    </article>
+
+    <article class="desc-box">
+      <h3>📹 カメラ映像がブレてライン認識が乱れる</h3>
+      <p>・段差でカメラが揺れる<br>・HSV閾値やROI範囲が段差通過時に適さない<br>・映像のブレ補正や閾値調整を実施</p>
+      <p style="color:#16a34a; font-weight:600;">⏳ カメラ設定と画像処理を最適化しよう！</p>
+    </article>
+
+  </div>
+</div>
+
 
 <!-- ▼ 学習のやり方セクション ▼ -->
 <div class="learn-section">
