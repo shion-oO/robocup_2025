@@ -4,6 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ロボカップジュニアについて</title>
+
+
+
+
+
+
+  
   <style>
     /* ベース */
     :root { --sidebar-width: 250px; }
@@ -44,47 +51,92 @@
     .menu-icon.open div:nth-child(2) { opacity: 0; }
     .menu-icon.open div:nth-child(3) { transform: translateY(-10px) rotate(-45deg); }
 
-    /* サイドバー */
     .sidebar {
       position: fixed;
       top: 0;
       left: -250px;
-      width: var(--sidebar-width);
+      width: 250px;
       height: 100%;
-      background-color: #ffffff;
+      background-color: rgba(255, 255, 255, 0.9);
+      box-shadow: 4px 0 12px rgba(0, 0, 0, 0.1);
       padding: 20px;
-      box-shadow: 4px 0 12px rgba(0,0,0,0.1);
-      transition: left 0.28s ease-in-out;
-      z-index: 1500;
-      overflow-y: auto;
+      transition: left 0.3s ease-in-out;
+      z-index: 999;
     }
-    .sidebar.open { left: 0; }
-    .sidebar ul { list-style: none; padding: 0; margin: 0; margin-top: 10px; }
-    .sidebar li { margin-bottom: 12px; }
-    details summary {
-      cursor: pointer;
-      padding: 6px 0;
-      font-weight: bold;
-      border-bottom: 1px solid #ddd;
-      color: #2c3e50;
-      list-style: none;
-    }
-    details ul { padding-left: 15px; margin-top: 6px; }
-    .sidebar a {
-      color: #2c3e50;
-      text-decoration: none;
-      font-weight: bold;
-      display: block;
-      padding: 6px 0;
-    }
-    .sidebar a:hover { color: #3498db; }
 
-    /* メイン領域 */
-    .main-container {
-      transition: margin-left 0.28s ease-in-out;
-      margin-left: 0;
-      padding: 24px;
+    .sidebar.open {
+      left: 0;
     }
+
+    /* サイドバー折りたたみサブメニュー */
+    #rule-submenu {
+      list-style-type: none;
+      padding-left: 15px;
+      margin-top: 5px;
+    }
+
+    #rule-submenu li {
+      margin-bottom: 10px;
+    }
+
+    #rule-submenu li a {
+      font-weight: bold;
+      font-size: 1.1em;
+      color: #2c3e50;
+    }
+
+    #rule-submenu li a:hover {
+      color: #3498db;
+      transform: none;
+    }
+
+    /* 折りたたみ全体 */
+details {
+  margin-bottom: 10px;
+}
+
+/* 折りたたみタイトル（はじめに／ルール／実践） */
+summary {
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 18px; /* ← 文字サイズをルールタイトルと同じに */
+  color: #333;
+  padding: 6px 0;
+  list-style: none; /* デフォルトの▼マークを消す */
+  border-bottom: 1px solid #ddd;
+}
+
+/* summaryの横に自作の▽アイコンを追加 */
+summary::after {
+  content: " ▽";
+  font-weight: normal;
+}
+
+/* 開いている時は▽を▲に変更 */
+details[open] summary::after {
+  content: " ▲";
+}
+
+/* サブメニューのリンク */
+details ul {
+  margin-left: 20px;
+  list-style: none;
+  padding-left: 0;
+}
+
+details ul li {
+  margin: 4px 0;
+}
+
+details ul li a {
+  text-decoration: none;
+  color: #333;
+  font-size: 16px;
+}
+
+details ul li a:hover {
+  text-decoration: underline;
+}
 
     /* ページ本体 */
     header {
@@ -189,6 +241,38 @@
       background-color: #2980b9;
     }
   </style>
+
+
+<script>
+    function toggleMenu() {
+      const sidebar = document.getElementById('sidebar');
+      const menuIcon = document.querySelector('.menu-icon');
+      sidebar.classList.toggle('open');
+      menuIcon.classList.toggle('open');
+    }
+
+    function toggleRuleMenu(event) {
+      event.preventDefault();
+      const submenu = document.getElementById('rule-submenu');
+      submenu.style.display = submenu.style.display === 'block' ? 'none' : 'block';
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const title = "ロボカップジュニア レスキューライン入門";
+      let i = 0;
+      function typeWriter() {
+        if (i < title.length) {
+          document.getElementById("main-title").textContent += title.charAt(i);
+          i++;
+          setTimeout(typeWriter, 100);
+        }
+      }
+      typeWriter();
+    });
+    </script>
+
+
+
 </head>
 <body>
 
