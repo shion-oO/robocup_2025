@@ -68,6 +68,7 @@
     }
 
     h2 {
+      display: block;
       color: #3498db;
       border-bottom: 2px solid #3498db;
       padding-bottom: 5px;
@@ -485,24 +486,25 @@ def trace_and_turn_on_green(right_motor: Motor, left_motor: Motor,
     </article>
 
   </div>
-</div>
 
 
-        <video controls>
+
+<video controls>
       <source src="midori_tyokusin.mp4" type="video/mp4">
       お使いのブラウザは動画再生に対応していません。
     </video>
     <div class="caption">
       <p>ロボットが緑の交差点を検知し、進行方向を判断して走行する様子を撮影した動画です。
       <br>下のコードでは、交差点付きライントレースの基本的な処理の流れを示しています。
-      <br>また、走行を安定させるための具体的な改善ヒントもまとめていますので、ぜひ参考にしてください。</p></div>
+      <br>また、走行を安定させるための具体的な改善ヒントもまとめていますので、ぜひ参考にしてください。
+      <br>　</p>
+    </div>
 
-      <h2>midori_tyokusin.py</h2>
+    <h2>midori_tyokusin.py</h2>
     <div class="code-section">
       <div class="code-box">
         <pre><code>
 # ① ライブラリと変数の準備
-import cv2
 import numpy as np
 from etrobo_python import ETRobo, Motor, ColorSensor
 import time
@@ -771,17 +773,16 @@ def trace_with_green_turn(right_motor: Motor, left_motor: Motor,
     </article>
 
   </div>
-</div>
+
 
         <video controls>
       <source src="midori_u.mp4" type="video/mp4">
       お使いのブラウザは動画再生に対応していません。
     </video>
     <div class="caption">
-       <p>ロボットが行き止まりを検知し、Uターンをする様子を撮影した動画です。
+      <p>ロボットが行き止まりを検知し、Uターンをする様子を撮影した動画です。
       <br>下のコードでは、交差点付きライントレースの基本的な処理の流れを示しています。
       <br>また、走行を安定させるための具体的な改善ヒントもまとめていますので、ぜひ参考にしてください。</p>
-    </div>
     </div>
 
 
@@ -1084,7 +1085,6 @@ def trace_with_green_turn(right_motor: Motor, left_motor: Motor,
     </article>
 
   </div>
-</div>
 
 
 
@@ -1096,7 +1096,6 @@ def trace_with_green_turn(right_motor: Motor, left_motor: Motor,
       <p>ロボットが緑の交差点を検知し、左折する様子を撮影した動画です。
       <br>下のコードでは、交差点付きライントレースの基本的な処理の流れを示しています。
       <br>また、走行を安定させるための具体的な改善ヒントもまとめていますので、ぜひ参考にしてください。</p>
-    </div>
     </div>
 
 
