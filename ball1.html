@@ -292,20 +292,172 @@
           </p>
 
           <h3>② YOLOでAIを学習</h3>
-          <p>
-            アノテーション済みデータを使用して、<strong>Google Colabで物体検出AI「YOLO（You Only Look Once）」</strong>を使い学習を行いました🤖  
-            YOLOはリアルタイムで物体を検出できるモデルで、ロボット制御との相性も抜群です。  
-            学習後のAIモデルは、カメラ映像から黒いボールを正確に認識できるようになりました。
-          </p>
+<p>
+  アノテーション済みデータを使用して、<strong>Google Colabで物体検出AI「YOLO（You Only Look Once）」</strong>を使い学習を行いました🤖  
+  YOLOはリアルタイムで物体を検出できるモデルで、ロボット制御との相性も抜群です。  
+  学習後のAIモデルは、カメラ映像から黒いボールを正確に認識できるようになりました。
+</p>
 
-          <iframe src="https://drive.google.com/file/d/1laD28RK1OBnztoM8cO07mM_jTH5LzrKh/preview" width="640" height="360" allow="autoplay"></iframe>
+<iframe src="https://drive.google.com/file/d/1laD28RK1OBnztoM8cO07mM_jTH5LzrKh/preview" width="640" height="360" allow="autoplay"></iframe>
+
+<!-- ⚙️ Google Colab 手順（コード全文） -->
+<div class="section-card">
+  <div class="card-head">⚙️ Google Colab での学習手順（使用コードそのまま掲載）</div>
+  <div class="card-body">
+    以下は実際に学習に使用した Google Colab の全コードです。<br>
+    <strong>順番も内容も完全にそのまま掲載しています。</strong><br><br>
+
+    <pre><code># 実行前に、ランタイム▶︎ランタイムのタイプを変更▶︎T4 GPUを選択
+# 実行テスト画像はあらかじめ入れておく
+
+# Ultralytics YOLOインストール
+!pip install ultralytics -U
+
+# Pythonでのインポート
+from ultralytics import YOLO
+import matplotlib.pyplot as plt
+from google.colab import files
+import zipfile
+import os
+
+# robot-anotetion.zip をアップロード
+uploaded = files.upload()
+
+# ZIP展開
+for fn in uploaded.keys():
+    with zipfile.ZipFile(fn, 'r') as zip_ref:
+        zip_ref.extractall('./')
+
+!ls robot-anotetion  # images labels classes.txt notes.json
+
+import os
+import shutil
+from sklearn.model_selection import train_test_split
+
+# 元フォルダ
+images_dir = "robot-anotetion/images"
+labels_dir = "robot-anotetion/labels"
+
+# 保存用フォルダ作成
+os.makedirs("robot-anotetion/train/images", exist_ok=True)
+os.makedirs("robot-anotetion/train/labels", exist_ok=True)
+os.makedirs("robot-anotetion/val/images", exist_ok=True)
+os.makedirs("robot-anotetion/val/labels", exist_ok=True)
+
+# 画像ファイル一覧
+all_images = [f for f in os.listdir(images_dir) if f.endswith(('.jpg', '.png'))]
+
+# train/val 分割（例: 80% train, 20% val）
+train_imgs, val_imgs = train_test_split(all_images, test_size=0.2, random_state=42)
+
+# ファイルをコピーする関数
+def copy_files(file_list, dest_images_dir, dest_labels_dir):
+    for img_file in file_list:
+        # 画像
+        shutil.copy(os.path.join(images_dir, img_file), os.path.join(dest_images_dir, img_file))
+
+        # ラベル
+        label_file = img_file.rsplit('.', 1)[0] + ".txt"
+        shutil.copy(os.path.join(labels_dir, label_file), os.path.join(dest_labels_dir, label_file))
+
+copy_files(train_imgs, "robot-anotetion/train/images", "robot-anotetion/train/labels")
+copy_files(val_imgs, "robot-anotetion/val/images", "robot-anotetion/val/labels")
+
+# classes.txt を読み込んで data.yaml を作成
+with open("robot-anotetion/classes.txt") as f:
+    classes = [c.strip() for c in f.readlines()]
+
+data_yaml = {
+    'train': 'robot-anotetion/train/images',
+    'val': 'robot-anotetion/val/images',
+    'nc': len(classes),
+    'names': classes
+}
+
+import yaml
+with open("robot-anotetion/data.yaml", "w") as f:
+    yaml.dump(data_yaml, f)
+
+print("train/val 分割 & data.yaml 作成完了")
+
+# data.yaml を作る
+data_yaml = """
+train: train
+val: val
+nc: 2
+names: ['black_ball', 'silver_ball']
+"""
+
+# robot-anotetion フォルダに保存
+with open("/content/robot-anotetion/data.yaml", "w") as f:
+    f.write(data_yaml)
+
+%cd /content/robot-anotetion
+
+from ultralytics import YOLO
+
+model = YOLO("yolov8n.pt")
+
+results = model.train(
+    data="data.yaml",
+    epochs=50,
+    imgsz=640,
+    device=0  # GPU
+)
+
+from ultralytics import YOLO
+import matplotlib.pyplot as plt
+
+# 学習済みモデル読み込み
+model = YOLO("runs/detect/train/weights/best.pt")
+
+# 推論
+results = model.predict(source="/content/balltest2.jpg", conf=0.5, save=True)
+
+# ndarray を取得して表示
+img = results[0].plot()  # プロット済みの画像（ndarray）
+
+plt.imshow(img)
+plt.axis('off')
+plt.show()</code></pre>
+  </div>
+</div>
+
 
           <h3>③ モデルをラズパイへ転送</h3>
-          <p>
-            学習が完了したAIモデルは、Google Colab内で量子化し、軽量化を行った上でRaspberry Piに転送しました💻  
-            ラズパイ側のPythonプログラムでモデルを読み込み、カメラ映像を解析して黒いボールをリアルタイムで検出します。  
-            ボールを見つけるとロボットは自動的に「救出モード」に切り替わり、<strong>アームでボールをすくい上げて壁方向へ運ぶ</strong>動作を行います。
-          </p>
+<p>
+  学習が完了したAIモデルは、Google Colab内で量子化し、軽量化を行った上でRaspberry Piに転送しました💻  
+  ラズパイ側のPythonプログラムでモデルを読み込み、カメラ映像を解析して黒いボールをリアルタイムで検出します。  
+  ボールを見つけるとロボットは自動的に「救出モード」に切り替わり、
+  <strong>アームでボールをすくい上げて壁方向へ運ぶ</strong>動作を行います。
+</p>
+
+<!-- 🔧 量子化（INT8） -->
+<div class="section-card">
+  <div class="card-head">🔧 量子化（INT8 Quantization）</div>
+  <div class="card-body">
+    ・学習済みモデルを読み込んで INT8 量子化した TFLite に変換するコマンド。<br><br>
+    <strong>📌 Google Colab コード</strong><br>
+    <pre><code>from ultralytics import YOLO
+
+# 学習済みモデルを読み込み
+model = YOLO("runs/detect/train/weights/best.pt")
+
+# TFLite (INT8量子化) でエクスポート
+model.export(format="tflite", int8=True)</code></pre>
+  </div>
+</div>
+
+<!-- 📦 モデル軽量化（サイズ確認） -->
+<div class="section-card">
+  <div class="card-head">📦 モデル軽量化（Model Size Check）</div>
+  <div class="card-body">
+    ・エクスポートしたモデルのサイズを確認するコマンド。<br><br>
+    <strong>📌 Google Colab コード</strong><br>
+    <pre><code>!ls -lh /content/robot-anotetion/runs/detect/train/weights/best_saved_model/</code></pre>
+  </div>
+</div>
+
 
           <h3>④ 救助ゾーンでの活用</h3>
           <p>
