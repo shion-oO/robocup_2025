@@ -25,11 +25,13 @@
       font-size: 2em;
     }
 
-    nav {
+        nav {
       background-color: #ecf0f1;
       padding: 10px 20px;
-      text-align: center;
+      margin-top: 14px;
+      border-radius: 6px;
     }
+
 
     nav a {
       color: #3498db;
@@ -195,25 +197,147 @@
   transform: translateX(0);
 }
 
-/* ハンバーガー位置調整 */
 .menu-icon {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  z-index: 1100;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-.menu-icon div {
-  width: 30px;
-  height: 4px;
-  background-color: #e3f2fd;
-  border-radius: 2px;
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      cursor: pointer;
+      z-index: 2000;
+      width: 30px;
+      height: 25px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .menu-icon div {
+      height: 4px;
+      background-color: #2c3e50;
+      border-radius: 5px;
+      transition: 0.3s ease;
+    }
+    .menu-icon.open div:nth-child(1) { transform: translateY(10px) rotate(45deg); }
+    .menu-icon.open div:nth-child(2) { opacity: 0; }
+    .menu-icon.open div:nth-child(3) { transform: translateY(-10px) rotate(-45deg); }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: -300px;
+      width: 250px;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.9);
+      box-shadow: 4px 0 12px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      transition: left 0.3s ease-in-out;
+      z-index: 999;
+    }
+
+    .sidebar.open {
+      left: 0;
+    }
+
+    /* サイドバー折りたたみサブメニュー */
+    #rule-submenu {
+      list-style-type: none;
+      padding-left: 15px;
+      margin-top: 5px;
+    }
+
+    #rule-submenu li {
+      margin-bottom: 10px;
+    }
+
+    #rule-submenu li a {
+      font-weight: bold;
+      font-size: 1.1em;
+      color: #2c3e50;
+    }
+
+    #rule-submenu li a:hover {
+      color: #3498db;
+      transform: none;
+    }
+
+    /* 折りたたみ全体 */
+details {
+  margin-bottom: 10px;
 }
 
+/* 折りたたみタイトル（はじめに／ルール／実践） */
+summary {
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 18px; /* ← 文字サイズをルールタイトルと同じに */
+  color: #333;
+  padding: 6px 0;
+  list-style: none; /* デフォルトの▼マークを消す */
+  border-bottom: 1px solid #ddd;
+}
+
+/* summaryの横に自作の▽アイコンを追加 */
+summary::after {
+  content: " ▽";
+  font-weight: normal;
+}
+
+/* 開いている時は▽を▲に変更 */
+details[open] summary::after {
+  content: " ▲";
+}
+
+/* サブメニューのリンク */
+details ul {
+  margin-left: 20px;
+  list-style: none;
+  padding-left: 0;
+}
+
+details ul li {
+  margin: 4px 0;
+}
+
+details ul li a {
+  text-decoration: none;
+  color: #333;
+  font-size: 16px;
+}
+
+details ul li a:hover {
+  text-decoration: underline;
+}
+
+
+
   </style>
+
+<script>
+    function toggleMenu() {
+      const sidebar = document.getElementById('sidebar');
+      const menuIcon = document.querySelector('.menu-icon');
+      sidebar.classList.toggle('open');
+      menuIcon.classList.toggle('open');
+    }
+
+    function toggleRuleMenu(event) {
+      event.preventDefault();
+      const submenu = document.getElementById('rule-submenu');
+      submenu.style.display = submenu.style.display === 'block' ? 'none' : 'block';
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const title = "ロボカップジュニア レスキューライン入門";
+      let i = 0;
+      function typeWriter() {
+        if (i < title.length) {
+          document.getElementById("main-title").textContent += title.charAt(i);
+          i++;
+          setTimeout(typeWriter, 100);
+        }
+      }
+      typeWriter();
+    });
+    </script>
+
 </head>
 <body>
 
